@@ -57,10 +57,10 @@ to choose            ;; choice of turtles between two options
     let alternative one-of patches with [not any? turtles-here]     ;; from original Schelling: the alternative is an empty cell
       ifelse shape = "square"                                       ;; the individual choice differs according to the value-orientation and composition of neighborhood
      [ifelse color = 105                                            ;; agents choose and move to the alternative if its payoff (beta of agent * utility option) is higher than current location
-       [if random 100 < (([utility-blue] of alternative - [utility-blue] of patch-here) * 100) [if random 100 < (beta-ethnic * 100) [move-to alternative]]]
-       [if random 100 < (([utility-orange] of alternative - [utility-orange] of patch-here) * 100) [if random 100 < (beta-ethnic * 100) [move-to alternative]]]
+    [if random 100 < ((([utility-blue] of alternative - [utility-blue] of patch-here) * beta-ethnic) * 100) [move-to alternative]]
+    [if random 100 < ((([utility-orange] of alternative - [utility-orange] of patch-here) * beta-ethnic) * 100) [move-to alternative]]
      ][
-      if random 100 < (([utility-tolerant] of alternative - [utility-tolerant] of patch-here) * 100) [if random 100 < (beta-value * 100) [move-to alternative]]
+      if random 100 < ((([utility-tolerant] of alternative - [utility-tolerant] of patch-here) * beta-value) * 100) [move-to alternative]
     ]
   ]
 end
