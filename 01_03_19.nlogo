@@ -19,12 +19,12 @@ to  setup
  ask patches [ if random 100 < density [sprout 1
     [ ifelse random 100 < fraction_majority [
       set color 105
-      set beta-ethnic random beta-et-blue
-      set beta-value  random beta-va-blue
+      set beta-ethnic  beta-et-blue
+      set beta-value   beta-va-blue
       ][
       set color 27
-      set beta-ethnic random beta-et-org
-      set beta-value random beta-va-org
+      set beta-ethnic  beta-et-org
+      set beta-value  beta-va-org
       ]
       ifelse random 100 < fraction_tolerant [set shape "circle"][set shape "square"]
  ]
