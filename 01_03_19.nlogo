@@ -36,38 +36,49 @@ to go
 end
 
 to update-turtles
- ask   turtles [
-
+ ask  turtles [
+ ; set size 0.6
     let neighs (patch-set  patches with [not any? turtles-here and any? turtles-on neighbors] patch-here)
     let option one-of neighs
     let beta-ethnic-myself beta-ethnic
     let beta-value-myself beta-value
-    let shape-circle shape = "circle"
+    let shape-myself shape
     let color-myself color
     let r random-float 1.00
     let q 0
 
     ask neighs [
+      ifelse shape-myself = "circle" [
+     ;   set pcolor yellow
      set  utility  (((count (turtles-on neighbors)  with [color = color-myself] / count turtles-on neighbors) * beta-ethnic-myself) +
-     ((count (turtles-on neighbors)  with [shape = "circle"] / count turtles-on neighbors) * beta-value-myself))
+          ((count (turtles-on neighbors)  with [shape = shape-myself] / count turtles-on neighbors) * beta-value-myself))
+      ]
+        [
+      ;  set pcolor pink
+     set  utility  (((count (turtles-on neighbors)  with [color = color-myself] / count turtles-on neighbors) * beta-ethnic-myself) +
+          ((count (turtles-on neighbors)  with [shape != shape-myself] / count turtles-on neighbors) * beta-value-myself))
+      ]
+
+
+
      set expa exp utility
      set prob ([expa] of self / (sum [expa] of neighs))
     ]
 
-    foreach sort [option] of neighs [
-        the-option -> ask the-option [
-        set q q + prob]
-     if q > r [move-to option]
-    ]
+   foreach sort [option] of neighs [
+       the-option -> ask the-option [
+       set q q + prob]
+    if q > r [move-to option]
+   ]
 
  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-268
-10
-647
-390
+402
+18
+781
+398
 -1
 -1
 11.242424242424242
@@ -148,7 +159,7 @@ fraction_tolerant
 fraction_tolerant
 0
 100
-71.0
+50.0
 1
 1
 NIL
