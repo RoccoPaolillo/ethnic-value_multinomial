@@ -15,15 +15,34 @@ to  setup
     [ ifelse random 100 < fraction_majority [
       set color 105
 
-      set beta-value   beta-va-blue
-      set beta-ethnic  beta-et-blue
+   ;   set beta-value   beta-va-blue
+     ; set beta-ethnic  beta-et-blue
       ][
       set color 27
 
-      set beta-value beta-va-org
-      set beta-ethnic  beta-et-org
+    ;  set beta-value beta-va-org
+    ;  set beta-ethnic  beta-et-org
       ]
       ifelse random 100 < fraction_tolerant [set shape "circle"][set shape "square"]
+
+      ifelse color = 105 [
+        ifelse shape = "square" [
+          set beta-value beta-va-sq-bl
+          set beta-ethnic beta-et-sq-bl
+        ][
+          set beta-value beta-va-cr-bl
+          set beta-ethnic beta-et-cr-bl
+        ]
+      ][
+      ifelse shape = "square" [
+          set beta-value beta-va-sq-or
+          set beta-ethnic beta-et-sq-or
+        ][
+          set beta-value beta-va-cl-or
+          set beta-ethnic beta-et-cl-or
+        ]
+      ]
+
  ]
   ]
   ]
@@ -36,38 +55,49 @@ to go
 end
 
 to update-turtles
- ask   turtles [
-
+ ask turtles [
+  ; set size 0.6
     let neighs (patch-set  patches with [not any? turtles-here and any? turtles-on neighbors] patch-here)
     let option one-of neighs
     let beta-ethnic-myself beta-ethnic
     let beta-value-myself beta-value
-    let shape-circle shape = "circle"
+    let shape-myself shape
     let color-myself color
     let r random-float 1.00
     let q 0
 
     ask neighs [
+      ifelse shape-myself = "circle" [
+      ;  set pcolor yellow
      set  utility  (((count (turtles-on neighbors)  with [color = color-myself] / count turtles-on neighbors) * beta-ethnic-myself) +
-     ((count (turtles-on neighbors)  with [shape = "circle"] / count turtles-on neighbors) * beta-value-myself))
+          ((count (turtles-on neighbors)  with [shape = shape-myself] / count turtles-on neighbors) * beta-value-myself))
+      ]
+        [
+      ;  set pcolor pink
+     set  utility  (((count (turtles-on neighbors)  with [color = color-myself] / count turtles-on neighbors) * beta-ethnic-myself) +
+          ((count (turtles-on neighbors)  with [shape != shape-myself] / count turtles-on neighbors) * beta-value-myself))
+      ]
+
+
+
      set expa exp utility
      set prob ([expa] of self / (sum [expa] of neighs))
     ]
 
-    foreach sort [option] of neighs [
-        the-option -> ask the-option [
-        set q q + prob]
-     if q > r [move-to option]
-    ]
+   foreach sort [option] of neighs [
+       the-option -> ask the-option [
+       set q q + prob]
+    if q > r [move-to option]
+   ]
 
  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-268
-10
-647
-390
+402
+18
+781
+398
 -1
 -1
 11.242424242424242
@@ -148,19 +178,19 @@ fraction_tolerant
 fraction_tolerant
 0
 100
-71.0
+59.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-13
-257
-185
-290
-beta-et-blue
-beta-et-blue
+1160
+173
+1332
+206
+beta-et-blueQ
+beta-et-blueQ
 0
 100
 0.0
@@ -170,27 +200,27 @@ NIL
 HORIZONTAL
 
 SLIDER
-16
-344
-188
-377
-beta-et-org
-beta-et-org
+1163
+260
+1335
+293
+beta-et-orgQ
+beta-et-orgQ
 0
 100
-0.0
+1.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-14
-292
-186
-325
-beta-va-blue
-beta-va-blue
+1161
+208
+1333
+241
+beta-va-blueQ
+beta-va-blueQ
 0
 100
 100.0
@@ -200,12 +230,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-16
-381
-188
-414
-beta-va-org
-beta-va-org
+1163
+297
+1335
+330
+beta-va-orgQ
+beta-va-orgQ
 0
 100
 100.0
@@ -257,6 +287,186 @@ false
 PENS
 "ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1]"
 "pen-2" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = \"circle\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\"]"
+
+SLIDER
+193
+279
+365
+312
+beta-va-sq-bl
+beta-va-sq-bl
+0
+100
+1.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+194
+312
+366
+345
+beta-et-sq-bl
+beta-et-sq-bl
+0
+100
+0.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+195
+345
+367
+378
+beta-va-cr-bl
+beta-va-cr-bl
+0
+100
+0.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+194
+379
+366
+412
+beta-et-cr-bl
+beta-et-cr-bl
+0
+100
+100.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+195
+414
+367
+447
+beta-va-sq-or
+beta-va-sq-or
+0
+100
+0.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+197
+450
+369
+483
+beta-et-sq-or
+beta-et-sq-or
+0
+100
+4.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+198
+484
+370
+517
+beta-va-cl-or
+beta-va-cl-or
+0
+100
+0.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+196
+519
+368
+552
+beta-et-cl-or
+beta-et-cl-or
+0
+100
+100.0
+1
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+38
+306
+72
+324
+BLUE
+11
+0.0
+1
+
+TEXTBOX
+29
+437
+81
+455
+ORANGE
+11
+0.0
+1
+
+TEXTBOX
+133
+294
+180
+312
+SQUARE
+11
+0.0
+1
+
+TEXTBOX
+116
+344
+156
+362
+CIRCLE
+11
+0.0
+1
+
+TEXTBOX
+124
+442
+170
+460
+SQUARE
+11
+0.0
+1
+
+TEXTBOX
+129
+501
+168
+519
+CIRCLE
+11
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
