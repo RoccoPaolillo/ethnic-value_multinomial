@@ -7,18 +7,24 @@ patches-own [
 turtles-own [
   beta-value
   beta-ethnic
+  move
 ]
 
 to  setup
  clear-all
  ask patches [ if random 100 < density [sprout 1[
-    ifelse random 100 < fraction_majority [
-      set color 105][
-      set color 27]
-    ifelse random 100 < fraction_tolerant [
-      set shape "circle"][
-      set shape "square"]
-    attribute-beta
+    ifelse random 100 < fraction_majority [        ;; ratio blue/orange is drawn (relative ethnic group size)
+      set color 105
+      ifelse random 100 < tolerant_majority [      ;; ratio value-oriented / ethnicity-oriented is drawn for majority group blue (relative value group size)
+        set shape "circle"]
+        [set shape "square"]
+    ][
+      set color 27
+    ifelse random 100 < tolerant_minority [       ;; ratio value-oriented / ethnicity-oriented is drawn for minority group orange (relative value group size)
+        set shape "circle"]
+        [set shape "square"]
+    ]
+    attribute-beta   ;; to attribute beta in the initialization (can be updated)
     ]
     ]
   ]
@@ -30,25 +36,25 @@ to go
  tick
 end
 
-to update-turtles
- ask turtles [
-    attribute-beta
-    let neighs (patch-set  patches with [not any? turtles-here and any? turtles-on neighbors] patch-here)
-    let option one-of neighs
-    let beta-ethnic-myself beta-ethnic
-    let beta-value-myself beta-value
+to update-turtles                    ;; action of agents is acted locally, so that the evaluation of the neighborhood is assessed through the beta of the single agent called at each run
+ ask turtles [                       ;; due to NetLogo language, as written here each agent runs the entire command, the next is then called
+    attribute-beta                   ;; each agent evaluates possible alternatives (including patch-here) and decides where to relocate
+    let neighs (patch-set  patches with [not any? turtles-here and any? turtles-on neighbors] patch-here)   ;; an array of all possible alternatives (patch-here and empty patches at each step) is calculated
+    let option one-of neighs                                                            ;; which represent the discrete alternatives the agent can choose from. As in local variable and called by individual
+    let beta-ethnic-myself beta-ethnic                                                  ;; agent at each run, the values and scopes of variables relate to that individual agents (its beta-ethnic and beta-value).
+    let beta-value-myself beta-value                                                    ;; Once it has moved (or not), it will change the composition of the neighborhoods and vacant places for other agents.
     let shape-myself shape
     let color-myself color
     let r random-float 1.00
     let q 0
 
-    ask neighs [
-      ifelse shape-myself = "circle" [
-        set  utility  (((count (turtles-on neighbors)  with [color = color-myself] / count turtles-on neighbors) * beta-ethnic-myself) +
-          ((count (turtles-on neighbors)  with [shape = shape-myself] / count turtles-on neighbors) * beta-value-myself))
-      ][
-        set  utility  (((count (turtles-on neighbors)  with [color = color-myself] / count turtles-on neighbors) * beta-ethnic-myself) +
-          ((count (turtles-on neighbors)  with [shape != shape-myself] / count turtles-on neighbors) * beta-value-myself))
+    ask neighs [                                                                                                                             ;; utility of each alternative = composition * individual beta
+      ifelse shape-myself = "circle" [                                                                                                       ;; since value-orientation is a cross-category, and tolerant
+        set  utility  (((count (turtles-on neighbors)  with [color = color-myself] / count turtles-on neighbors) * beta-ethnic-myself) +     ;; neighborhoods are those where circle (tolerant) agents relocate,
+          ((count (turtles-on neighbors)  with [shape = shape-myself] / count turtles-on neighbors) * beta-value-myself))                    ;; the assessment of value-orientation of neighborhood is different if
+      ][                                                                                                                                     ;; the caller agent is square ethnicity-oriented (!= shape (of myself))
+        set  utility  (((count (turtles-on neighbors)  with [color = color-myself] / count turtles-on neighbors) * beta-ethnic-myself) +     ;; or circle value-oriented (= shape (of myself)).
+          ((count (turtles-on neighbors)  with [shape != shape-myself] / count turtles-on neighbors) * beta-value-myself))                   ;; For ethnic composition it's the color of caller (= color (of myself))
       ]
       set expa exp utility
       set prob ([expa] of self / (sum [expa] of neighs))
@@ -57,15 +63,15 @@ to update-turtles
     foreach sort [option] of neighs [
       the-option -> ask the-option [
         set q q + prob]
-      if q > r [move-to option]
+      ifelse q > r [move-to option set move 1][set move 0]
     ]
   ]
 end
 
-to attribute-beta
-  if beta-attributed-by = "value-orientation"[
+to attribute-beta                                        ;; each agent is given a beta for the composition of neighborhood according to its characteristics.
+  if beta-attributed-by = "value-orientation"[           ;; Beta are beta-ethnic for ethnic composition (agents with same color) - Beta-value for value composition (agents with circle color)
     ifelse shape = "circle" [
-      set beta-value value-circle
+      set beta-value value-circle                        ;; here beta is attributed according to valeu-orientation, regardless of ethnicity
       set beta-ethnic ethnic-circle
     ][
       set beta-value value-square
@@ -73,7 +79,7 @@ to attribute-beta
     ]
   ]
 
-  if beta-attributed-by = "sub-group" [
+  if beta-attributed-by = "sub-group" [                 ;; here beta is attributed according to specific subgroups due to ethnicityXvalue-orientation
     ifelse color = 105 [
       ifelse shape = "square" [
         set beta-value value-square-blue
@@ -95,10 +101,10 @@ to attribute-beta
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-402
-18
-781
-398
+369
+10
+748
+390
 -1
 -1
 11.242424242424242
@@ -122,10 +128,10 @@ ticks
 30.0
 
 BUTTON
-521
-424
-584
-457
+493
+414
+556
+447
 setup
 setup
 NIL
@@ -139,12 +145,12 @@ NIL
 1
 
 BUTTON
-598
-423
-653
-456
+568
+413
+623
+446
 go
-go
+go\n
 T
 1
 T
@@ -172,14 +178,14 @@ HORIZONTAL
 
 SLIDER
 110
-84
+89
 282
-117
-fraction_tolerant
-fraction_tolerant
-0
+122
+tolerant_majority
+tolerant_majority
+50
 100
-50.0
+100.0
 1
 1
 NIL
@@ -201,11 +207,11 @@ NIL
 HORIZONTAL
 
 PLOT
-823
-21
-1023
-171
-plot 1
+824
+10
+1121
+160
+all agents
 NIL
 NIL
 0.0
@@ -213,11 +219,12 @@ NIL
 0.0
 1.0
 true
-false
+true
 "" ""
 PENS
 "ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1]"
-"pen-2" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = \"circle\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\"]"
+"value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1]"
+"moving" 1.0 0 -16777216 true "" "plot count turtles with [move = 1] / count turtles"
 
 SLIDER
 66
@@ -228,7 +235,7 @@ value-square-blue
 value-square-blue
 0
 100
-0.0
+56.0
 1
 1
 NIL
@@ -243,7 +250,7 @@ ethnic-square-blue
 ethnic-square-blue
 0
 100
-0.0
+43.0
 1
 1
 NIL
@@ -258,7 +265,7 @@ value-circle-blue
 value-circle-blue
 0
 100
-0.0
+43.0
 1
 1
 NIL
@@ -288,7 +295,7 @@ value-square-orange
 value-square-orange
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -303,7 +310,7 @@ ethnic-square-orange
 ethnic-square-orange
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -318,7 +325,7 @@ value-circle-orange
 value-circle-orange
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -333,7 +340,7 @@ ethnic-circle-orange
 ethnic-circle-orange
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -387,7 +394,7 @@ CHOOSER
 beta-attributed-by
 beta-attributed-by
 "value-orientation" "sub-group"
-0
+1
 
 SLIDER
 59
@@ -398,7 +405,7 @@ ethnic-square
 ethnic-square
 0
 100
-20.0
+50.0
 1
 1
 NIL
@@ -413,17 +420,17 @@ value-square
 value-square
 0
 100
-0.0
+40.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-59
-325
-197
-358
+205
+326
+351
+359
 ethnic-circle
 ethnic-circle
 0
@@ -435,15 +442,15 @@ NIL
 HORIZONTAL
 
 SLIDER
-205
-327
-351
-360
+59
+326
+198
+359
 value-circle
 value-circle
 0
 100
-50.0
+40.0
 1
 1
 NIL
@@ -488,6 +495,230 @@ SUB-GROUP
 11
 0.0
 1
+
+MONITOR
+459
+460
+557
+505
+% circle_blue
+count turtles with [color = 105 and shape = \"circle\"] / count turtles with [color = 105] * 100
+2
+1
+11
+
+MONITOR
+564
+459
+679
+504
+% circle_orange
+count turtles with [color = 27 and shape = \"circle\"] / count turtles with [color = 27] * 100
+1
+1
+11
+
+MONITOR
+460
+510
+558
+555
+% square_blue
+count turtles with [color = 105 and shape = \"square\"] / count turtles with [color = 105] * 100
+1
+1
+11
+
+MONITOR
+565
+509
+678
+554
+% square_orange
+count turtles with [color = 27 and shape = \"square\"] / count turtles with [color = 27] * 100
+1
+1
+11
+
+MONITOR
+687
+460
+803
+505
+% circle_population
+count turtles with [shape = \"circle\"] / count turtles * 100
+1
+1
+11
+
+MONITOR
+686
+509
+803
+554
+% square_population
+count turtles with [shape = \"square\"] / count turtles * 100
+1
+1
+11
+
+SLIDER
+110
+125
+282
+158
+tolerant_minority
+tolerant_minority
+50
+100
+100.0
+1
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+295
+101
+325
+119
+blue
+11
+0.0
+1
+
+TEXTBOX
+291
+138
+327
+156
+orange
+11
+0.0
+1
+
+PLOT
+824
+167
+1062
+317
+square_blue
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 105]"
+"value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 105]"
+"moving" 1.0 0 -16777216 true "" "plot count turtles with [move = 1] / count turtles with [shape = \"square\" and color = 105]"
+
+PLOT
+1073
+168
+1312
+318
+circle_blue
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and color = 105]"
+"value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and color = 105]"
+"moving" 1.0 0 -16777216 true "" "plot count turtles with [move = 1] / count turtles with [shape = \"circle\" and color = 105]"
+
+PLOT
+827
+323
+1065
+473
+square_orange
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 27]"
+"value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 27]"
+"moving" 1.0 0 -16777216 true "" "plot count turtles with [move = 1] / count turtles with [shape = \"square\" and color = 27]  "
+
+PLOT
+1078
+323
+1315
+473
+circle_orange
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and color = 27]"
+"value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and color = 27]"
+"moving" 1.0 0 -16777216 true "" "plot count turtles with [move = 1] / count turtles with [shape = \"circle\" and color = 27]"
+
+PLOT
+824
+479
+1119
+627
+square_blue-type-agents
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"square_blue" 1.0 0 -14835848 true "" "plot mean [count (turtles-on neighbors) with [color =  105 and shape = \"square\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 105]"
+"circle_blue" 1.0 0 -13345367 true "" "plot mean [count (turtles-on neighbors) with [color =  105 and shape = \"circle\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 105]"
+"orange_square" 1.0 0 -6459832 true "" "plot mean [count (turtles-on neighbors) with [color =  27 and shape = \"square\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 105]"
+"orange_circle" 1.0 0 -612749 true "" "plot mean [count (turtles-on neighbors) with [color =  27 and shape = \"circle\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 105]"
+
+MONITOR
+372
+461
+453
+506
+% blue
+(count turtles with [color = 105] / count turtles) * 100
+2
+1
+11
+
+MONITOR
+373
+512
+452
+557
+% orange
+(count turtles with [color = 27] / count turtles) * 100
+2
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
