@@ -69,7 +69,7 @@ to update-turtles
 
  set umin min [utility] of neighs
  set umax max [utility] of neighs
- if beta-ethnic != 0 or beta-value != 0 [set utility-myself (([utility] of patch-here - umin)/(umax - umin) ) ]  ;; utility of agent for each location; to avoid bug if beta != 0
+ if ( umax - umin ) != 0 [set utility-myself (([utility] of patch-here - umin)/(umax - umin) ) ]  ;; utility of agent for each location; to avoid bug if beta != 0
 
   ]
 
