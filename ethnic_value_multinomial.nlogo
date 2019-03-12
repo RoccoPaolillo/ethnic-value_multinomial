@@ -69,7 +69,7 @@ to update-turtles
 
  set umin min [utility] of neighs
  set umax max [utility] of neighs
- if ( umax - umin ) != 0 [set utility-myself (([utility] of patch-here - umin)/(umax - umin) ) ]  ;; utility of agent for each location; to avoid bug if beta != 0
+ ifelse umax != umin [set utility-myself (([utility] of patch-here - umin)/(umax - umin) ) ][set utility-myself 0]  ;; utility of agent for each location; to avoid bug if umax - umin = 0 (or beta = 0)
 
   ]
 
