@@ -39,10 +39,13 @@ to go
 end
 
 to update-turtles
- ask turtles [
+ ask one-of turtles [
+   ; set size 0.5
     attribute-beta
-    let neighs (patch-set  patches with [not any? turtles-here and any? turtles-on neighbors] patch-here)  ;;  patch-set of available options, i.e. empty nodes and current node
-    let option one-of neighs                       ;; one individual node
+    let alternative one-of patches with [not any? turtles-here]
+    let options (patch-set alternative patch-here)
+;    let neighs (patch-set  one-of patches with [not any? patch-here] patch-here)  ;;  patch-set of available options, i.e. empty nodes and current node
+;    let option one-of neighs                       ;; one individual node
     let beta-ethnic-myself beta-ethnic
     let beta-value-myself beta-value
     let shape-myself shape
@@ -50,25 +53,27 @@ to update-turtles
     let r random-float 1.01
     let q 0
 
-
-  ask neighs [                                                                                                                          ;; for each possible location, utility is calculated for
+  ask options [                                                                                                                          ;; for each possible location, utility is calculated for
                                                                                                                                         ;; ethnic homophily (concentration agents same color) and
-      set  utility  (((count (turtles-on neighbors)  with [color = color-myself] / count turtles-on neighbors) * beta-ethnic-myself) +  ;; value homophily (concentration agents same shape)
-          ((count (turtles-on neighbors)  with [shape = shape-myself] / count turtles-on neighbors) * beta-value-myself))               ;; times the specific beta
+     set  utility  (((count (turtles-on neighbors)  with [color = color-myself] / count turtles-on neighbors) * beta-ethnic-myself) +  ;; value homophily (concentration agents same shape)
+         ((count (turtles-on neighbors)  with [shape = shape-myself] / count turtles-on neighbors) * beta-value-myself))               ;; times the specific beta
 
       set expa exp utility                                   ;; exponential of the utility
-      set prob ([expa] of self / (sum [expa] of neighs))     ;; probability for each node to be chosen
+      set prob ([expa] of self / (sum [expa] of options))     ;; probability for each node to be chosen
     ]
 
- foreach sort [option] of neighs [                        ;; choice of agent
-      the-option -> ask the-option [                      ;; probabilities for each option ranked as p1, p1+p2
-        set q q + prob]
-      if q > r [move-to option]                           ;; move to option if probability > r
-    ]
+    ifelse [prob] of patch-here > r [move-to patch-here ask patch-here [set pcolor grey]][move-to alternative set size 0.5]
 
 
- set umin min [utility] of neighs
- set umax max [utility] of neighs
+    ; foreach sort [option] of neighs [                        ;; choice of agent
+;      the-option -> ask the-option [                      ;; probabilities for each option ranked as p1, p1+p2
+;        set q q + prob]
+;      if q > r [move-to option]                           ;; move to option if probability > r
+;    ]
+
+
+ set umin min [utility] of options
+ set umax max [utility] of options
  ifelse umax != umin [set utility-myself (([utility] of patch-here - umin)/(umax - umin) ) ][set utility-myself 0]  ;; utility of agent for each location; to avoid bug if umax - umin = 0 (or beta = 0)
 
   ]
@@ -251,7 +256,7 @@ ethnic-square-blue
 ethnic-square-blue
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -266,7 +271,7 @@ value-circle-blue
 value-circle-blue
 0
 100
-100.0
+0.0
 1
 1
 NIL
@@ -281,7 +286,7 @@ ethnic-circle-blue
 ethnic-circle-blue
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -311,7 +316,7 @@ ethnic-square-orange
 ethnic-square-orange
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -326,7 +331,7 @@ value-circle-orange
 value-circle-orange
 0
 100
-100.0
+0.0
 1
 1
 NIL
@@ -341,7 +346,7 @@ ethnic-circle-orange
 ethnic-circle-orange
 0
 100
-0.0
+100.0
 1
 1
 NIL
