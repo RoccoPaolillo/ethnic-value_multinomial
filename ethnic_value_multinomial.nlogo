@@ -1,6 +1,11 @@
+; globals [
+; sum_prob
+; ]
+
 patches-own [
   utility
   expa
+  somme
   prob
 ]
 
@@ -10,11 +15,13 @@ turtles-own [
   umin
   umax
   utility-myself
+  sum_prob
 ]
 
 to  setup
  clear-all
- ask patches [ if random 100 < density [sprout 1[
+;  set sum_prob 0
+ ask patches [ if random 100 < density [sprout 1[set sum_prob 0
     ifelse random 100 < fraction_majority [        ;; ratio blue/orange is drawn (relative ethnic group size)
       set color 105
       ifelse random 100 < tolerant_majority [      ;; ratio value-oriented / ethnicity-oriented is drawn for majority group blue (relative value group size)
@@ -39,7 +46,7 @@ to go
 end
 
 to update-turtles
- ask one-of turtles [
+ ask turtles [
    ; set size 0.5
     attribute-beta
     let alternative one-of patches with [not any? turtles-here]
@@ -53,16 +60,27 @@ to update-turtles
     let r random-float 1.01
     let q 0
 
+    ask patch-here [set pcolor black] ; testing movement
+
   ask options [                                                                                                                          ;; for each possible location, utility is calculated for
                                                                                                                                         ;; ethnic homophily (concentration agents same color) and
-     set  utility  (((count (turtles-on neighbors)  with [color = color-myself] / count turtles-on neighbors) * beta-ethnic-myself) +  ;; value homophily (concentration agents same shape)
-         ((count (turtles-on neighbors)  with [shape = shape-myself] / count turtles-on neighbors) * beta-value-myself))               ;; times the specific beta
+     set  utility ; (
+        ((count (turtles-on neighbors)  with [color = color-myself] / count turtles-on neighbors) * beta-ethnic-myself)
+
+       ; +  ;; value homophily (concentration agents same shape)
+       ;  ((count (turtles-on neighbors)  with [shape = shape-myself] / count turtles-on neighbors) * beta-value-myself)
+
+   ;   )               ;; times the specific beta
 
       set expa exp utility                                   ;; exponential of the utility
-      set prob ([expa] of self / (sum [expa] of options))     ;; probability for each node to be chosen
+      set somme sum [expa] of options
+      set prob (expa / somme)     ;; probability for each node to be chosen
     ]
 
-    ifelse [prob] of patch-here > r [move-to patch-here ask patch-here [set pcolor grey]][move-to alternative set size 0.5]
+      set sum_prob sum [prob] of options
+
+    ifelse [prob] of patch-here > r [move-to patch-here ask patch-here [set pcolor red]][move-to alternative ask alternative [set pcolor yellow]]
+
 
 
     ; foreach sort [option] of neighs [                        ;; choice of agent
@@ -70,7 +88,6 @@ to update-turtles
 ;        set q q + prob]
 ;      if q > r [move-to option]                           ;; move to option if probability > r
 ;    ]
-
 
  set umin min [utility] of options
  set umax max [utility] of options
@@ -105,6 +122,8 @@ to attribute-beta
   ]
 
 end
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 350
@@ -176,7 +195,7 @@ fraction_majority
 fraction_majority
 50
 100
-50.0
+83.0
 1
 1
 NIL
@@ -745,6 +764,28 @@ PENS
 "ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and color = 27]"
 "value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and color = 27]"
 "utility" 1.0 0 -16777216 true "" "plot mean [utility-myself] of turtles with [color = 27]"
+
+MONITOR
+1519
+188
+1615
+233
+utility_average
+mean [utility-myself] of turtles
+2
+1
+11
+
+MONITOR
+1524
+283
+1591
+328
+sum_prob
+mean [sum_prob] of turtles
+2
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
