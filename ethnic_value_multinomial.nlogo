@@ -1,11 +1,12 @@
-; globals [
-; sum_prob
-; ]
+globals [
+ somme
+  sum_prob
+]
 
 patches-own [
   utility
   expa
-  somme
+;  somme
   prob
 ]
 
@@ -15,7 +16,7 @@ turtles-own [
   umin
   umax
   utility-myself
-  sum_prob
+
 ]
 
 to  setup
@@ -60,24 +61,24 @@ to update-turtles
     let r random-float 1.01
     let q 0
 
-    ask patch-here [set pcolor black] ; testing movement
+  ask patch-here [set pcolor black] ; testing movement
 
   ask options [                                                                                                                          ;; for each possible location, utility is calculated for
                                                                                                                                         ;; ethnic homophily (concentration agents same color) and
-     set  utility ; (
-        ((count (turtles-on neighbors)  with [color = color-myself] / count turtles-on neighbors) * beta-ethnic-myself)
-
-       ; +  ;; value homophily (concentration agents same shape)
-       ;  ((count (turtles-on neighbors)  with [shape = shape-myself] / count turtles-on neighbors) * beta-value-myself)
-
-   ;   )               ;; times the specific beta
+     set  utility ( ((count (turtles-on neighbors)  with [color = color-myself] / count turtles-on neighbors) * beta-ethnic-myself) +
+       ((count (turtles-on neighbors)  with [shape = shape-myself] / count turtles-on neighbors) * beta-value-myself) )       ;; value homophily (concentration agents same shape)
+                   ;; times the specific beta
 
       set expa exp utility                                   ;; exponential of the utility
-      set somme sum [expa] of options
-      set prob (expa / somme)     ;; probability for each node to be chosen
+   ;    set somme sum [expa] of options
+    ;   set prob (expa / somme)     ;; probability for each node to be chosen
     ]
 
-      set sum_prob sum [prob] of options
+     set somme sum [expa] of options
+
+     ask options [ set prob (expa / somme)]
+
+     set sum_prob sum [prob] of options
 
     ifelse [prob] of patch-here > r [move-to patch-here ask patch-here [set pcolor red]][move-to alternative ask alternative [set pcolor yellow]]
 
@@ -123,7 +124,6 @@ to attribute-beta
 
 end
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 350
@@ -146,8 +146,8 @@ GRAPHICS-WINDOW
 16
 -16
 16
-0
-0
+1
+1
 1
 ticks
 30.0
@@ -225,7 +225,7 @@ density
 density
 50
 99
-99.0
+93.0
 1
 1
 NIL
@@ -260,7 +260,7 @@ value-square-blue
 value-square-blue
 0
 100
-0.0
+17.0
 1
 1
 NIL
@@ -275,7 +275,7 @@ ethnic-square-blue
 ethnic-square-blue
 0
 100
-100.0
+15.0
 1
 1
 NIL
@@ -290,7 +290,7 @@ value-circle-blue
 value-circle-blue
 0
 100
-0.0
+17.0
 1
 1
 NIL
@@ -305,7 +305,7 @@ ethnic-circle-blue
 ethnic-circle-blue
 0
 100
-100.0
+14.0
 1
 1
 NIL
@@ -320,7 +320,7 @@ value-square-orange
 value-square-orange
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -335,7 +335,7 @@ ethnic-square-orange
 ethnic-square-orange
 0
 100
-100.0
+17.0
 1
 1
 NIL
@@ -350,7 +350,7 @@ value-circle-orange
 value-circle-orange
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -365,7 +365,7 @@ ethnic-circle-orange
 ethnic-circle-orange
 0
 100
-100.0
+17.0
 1
 1
 NIL
@@ -782,8 +782,8 @@ MONITOR
 1591
 328
 sum_prob
-mean [sum_prob] of turtles
-2
+sum_prob
+17
 1
 11
 
