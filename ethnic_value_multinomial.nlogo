@@ -20,6 +20,7 @@ turtles-own [
 ]
 
 to  setup
+
  clear-all
 ;  set sum_prob 0
  ask patches [ if random 100 < density [sprout 1[set sum_prob 0
@@ -47,48 +48,78 @@ to go
 end
 
 to update-turtles
+
+
  ask turtles [
    ; set size 0.5
     attribute-beta
-    let alternative one-of patches with [not any? turtles-here]
-    let options (patch-set alternative patch-here)
+ ;   let alternative one-of patches with [not any? turtles-here]
+    let options (patch-set n-of number_alternatives patches with [not any? turtles-here] patch-here)
+  ;  let alternative one-of options
 ;    let neighs (patch-set  one-of patches with [not any? patch-here] patch-here)  ;;  patch-set of available options, i.e. empty nodes and current node
 ;    let option one-of neighs                       ;; one individual node
     let beta-ethnic-myself beta-ethnic
     let beta-value-myself beta-value
     let shape-myself shape
     let color-myself color
-    let r random-float 1.01
     let q 0
+    let r random-float 1.01
+    let choice 0
+
 
   ask patch-here [set pcolor black] ; testing movement
 
-  ask options [                                                                                                                          ;; for each possible location, utility is calculated for
+  ask options [                                                                                                                            ;; for each possible location, utility is calculated for
                                                                                                                                         ;; ethnic homophily (concentration agents same color) and
-     set  utility ( ((count (turtles-on neighbors)  with [color = color-myself] / count turtles-on neighbors) * beta-ethnic-myself) +
+     set  utility ( ((count (turtles-on neighbors)  with [color = color-myself] / count turtles-on neighbors)  * beta-ethnic-myself) +
        ((count (turtles-on neighbors)  with [shape = shape-myself] / count turtles-on neighbors) * beta-value-myself) )       ;; value homophily (concentration agents same shape)
                    ;; times the specific beta
 
       set expa exp utility                                   ;; exponential of the utility
    ;    set somme sum [expa] of options
-    ;   set prob (expa / somme)     ;; probability for each node to be chosen
+    ;  set prob (expa / sum [expa] of options)     ;; probability for each node to be chosen
     ]
 
-     set somme sum [expa] of options
+    set somme sum [expa] of options
 
-     ask options [ set prob (expa / somme)]
+    ask options [ set prob (expa / somme)]
 
      set sum_prob sum [prob] of options
 
-    ifelse [prob] of patch-here > r [move-to patch-here ask patch-here [set pcolor red]][move-to alternative ask alternative [set pcolor yellow]]
+;    ifelse [prob] of patch-here > r [move-to patch-here ask patch-here [set pcolor red]][move-to alternative ask alternative [set pcolor yellow]]
 
 
+    foreach sort  options [                        ;; choice of agent
+      the-options -> ask the-options [                      ;; probabilities for each option ranked as p1, p1+p2
+     ;   show [who] of myself]
+      ;  show prob
+         set q q + prob
+        if q > r [set choice 1]
+     ;   show prob
+     ;   show q
+     ;   show r
+     ;   show choice
+      ;   show [who] of myself
+         show prob
+        show q
+        show r
+      ;  show [beta-ethnic] of myself
+      ;  show [beta-value] of myself
+       ; show [color] of myself
+        show choice
+     show [who] of myself
+       ]
+       ; if q > r [move-to the-options]
+    ; if any? options with [choice = 1] [move-to one-of options with [choice = 1] ]
+                               ;; move to option if probability > r
+   ;   if any? options with [choice = true] [ move-to one-of options with [choice = true] ]
+    ]
 
-    ; foreach sort [option] of neighs [                        ;; choice of agent
-;      the-option -> ask the-option [                      ;; probabilities for each option ranked as p1, p1+p2
-;        set q q + prob]
-;      if q > r [move-to option]                           ;; move to option if probability > r
-;    ]
+  ;  ask options with [choice = 1][set pcolor yellow]
+
+ ;; !!! this one
+  ; if any? options with [choice = 1] [ move-to one-of options with [choice = 1] ]
+
 
  set umin min [utility] of options
  set umax max [utility] of options
@@ -123,7 +154,6 @@ to attribute-beta
   ]
 
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 350
@@ -146,8 +176,8 @@ GRAPHICS-WINDOW
 16
 -16
 16
-1
-1
+0
+0
 1
 ticks
 30.0
@@ -195,7 +225,7 @@ fraction_majority
 fraction_majority
 50
 100
-83.0
+80.0
 1
 1
 NIL
@@ -225,7 +255,7 @@ density
 density
 50
 99
-93.0
+98.0
 1
 1
 NIL
@@ -260,7 +290,7 @@ value-square-blue
 value-square-blue
 0
 100
-17.0
+0.0
 1
 1
 NIL
@@ -275,7 +305,7 @@ ethnic-square-blue
 ethnic-square-blue
 0
 100
-15.0
+0.0
 1
 1
 NIL
@@ -290,7 +320,7 @@ value-circle-blue
 value-circle-blue
 0
 100
-17.0
+0.0
 1
 1
 NIL
@@ -305,7 +335,7 @@ ethnic-circle-blue
 ethnic-circle-blue
 0
 100
-14.0
+0.0
 1
 1
 NIL
@@ -320,7 +350,7 @@ value-square-orange
 value-square-orange
 0
 100
-100.0
+0.0
 1
 1
 NIL
@@ -335,7 +365,7 @@ ethnic-square-orange
 ethnic-square-orange
 0
 100
-17.0
+100.0
 1
 1
 NIL
@@ -350,7 +380,7 @@ value-circle-orange
 value-circle-orange
 0
 100
-100.0
+0.0
 1
 1
 NIL
@@ -365,7 +395,7 @@ ethnic-circle-orange
 ethnic-circle-orange
 0
 100
-17.0
+100.0
 1
 1
 NIL
@@ -786,6 +816,21 @@ sum_prob
 17
 1
 11
+
+SLIDER
+107
+187
+279
+220
+number_alternatives
+number_alternatives
+0
+count patches with [not any? turtles-here]
+1.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
