@@ -4,8 +4,11 @@ globals [
 ]
 
 patches-own [
-  utility
+  uti_eth
+  uti_val
+  raw_choice
   expa
+
 ;  somme
   prob
 ]
@@ -51,79 +54,39 @@ to update-turtles
 
 
  ask turtles [
-   ; set size 0.5
     attribute-beta
- ;   let alternative one-of patches with [not any? turtles-here]
-    let options (patch-set n-of number_alternatives patches with [not any? turtles-here] patch-here)
-  ;  let alternative one-of options
-;    let neighs (patch-set  one-of patches with [not any? patch-here] patch-here)  ;;  patch-set of available options, i.e. empty nodes and current node
-;    let option one-of neighs                       ;; one individual node
+    let alternative one-of patches with [not any? turtles-here]
+    let options (patch-set alternative patch-here)
+
     let beta-ethnic-myself beta-ethnic
     let beta-value-myself beta-value
     let shape-myself shape
     let color-myself color
     let q 0
-    let r random-float 1.01
+    let r random-float 1.00
     let choice 0
 
-
-  ask patch-here [set pcolor black] ; testing movement
-
   ask options [                                                                                                                            ;; for each possible location, utility is calculated for
-                                                                                                                                        ;; ethnic homophily (concentration agents same color) and
-     set  utility ( ((count (turtles-on neighbors)  with [color = color-myself] / count turtles-on neighbors)  * beta-ethnic-myself) +
-       ((count (turtles-on neighbors)  with [shape = shape-myself] / count turtles-on neighbors) * beta-value-myself) )       ;; value homophily (concentration agents same shape)
+                                                                                                                                         ;; ethnic homophily (concentration agents same color) and
+     set  uti_eth (count (turtles-on neighbors)  with [color = color-myself] / count (turtles-on neighbors))
+     set uti_val (count (turtles-on neighbors)  with [shape = shape-myself] /  count (turtles-on neighbors))  ;; value homophily (concentration agents same shape)
                    ;; times the specific beta
+     set raw_choice (([beta-ethnic] of myself * uti_eth) + ([beta-value] of myself * uti_val))
+      set expa  exp raw_choice
 
-      set expa exp utility                                   ;; exponential of the utility
-   ;    set somme sum [expa] of options
-    ;  set prob (expa / sum [expa] of options)     ;; probability for each node to be chosen
+
     ]
 
     set somme sum [expa] of options
 
     ask options [ set prob (expa / somme)]
 
-     set sum_prob sum [prob] of options
-
-;    ifelse [prob] of patch-here > r [move-to patch-here ask patch-here [set pcolor red]][move-to alternative ask alternative [set pcolor yellow]]
 
 
-    foreach sort  options [                        ;; choice of agent
-      the-options -> ask the-options [                      ;; probabilities for each option ranked as p1, p1+p2
-     ;   show [who] of myself]
-      ;  show prob
-         set q q + prob
-        if q > r [set choice 1]
-     ;   show prob
-     ;   show q
-     ;   show r
-     ;   show choice
-      ;   show [who] of myself
-         show prob
-        show q
-        show r
-      ;  show [beta-ethnic] of myself
-      ;  show [beta-value] of myself
-       ; show [color] of myself
-        show choice
-     show [who] of myself
-       ]
-       ; if q > r [move-to the-options]
-    ; if any? options with [choice = 1] [move-to one-of options with [choice = 1] ]
-                               ;; move to option if probability > r
-   ;   if any? options with [choice = true] [ move-to one-of options with [choice = true] ]
-    ]
-
-  ;  ask options with [choice = 1][set pcolor yellow]
-
- ;; !!! this one
-  ; if any? options with [choice = 1] [ move-to one-of options with [choice = 1] ]
+; ifelse [prob] of patch-here >= r [move-to patch-here][ifelse [prob] of patch-here + [prob] of alternative >= r [move-to alternative][]]
+    ifelse [prob] of patch-here > r [move-to patch-here set utility-myself [uti_eth] of patch-here][move-to alternative]
 
 
- set umin min [utility] of options
- set umax max [utility] of options
- ifelse umax != umin [set utility-myself (([utility] of patch-here - umin)/(umax - umin) ) ][set utility-myself 0]  ;; utility of agent for each location; to avoid bug if umax - umin = 0 (or beta = 0)
 
   ]
 
@@ -225,7 +188,7 @@ fraction_majority
 fraction_majority
 50
 100
-80.0
+50.0
 1
 1
 NIL
@@ -255,7 +218,7 @@ density
 density
 50
 99
-98.0
+99.0
 1
 1
 NIL
@@ -282,15 +245,30 @@ PENS
 "utility" 1.0 0 -16777216 true "" "plot mean [utility-myself] of turtles"
 
 SLIDER
-59
-420
-197
-453
+57
+470
+195
+503
 value-square-blue
 value-square-blue
 0
 100
-0.0
+7.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+49
+294
+183
+327
+ethnic-square-blue
+ethnic-square-blue
+0
+100
+10.0
 1
 1
 NIL
@@ -298,144 +276,129 @@ HORIZONTAL
 
 SLIDER
 55
-271
-189
-304
-ethnic-square-blue
-ethnic-square-blue
+507
+195
+540
+value-circle-blue
+value-circle-blue
 0
 100
-0.0
+8.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-57
-457
+50
+330
+184
+363
+ethnic-circle-blue
+ethnic-circle-blue
+0
+100
+15.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+206
+471
+346
+504
+value-square-orange
+value-square-orange
+0
+100
+7.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
 197
-490
-value-circle-blue
-value-circle-blue
-0
-100
-0.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-56
-307
-190
+294
 340
-ethnic-circle-blue
-ethnic-circle-blue
-0
-100
-0.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-208
-421
-348
-454
-value-square-orange
-value-square-orange
-0
-100
-0.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-203
-271
-346
-304
+327
 ethnic-square-orange
 ethnic-square-orange
 0
 100
-100.0
+12.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-207
-458
-348
-491
-value-circle-orange
-value-circle-orange
-0
-100
-0.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-202
-308
+205
+508
 346
-341
+541
+value-circle-orange
+value-circle-orange
+0
+100
+10.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+196
+331
+340
+364
 ethnic-circle-orange
 ethnic-circle-orange
 0
 100
-100.0
+12.0
 1
 1
 NIL
 HORIZONTAL
 
 TEXTBOX
-106
-249
-140
-267
+103
+270
+137
+288
 BLUE
 11
 0.0
 1
 
 TEXTBOX
-253
-399
-305
-417
+251
+449
+303
+467
 ORANGE
 11
 0.0
 1
 
 TEXTBOX
-162
-225
-239
-243
+140
+245
+217
+263
 BETA-ETHNIC
 10
 0.0
 1
 
 TEXTBOX
-173
-383
-241
-401
+171
+433
+239
+451
 BETA-VALUE
 11
 0.0
@@ -543,10 +506,10 @@ orange
 1
 
 PLOT
-742
-182
-1103
-381
+746
+167
+1107
+366
 square-blue
 NIL
 NIL
@@ -589,70 +552,70 @@ MONITOR
 11
 
 TEXTBOX
-5
-284
-49
-302
+-1
+307
+43
+325
 SQUARE
 10
 0.0
 1
 
 TEXTBOX
-6
-318
-50
-336
+0
+341
+44
+359
 CIRCLE
 10
 0.0
 1
 
 TEXTBOX
-113
-400
-145
-418
+111
+450
+143
+468
 BLUE
 11
 0.0
 1
 
 TEXTBOX
-254
-245
-310
-263
+251
+266
+307
+284
 ORANGE
 11
 0.0
 1
 
 TEXTBOX
-11
-430
-53
-448
+9
+480
+51
+498
 SQUARE
 10
 0.0
 1
 
 TEXTBOX
-10
-470
-46
-488
+8
+520
+44
+538
 CIRCLE
 10
 0.0
 1
 
 SLIDER
-112
-545
-284
-578
+124
+556
+296
+589
 check_noise
 check_noise
 0
@@ -664,30 +627,30 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-237
-225
-277
-243
+215
+245
+255
+263
 tag color
 9
 0.0
 1
 
 TEXTBOX
-242
-384
-295
-402
+240
+434
+293
+452
 tag shape
 9
 0.0
 1
 
 PLOT
-1108
-182
-1473
-380
+1112
+167
+1477
+365
 circle-blue
 NIL
 NIL
@@ -708,10 +671,10 @@ PENS
 "circle-orange-neigh" 1.0 0 -5207188 true "" "plot mean [count (turtles-on neighbors) with [color =  27 and shape = \"circle\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and color = 105]"
 
 PLOT
-743
-385
-1106
-576
+747
+370
+1110
+561
 square-orange
 NIL
 NIL
@@ -732,10 +695,10 @@ PENS
 "circle-orange-neigh" 1.0 0 -5207188 true "" "plot mean [count (turtles-on neighbors) with [color =  27 and shape = \"circle\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 27]"
 
 PLOT
-1111
-383
-1474
-574
+1115
+368
+1478
+559
 circle-orange
 NIL
 NIL
@@ -817,20 +780,15 @@ sum_prob
 1
 11
 
-SLIDER
-107
-187
-279
-220
-number_alternatives
-number_alternatives
-0
-count patches with [not any? turtles-here]
-1.0
+TEXTBOX
+990
+582
+1140
+600
+utility in plots: ethnic utility
+11
+0.0
 1
-1
-NIL
-HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
