@@ -242,7 +242,6 @@ true
 PENS
 "ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1]"
 "value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1]"
-"utility" 1.0 0 -16777216 true "" "plot mean [utility-myself] of turtles"
 
 SLIDER
 57
@@ -268,7 +267,7 @@ ethnic-square-blue
 ethnic-square-blue
 0
 100
-10.0
+46.0
 1
 1
 NIL
@@ -298,7 +297,7 @@ ethnic-circle-blue
 ethnic-circle-blue
 0
 100
-15.0
+36.0
 1
 1
 NIL
@@ -328,7 +327,7 @@ ethnic-square-orange
 ethnic-square-orange
 0
 100
-12.0
+21.0
 1
 1
 NIL
@@ -358,7 +357,7 @@ ethnic-circle-orange
 ethnic-circle-orange
 0
 100
-12.0
+15.0
 1
 1
 NIL
@@ -523,7 +522,6 @@ true
 PENS
 "ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 105]"
 "value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 105]"
-"utility" 1.0 0 -16777216 true "" "plot mean [utility-myself] of turtles with [shape = \"square\" and color = 105]"
 "square-blue-neigh" 1.0 0 -13345367 true "" "plot mean [count (turtles-on neighbors) with [color =  105 and shape = \"square\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 105]"
 "circle-blue-neigh" 1.0 0 -14835848 true "" "plot mean [count (turtles-on neighbors) with [color =  105 and shape = \"circle\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 105]"
 "square-orange-neigh" 1.0 0 -955883 true "" "plot mean [count (turtles-on neighbors) with [color =  27 and shape = \"square\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 105]"
@@ -664,7 +662,6 @@ true
 PENS
 "ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and color = 105]"
 "value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and color = 105]"
-"utility" 1.0 0 -16777216 true "" "plot mean [utility-myself] of turtles with [shape = \"circle\" and color = 105]"
 "square-blue-neigh" 1.0 0 -13345367 true "" "plot mean [count (turtles-on neighbors) with [color =  105 and shape = \"square\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and color = 105]"
 "circle-blue-neigh" 1.0 0 -14835848 true "" "plot mean [count (turtles-on neighbors) with [color =  105 and shape = \"circle\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and color = 105]"
 "square-orange-neigh" 1.0 0 -955883 true "" "plot mean [count (turtles-on neighbors) with [color =  27 and shape = \"square\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and color = 105]"
@@ -688,7 +685,6 @@ true
 PENS
 "ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 27]"
 "value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 27]"
-"utility" 1.0 0 -16777216 true "" "plot mean [utility-myself] of turtles with [shape = \"square\" and color = 27]"
 "square-blue-neigh" 1.0 0 -13345367 true "" "plot mean [count (turtles-on neighbors) with [color =  105 and shape = \"square\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 27]"
 "circle-blue-neigh" 1.0 0 -14835848 true "" "plot mean [count (turtles-on neighbors) with [color =  105 and shape = \"circle\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 27]"
 "square-orange-neigh" 1.0 0 -955883 true "" "plot mean [count (turtles-on neighbors) with [color =  27 and shape = \"square\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 27]"
@@ -712,7 +708,6 @@ true
 PENS
 "ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and color = 27]"
 "value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and color = 27]"
-"utility" 1.0 0 -16777216 true "" "plot mean [utility-myself] of turtles with [shape = \"circle\" and color = 27]"
 "square-blue-neigh" 1.0 0 -13345367 true "" "plot mean [count (turtles-on neighbors) with [color =  105 and shape = \"square\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and color = 27]"
 "circle-blue-neigh" 1.0 0 -14835848 true "" "plot mean [count (turtles-on neighbors) with [color =  105 and shape = \"circle\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and color = 27]"
 "square-orange-neigh" 1.0 0 -955883 true "" "plot mean [count (turtles-on neighbors) with [color =  27 and shape = \"square\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and color = 27]"
@@ -736,7 +731,6 @@ true
 PENS
 "ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and color = 105]"
 "value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and color = 105]"
-"utility" 1.0 0 -16777216 true "" "plot mean [utility-myself] of turtles with [color = 105]"
 
 PLOT
 1251
@@ -756,7 +750,6 @@ true
 PENS
 "ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and color = 27]"
 "value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and color = 27]"
-"utility" 1.0 0 -16777216 true "" "plot mean [utility-myself] of turtles with [color = 27]"
 
 MONITOR
 1519
@@ -779,16 +772,6 @@ sum_prob
 17
 1
 11
-
-TEXTBOX
-990
-582
-1140
-600
-utility in plots: ethnic utility
-11
-0.0
-1
 
 @#$#@#$#@
 ## WHAT IS IT?
