@@ -25,11 +25,13 @@ knitr::opts_chunk$set(echo = TRUE, fig.lp="fig:")
 # echo = TRUE <- makes all next cmds appear
 
 ```
-\newcommand{\rocco}[1]{\textcolor{red}{{Rocco:}#1}} <!-- command to appear in pdf -->
+\newcommand{\rocco}[1]{\textcolor{red}{{Rocco:}#1}} <!-- <- this is a command to appear in pdf -->
 <!-- command not to appear in pdf -->
-# PARAGRAPH NAME
 
-@paolillo2019 and [@clark1991]
+# Introduction and Questions
+
+@zhang2004residential cites and refers to @schelling1978micromotives for his prominent influence on threshold and tipping model, still then elaborates on a model based on random utility with single-peaked function and $\beta$. How much can a rational model which uses peak of utility and probability of choice be considered to rely on Schelling's threshold model?\
+What is the relation between random utility models and threshold models?
 
 ```{r chunk1, echo=FALSE, message=FALSE, warning=FALSE, include=TRUE}
 #echo=TRUE: the code appears in document
