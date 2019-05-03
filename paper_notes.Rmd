@@ -32,6 +32,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.lp="fig:")
 
 @zhang2004residential cites and refers to @schelling1978micromotives for his prominent influence on threshold and tipping model, still then elaborates on a model based on random utility with single-peaked function and $\beta$. How much can a rational model which uses peak of utility and probability of choice be considered to rely on Schelling's threshold model?
 What is the relation between random utility models and threshold models?
+lal la 
 
 ```{r chunk1, echo=FALSE, message=FALSE, warning=FALSE, include=TRUE}
 #echo=TRUE: the code appears in document
