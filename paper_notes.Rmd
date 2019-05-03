@@ -30,9 +30,32 @@ knitr::opts_chunk$set(echo = TRUE, fig.lp="fig:")
 
 # Introduction and Questions
 
-@zhang2004residential cites and refers to @schelling1978micromotives for his prominent influence on threshold and tipping model, still then elaborates on a model based on random utility with single-peaked function and $\beta$. How much can a rational model which uses peak of utility and probability of choice be considered to rely on Schelling's threshold model?
-What is the relation between random utility models and threshold models?
-lal la 
+@zhang2004 cites and refers to @schelling1978 for his prominent influence on threshold and tipping model, still then elaborates on a model based on random utility with single-peaked function and $\beta$. How much can a rational model which uses peak of utility and probability of choice be considered to rely on Schelling's threshold model?\
+What is the relation between random utility models and threshold models?\
+\
+
+- @zhang2004 assumes an entire world, not empty patches, so that $utility = 1$ at 50% is because $4/8$ of agents are of similar ethnicity (plus the peak function). To replicate his model there should be not empty space. @bruch2006 models with $15%$ empty patches. Should our world have not empty patches, so to maximize utility? This can allow also to test density effects on satisfaction and not bias on concentration calculation.
+
+## Component of probability of the choice
+
+- Object of choice: neighborhood
+- Choice: relocate to a neighborhood
+- Utility: payoff one is likely to accept to make the choice, i.e. to relocate to one neighborhood (which implies to stay on the same neighborhood). In @zhang2004 it is made up of:
+  - deterministic component $U$: how much people desire/value one preference  in order to make the choice, e.g. degree of ethnic concentration (e.g. max utility = 1 at 100% similars). @zhang2004 uses a single-peaked function (vs maximization).
+  - random term $\epsilon$ that refers to other characteristics of the option, i.e. the neighborhood, that influence the payoff to choose the neighborhood although not related to the deterministic component. In regression models  this is the random  error terms. Random utility models in abm recreate with the exponential function, so that not always the best option according to the deterministic component is taken.
+- Probability of the choice: $\beta u (.) + \epsilon$\
+$\beta$ is a parameter indicating how much the random term is important modeled as a positive constant. The lower is \$beta\, the higher is random term $\epsilon$, i.e. other random characteristics, are relevant to choose one neighborhood. The higher is $\beta$, the lower will be the importance of random term $\epsilon$ and higher the importance of deterministic utility component to make a choice, i.e. moving to the neighborhood.
+\
+
+
+# Aim of the paper
+
+- The conceptual difference between $u$ and  $\beta$ should be $u$: what is the ideal point (payoff) to make the choice and $\beta$ how important is that component to people to make a choice. The paper could focus on the interplay between different utility functions at ethnic group level and the individual importance for each of them. This would allow to test how segregation can emerge from the interplay of different homophily preferences.
+  - The model could be initialized with correlations from data, as Andreas suggested, plus literature (e.g. right-wing and anti-diversity/migrant attitude)
+- Given the interplay of homophily preferences, to compare the difference between threshold models and random utility models with single peaked function. It makes sense to consider $\beta$ would apply equally to threshold models and single-peaked function, as well as the inclusion of randomness in a pure Schelling-type model. Check @bruch2006 who should have had similar  interest.
+  - This aim/study would make a straight connection with the ACS paper and its conclusion
+
+<!-- read @Brock2001, @Brock1997 -->
 
 ```{r chunk1, echo=FALSE, message=FALSE, warning=FALSE, include=TRUE}
 #echo=TRUE: the code appears in document
