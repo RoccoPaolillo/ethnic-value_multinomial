@@ -50,7 +50,7 @@ $\beta$ is a parameter indicating how much the random term is important modeled 
   - The lower an agent speaks a language, the higher for ethnic homophily would be  $\beta_{ethnic}$;
   - the higher is social mobility intention, the higher the wealth (socio-economic status) of the neighborhood would be $\beta_{status}$
   - the higher the need to associate with people sharing the same values of local community (receiving context in Esser [@esser2010] (e.g. political orientations, norm beliefs...), the higher 
-- Seemingly, @zhang2004 describes $\epsilon$ as other characteristics of the option which affects the actual choice of that option (i.e. neighborhood). Esser's [@esser2010] definition of costs of the choice can be taken into consideration, as costs of moving to the neighborhood.
+- Costs of relocation can be included as costs that hinder relocation despite high probability to choose. This can be one application of  @esser2010's definition of costs as limit to the investment on the receving context option (although in the ethnic population, but it can be extended). In @esser2010 costs is loosely derived from social, economic and cultural capital milieu, e.g. risk of social exclusion from in-group, but economic costs of relocation can be one simple implementation now.
 
 
 # Aim of the paper
@@ -65,7 +65,7 @@ $\beta$ is a parameter indicating how much the random term is important modeled 
   This would foster the linkage Schelling-Esser of the general project agenda.
 - As in the Schelling's model [@schelling1969;@schelling1971], there is not question on why preferences for similar exist. While in the ACS paper we extended the model by including different dimensions of similarity. Extension to rational models as this would benefit understanding of different homophily preferences through their explicative reasons.
 
-- The formula $\beta u (.) + \epsilon$ should become somthing like $$N_{e} U_{e} + N_{v} U_{v} + N_{s} U_{s} - C$$ where $N$ =  needs, $C$ = costs and $e,v,s$ the ethnic, value and socio-economic status dimension.
+- The formula $\beta u (.) + \epsilon$ should become something like $$N_{e} U_{e} + N_{v} U_{v} + N_{s} U_{s} - C$$ where $N$ =  needs, $C$ = costs and $e,v,s$ the ethnic, value and socio-economic status dimension. The random term $\epsilon$ is implemented through the exponential function.
 
 # Limits
 
