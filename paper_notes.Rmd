@@ -46,7 +46,7 @@ What is the relation between random utility models and threshold models?\
 - Probability of the choice: $\beta u (.) + \epsilon$\
 $\beta$ is a parameter indicating how much the random term is important modeled as a positive constant. The lower is \$beta\, the higher is random term $\epsilon$, i.e. other random characteristics, are relevant to choose one neighborhood. The higher is $\beta$, the lower will be the importance of random term $\epsilon$ and higher the importance of deterministic utility component to make a choice, i.e. moving to the neighborhood.
 \
-
+- Given the existence of an ideal payoff to make a choice $u$, why should someone give more importance to that dimension over the other, that is, why should $\beta$ vary among individuals? An answer in Esser
 
 # Aim of the paper
 
