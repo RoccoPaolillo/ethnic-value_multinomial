@@ -59,11 +59,12 @@ $\beta$ is a parameter indicating how much the random term is important modeled 
   - The model could be initialized with correlations from data, as Andreas suggested, plus literature (e.g. right-wing and anti-diversity/migrant attitude)
 - Given the interplay of homophily preferences, to compare the difference between threshold models and random utility models with single peaked function. It makes sense to consider $\beta$ would apply equally to threshold models and single-peaked function, as well as the inclusion of randomness in a pure Schelling-type model. Check @bruch2006 who should have had similar  interest.
   - This aim/study would make a straight connection with the ACS paper and its conclusion
-  
 - The model can address the question why $\beta$, the importance of one characteristic of the neighborhood, would change depending on the needs (characteristics) of the individuals (households)
 - The model can address the question of how costs interact with needs and preferences (economic capital) of individuals.
   - Both points above (need $\rightarrow$ change in $\beta$) and costs of relocation can be linked to @esser2010 focus on capital theory. Relative group size and ethnic boundary making in @esser2010 are supposed to influence probability to make a choice. As linking to the ACS paper, they realize into relative group size and symbolic boundary making through homophily preferences.  
   This would foster the linkage Schelling-Esser of the general project agenda.
+- As in the Schelling's model [@schelling1969;@schelling1971], there is not question on why preferences for similar exist. While in the ACS paper we extended the model by including different dimensions of similarity. Extension to rational models as this would benefit understanding of different homophily preferences through their explicative reasons.
+
 - The formula $\beta u (.) + \epsilon$ should become somthing like $$N_{e} U_{e} + N_{v} U_{v} + N_{s} U_{s} - C$$ where $N$ =  needs, $C$ = costs and $e,v,s$ the ethnic, value and socio-economic status dimension.
 
 # Limits
