@@ -71,19 +71,6 @@ $\beta$ is a parameter indicating how much the random term is important modeled 
 - Both $u$ and $\beta$ can vary across individuals, but the model would explode in its complexity
 - Even if we consider households as agents who make a choice, the decision to relocate can be the product of negotiation of people in that household. Too complicated to be included
 
-Test, ignore
 <!-- read @Brock2001, @Brock1997 -->
-
-```{r chunk1, echo=FALSE, message=FALSE, warning=FALSE, include=TRUE}
-#echo=TRUE: the code appears in document
-#include=TRUE: the output appears in document
-
-```
-
-```{r chunk2, out.widh = '100%', fig.aign='center', fig.cap="CAPTION", include=FALSE}
-# knitr::include_graphics("name.pdf")
-```
-
-
 
 # References
