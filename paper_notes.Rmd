@@ -67,6 +67,22 @@ $\beta$ is a parameter indicating how much the random term is important modeled 
 
 - The formula $\beta u (.) + \epsilon$ should become something like $$N_{e} U_{e} + N_{v} U_{v} + N_{s} U_{s} - C$$ where $N$ =  needs, $C$ = costs and $e,v,s$ the ethnic, value and socio-economic status dimension. The random term $\epsilon$ is implemented through the exponential function.
 
+# Model
+
+- Notes: at the moment the distribution of values or ses is at the ethnic group level, it is not nested. E.g. it would be possible to extend with distribution of tolerant/intolerants within high ses class and independent distribution of tolerant/intolerant within low ses class. I think this would allow to better address the correlation between the dimensions at a more realistic rate, but increase the number of parameter.
+
+- A way to reduce the number of parameters and make the model more realistic might be to have $u$ changing as function of the identification agents hold for the three categories (value, ethnicity and ses), changing the category to a gradient $-1 ...+1$, e.g.:
+  - value: extreme right-wing $\longleftrightarrow$ extreme leftwing, or pro loval norms $\longleftrightarrow$ vs local norms
+  - ses: extrem low $\longleftrightarrow$ extreme high
+  - ethnicity: dychotomous group 1 vs group 2
+People who recognize as extremely leftwing or extremely rightwing might be more likely to attribute higher value to $\beta_{v}$ than people who are on the average position. Other dynamics that might be associated can be different homophily/heterophily behavior: 
+  - people at the lowest continuum for socio-economic status might be willing to move to richer neighborhoods (i.e. heterophily behavior) than people higher in the scale who would relocate to neighborhoods with similar status (i.e. homophily)
+  - inter-relation between identification and homophily preferences: if values is considered as tolerance towards diversity as in the ACS paper, people at the middle position should not care about ethnicity, those at the extreme intolerant position devalue the neighborhood, thus increasing the ethnic homophily preference.
+A way could be considering as similar those who fall into a $+0.10\backslash0.10$ range. The slope of utility including M can be derived by the position of the agent along the continuum, starting from 0.5 for those in the average position. E.g. 0 value would have a threshold of 0.5 and progressively losing it. An extreme agent at 1, with utility 100% of those considered as similar, the same for $-1$ with $u = 1$ at 100% similar (extremely liberal agents). Also less than $50%$ would mean others not similar, including extreme ones would be in the neighborhood.
+
+
+
+
 # Limits
 
 - Both $u$ and $\beta$ can vary across individuals, but the model would explode in its complexity
