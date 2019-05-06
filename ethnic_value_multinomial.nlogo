@@ -17,6 +17,7 @@ patches-own [
 turtles-own [
   beta-value
   beta-ethnic
+  beta-ses
   umin
   umax
   utility-myself
@@ -72,7 +73,7 @@ to update-turtles
     let color-myself color
     let ses-myself color mod 2
     let r random-float 1.00
-     show ses-myself
+
 
   ask options [                                                                                                                            ; for each possible location, utility is calculated for
                                                                                                                                          ; ethnic homophily (concentration agents same color) and
@@ -206,7 +207,7 @@ tolerant_blue
 tolerant_blue
 50
 100
-100.0
+57.0
 1
 1
 NIL
@@ -270,7 +271,7 @@ ethnic-square-blue
 ethnic-square-blue
 0
 100
-6.0
+100.0
 1
 1
 NIL
@@ -315,7 +316,7 @@ value-square-orange
 value-square-orange
 0
 100
-0.0
+72.0
 1
 1
 NIL
@@ -330,7 +331,7 @@ ethnic-square-orange
 ethnic-square-orange
 0
 100
-5.0
+100.0
 1
 1
 NIL
@@ -794,7 +795,7 @@ HORIZONTAL
 SLIDER
 103
 227
-278
+276
 260
 high_ses_orange
 high_ses_orange
