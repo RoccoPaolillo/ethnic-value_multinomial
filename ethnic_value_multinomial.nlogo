@@ -6,6 +6,7 @@ globals [
 patches-own [
   uti_eth
   uti_val
+  uti_ses
   raw_choice
   expa
 
@@ -27,16 +28,22 @@ to  setup
  clear-all
 ;  set sum_prob 0
  ask patches [ if random 100 < density [sprout 1[set sum_prob 0
-    ifelse random 100 < fraction_majority [        ;; ratio blue/orange is drawn (relative ethnic group size)
-      set color 105
-      ifelse random 100 < tolerant_majority [      ;; ratio value-oriented / ethnicity-oriented is drawn for majority group blue (relative value group size)
-        set shape "circle"]
+    ifelse random 100 < fraction_blue [        ; ratio blue/orange is drawn (relative ethnic group size)
+      ifelse random 100 < tolerant_blue       ; ratio value-oriented / ethnicity-oriented is drawn for majority group blue (relative value group size)
+        [set shape "circle"]
         [set shape "square"]
-    ][
-      set color 27
-    ifelse random 100 < tolerant_minority [       ;; ratio value-oriented / ethnicity-oriented is drawn for minority group orange (relative value group size)
-        set shape "circle"]
+      ifelse random 100 < high_ses_blue
+      [set color 108]
+      [set color 105]
+      ]
+    [
+
+    ifelse random 100 < tolerant_orange       ; ratio value-oriented / ethnicity-oriented is drawn for minority group orange (relative value group size)
+        [ set shape "circle"]
         [set shape "square"]
+    ifelse random 100 < high_ses_orange
+        [set color 28]
+        [set color 25]
     ]
     attribute-beta   ;; to attribute beta in the initialization (can be updated)
     ]
@@ -54,6 +61,7 @@ to update-turtles
 
 
  ask turtles [
+
     attribute-beta
     let alternative one-of patches with [not any? turtles-here]
     let options (patch-set alternative patch-here)
@@ -62,32 +70,27 @@ to update-turtles
     let beta-value-myself beta-value
     let shape-myself shape
     let color-myself color
-    let q 0
+    let ses-myself color mod 2
     let r random-float 1.00
-    let choice 0
+     show ses-myself
 
-  ask options [                                                                                                                            ;; for each possible location, utility is calculated for
-                                                                                                                                         ;; ethnic homophily (concentration agents same color) and
+  ask options [                                                                                                                            ; for each possible location, utility is calculated for
+                                                                                                                                         ; ethnic homophily (concentration agents same color) and
      set  uti_eth (count (turtles-on neighbors)  with [color = color-myself] / count (turtles-on neighbors))
-     set uti_val (count (turtles-on neighbors)  with [shape = shape-myself] /  count (turtles-on neighbors))  ;; value homophily (concentration agents same shape)
-                   ;; times the specific beta
+     set uti_val (count (turtles-on neighbors)  with [shape = shape-myself] /  count (turtles-on neighbors))  ;  value homophily (concentration agents same shape)
+      set uti_ses (count (turtles-on neighbors) with [color mod 2 = ses-myself] / count (turtles-on neighbors))
      set raw_choice (([beta-ethnic] of myself * uti_eth) + ([beta-value] of myself * uti_val))
-      set expa  exp raw_choice
+      set expa  exp raw_choice  ;  includsion randomness
 
 
     ]
 
     set somme sum [expa] of options
 
-    ask options [ set prob (expa / somme)]
+    ask options [ set prob (expa / somme)]  ;; probability of each option
 
-
-
-; ifelse [prob] of patch-here >= r [move-to patch-here][ifelse [prob] of patch-here + [prob] of alternative >= r [move-to alternative][]]
-    ifelse [prob] of patch-here > r [move-to patch-here set utility-myself [uti_eth] of patch-here][move-to alternative]
-
-
-
+    ifelse [prob] of patch-here > r [move-to patch-here set utility-myself [uti_eth] of patch-here][move-to alternative] ;  implementation of random utility/multinomial choice. This is correct: frozen states
+                                                                                                                         ;   appear when comparison between current patch and alternative is done
   ]
 
 end
@@ -95,7 +98,7 @@ end
 to attribute-beta
 
   ifelse random 100 < check_noise [
-    move-to one-of patches with [not any?  turtles-here]            ;; noise: agents move to an empty cell
+    move-to one-of patches with [not any?  turtles-here]            ;  noise: agents move to an empty cell
   ][
     ifelse color = 105 [
       ifelse shape = "square" [
@@ -146,10 +149,10 @@ ticks
 30.0
 
 BUTTON
-484
-402
-547
-435
+373
+412
+436
+445
 setup
 setup
 NIL
@@ -163,10 +166,10 @@ NIL
 1
 
 BUTTON
-559
-401
-614
-434
+376
+457
+431
+490
 go
 go\n
 T
@@ -184,8 +187,8 @@ SLIDER
 69
 278
 102
-fraction_majority
-fraction_majority
+fraction_blue
+fraction_blue
 50
 100
 50.0
@@ -199,11 +202,11 @@ SLIDER
 110
 278
 143
-tolerant_majority
-tolerant_majority
+tolerant_blue
+tolerant_blue
 50
 100
-50.0
+100.0
 1
 1
 NIL
@@ -244,170 +247,170 @@ PENS
 "value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1]"
 
 SLIDER
-57
-470
-195
-503
-value-square-blue
-value-square-blue
-0
-100
-7.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-49
-294
-183
-327
-ethnic-square-blue
-ethnic-square-blue
-0
-100
-46.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-55
-507
-195
-540
-value-circle-blue
-value-circle-blue
-0
-100
-8.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
 50
-330
-184
-363
-ethnic-circle-blue
-ethnic-circle-blue
+467
+188
+500
+value-square-blue
+value-square-blue
 0
 100
-36.0
+0.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-206
-471
-346
-504
-value-square-orange
-value-square-orange
-0
-100
-7.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-197
-294
-340
+51
 327
-ethnic-square-orange
-ethnic-square-orange
+185
+360
+ethnic-square-blue
+ethnic-square-blue
 0
 100
-21.0
+6.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-205
-508
-346
-541
-value-circle-orange
-value-circle-orange
+48
+504
+188
+537
+value-circle-blue
+value-circle-blue
 0
 100
-10.0
+0.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-196
-331
-340
-364
+52
+363
+186
+396
+ethnic-circle-blue
+ethnic-circle-blue
+0
+100
+13.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+199
+468
+339
+501
+value-square-orange
+value-square-orange
+0
+100
+0.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+191
+328
+334
+361
+ethnic-square-orange
+ethnic-square-orange
+0
+100
+5.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+198
+505
+339
+538
+value-circle-orange
+value-circle-orange
+0
+100
+0.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+190
+365
+334
+398
 ethnic-circle-orange
 ethnic-circle-orange
 0
 100
-15.0
+5.0
 1
 1
 NIL
 HORIZONTAL
 
 TEXTBOX
-103
-270
-137
-288
+105
+303
+139
+321
 BLUE
 11
 0.0
 1
 
 TEXTBOX
-251
-449
-303
-467
+249
+452
+301
+470
 ORANGE
 11
 0.0
 1
 
 TEXTBOX
-140
-245
-217
-263
+134
+279
+211
+297
 BETA-ETHNIC
 10
 0.0
 1
 
 TEXTBOX
-171
-433
-239
-451
+164
+430
+232
+448
 BETA-VALUE
 11
 0.0
 1
 
 MONITOR
-476
-447
-574
-492
+391
+513
+478
+558
 % circle_blue
 count turtles with [color = 105 and shape = \"circle\"] / count turtles with [color = 105] * 100
 2
@@ -415,10 +418,10 @@ count turtles with [color = 105 and shape = \"circle\"] / count turtles with [co
 11
 
 MONITOR
-581
-446
-696
-491
+482
+511
+583
+556
 % circle_orange
 count turtles with [color = 27 and shape = \"circle\"] / count turtles with [color = 27] * 100
 1
@@ -426,10 +429,10 @@ count turtles with [color = 27 and shape = \"circle\"] / count turtles with [col
 11
 
 MONITOR
-477
-497
-575
-542
+392
+563
+479
+608
 % square_blue
 count turtles with [color = 105 and shape = \"square\"] / count turtles with [color = 105] * 100
 1
@@ -437,10 +440,10 @@ count turtles with [color = 105 and shape = \"square\"] / count turtles with [co
 11
 
 MONITOR
-582
-496
-695
-541
+482
+562
+585
+607
 % square_orange
 count turtles with [color = 27 and shape = \"square\"] / count turtles with [color = 27] * 100
 1
@@ -448,37 +451,37 @@ count turtles with [color = 27 and shape = \"square\"] / count turtles with [col
 11
 
 MONITOR
-431
-547
-547
-592
-% circle_population
+543
+408
+630
+453
+% circle_pop
 count turtles with [shape = \"circle\"] / count turtles * 100
 1
 1
 11
 
 MONITOR
-554
-548
-671
-593
-% square_population
+544
+457
+630
+502
+% square_pop
 count turtles with [shape = \"square\"] / count turtles * 100
 1
 1
 11
 
 SLIDER
-106
-146
-278
-179
-tolerant_minority
-tolerant_minority
+103
+192
+275
+225
+tolerant_orange
+tolerant_orange
 50
 100
-50.0
+100.0
 1
 1
 NIL
@@ -495,10 +498,10 @@ blue
 1
 
 TEXTBOX
-287
-159
-323
-177
+291
+204
+327
+222
 orange
 11
 0.0
@@ -528,10 +531,10 @@ PENS
 "circle-orange-neigh" 1.0 0 -5207188 true "" "plot mean [count (turtles-on neighbors) with [color =  27 and shape = \"circle\"] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and color = 105]"
 
 MONITOR
-389
-448
-470
-493
+459
+407
+540
+452
 % blue
 (count turtles with [color = 105] / count turtles) * 100
 2
@@ -539,10 +542,10 @@ MONITOR
 11
 
 MONITOR
-390
-499
-469
-544
+461
+455
+540
+500
 % orange
 (count turtles with [color = 27] / count turtles) * 100
 2
@@ -550,70 +553,70 @@ MONITOR
 11
 
 TEXTBOX
--1
-307
-43
-325
+3
+339
+47
+357
 SQUARE
 10
 0.0
 1
 
 TEXTBOX
-0
-341
-44
-359
+4
+373
+48
+391
 CIRCLE
 10
 0.0
 1
 
 TEXTBOX
-111
-450
-143
-468
+104
+447
+136
+465
 BLUE
 11
 0.0
 1
 
 TEXTBOX
-251
-266
-307
-284
+250
+306
+306
+324
 ORANGE
 11
 0.0
 1
 
 TEXTBOX
-9
-480
-51
-498
+2
+477
+44
+495
 SQUARE
 10
 0.0
 1
 
 TEXTBOX
-8
-520
-44
-538
+6
+523
+42
+541
 CIRCLE
 10
 0.0
 1
 
 SLIDER
-124
-556
-296
-589
+103
+571
+275
+604
 check_noise
 check_noise
 0
@@ -625,20 +628,20 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-215
-245
-255
-263
+209
+279
+249
+297
 tag color
 9
 0.0
 1
 
 TEXTBOX
-240
-434
-293
-452
+233
+431
+286
+449
 tag shape
 9
 0.0
@@ -770,6 +773,80 @@ MONITOR
 sum_prob
 sum_prob
 17
+1
+11
+
+SLIDER
+105
+148
+277
+181
+high_ses_blue
+high_ses_blue
+0
+100
+100.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+103
+227
+278
+260
+high_ses_orange
+high_ses_orange
+0
+100
+0.0
+1
+1
+NIL
+HORIZONTAL
+
+MONITOR
+589
+511
+697
+556
+%high_ses_blue
+count turtles with [color = 108] / (count turtles with [color = 108] + count turtles with [color = 105]) * 100
+2
+1
+11
+
+MONITOR
+590
+562
+696
+607
+%high_ses_orange
+count turtles with [color = 28] / (count turtles with [color = 28] + count turtles with [color = 25]) * 100
+17
+1
+11
+
+MONITOR
+634
+408
+724
+453
+%high_ses_pop
+count turtles with [(color mod 2) = 0] / count turtles * 100
+2
+1
+11
+
+MONITOR
+636
+455
+723
+500
+%low_ses_pop
+count turtles with [(color mod 2) = 1] / count turtles * 100
+2
 1
 11
 
