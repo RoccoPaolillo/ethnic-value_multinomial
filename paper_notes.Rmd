@@ -12,6 +12,7 @@ header-includes:
 - \usepackage{float}
 - \usepackage{multirow}
 - \usepackage{xcolor} 
+- \usepackage{amsmath}
 ---
 
 ```{r setup, include=FALSE}
@@ -80,66 +81,92 @@ People who recognize as extremely leftwing or extremely rightwing might be more 
   - inter-relation between identification and homophily preferences: if values is considered as tolerance towards diversity as in the ACS paper, people at the middle position should not care about ethnicity, those at the extreme intolerant position devalue the neighborhood, thus increasing the ethnic homophily preference.
 A way could be considering as similar those who fall into a $+0.10\backslash0.10$ range. The slope of utility including M can be derived by the position of the agent along the continuum, starting from 0.5 for those in the average position. E.g. 0 value would have a threshold of 0.5 and progressively losing it. An extreme agent at 1, with utility 100% of those considered as similar, the same for $-1$ with $u = 1$ at 100% similar (extremely liberal agents). Also less than $50%$ would mean others not similar, including extreme ones would be in the neighborhood.
 
-The function below works with the modelization of utility. In @zhang2004, it is assumed people have a preference for mixed neighborhood ($u=1$  at 50%), depending on number of agents in neighborhood. As formulated now, the number of desired agents $n$ is substituted with the desired fraction. The first 3 steps compares to @zhang2004 results, Z = 1 and M = 0.6 the last one is to test with a neighborhood of 6 patches. With $m=0$, utility is constant once the ideal payoff is reached as in a threshold model, with $m=1$, symmetrical peaked function results To edit in table
+The function below works with the modelization of utility. In @zhang2004, it is assumed people have a preference for mixed neighborhood ($u=1$  at 50%), depending on number of agents in neighborhood. As formulated now, the number of desired agents $n$ is substituted with the desired concentration.
 
+
+
+
+$$
+U=
+\begin{cases}
+\frac{x}{np}, & \text{if} \ x \leq np, \\
+(2Z-M)+\frac{(M-Z)x}{p}, & otherwise
+\end{cases}
+$$
+
+
+
+Assuming $Z=1$ as peak of utility at desired fraction $P$, then the equation becomes:
+
+$$
+U=
+\begin{cases}
+\frac{x}{np}, & \text{if} \ x \leq np, \\
+(2-M)+\frac{(M-1)x}{p}, & otherwise
+\end{cases}
+$$
+
+
+The first 3 steps compares to @zhang2004 results, Z = 1 and M = 0.6 the last one is to test with a neighborhood of 6 patches. With $m=0$, utility is constant once the ideal payoff is reached as in a threshold model, with $m=1$, symmetrical peaked function results. To edit in table
+^[Not managed to implement Flache's formula on slides, either not understood correctly what it would translate on my formula: p = n number of agents; f = P desired concentration.]
 
 ```{r testing function, echo=FALSE}
 
 
-f <- function(P,Z,M,x,n){
-  if (x/n  <= P){U <- ((x/n)/P)}
-  else {U <- (2*Z-M) + (((M-Z)*(x/n))/P)}
+f <- function(p,M,x,n){
+  if (x  <= (n*p)){U <- (x/(n*p))}
+  else {U <- (2-M) + (((M-1)*x)/(n*p))}
   round(U,digits = 3)
  # print(U)
 }
 
-f0m <- f(0.5,1,0.6,0,8)
-f1m <- f(0.5,1,0.6,1,8)
-f2m <- f(0.5,1,0.6,2,8)
-f3m <- f(0.5,1,0.6,3,8)
-f4m <- f(0.5,1,0.6,4,8)
-f5m <- f(0.5,1,0.6,5,8)
-f6m <- f(0.5,1,0.6,6,8)
-f7m <- f(0.5,1,0.6,7,8)
-f8m <- f(0.5,1,0.6,8,8)
+f0m <- f(0.5,0.6,0,8)
+f1m <- f(0.5,0.6,1,8)
+f2m <- f(0.5,0.6,2,8)
+f3m <- f(0.5,0.6,3,8)
+f4m <- f(0.5,0.6,4,8)
+f5m <- f(0.5,0.6,5,8)
+f6m <- f(0.5,0.6,6,8)
+f7m <- f(0.5,0.6,7,8)
+f8m <- f(0.5,0.6,8,8)
 
 utilitym <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
 concentrationm <- c(0:8)
 
 
-f0vn <- f(0.5,1,0.6,0,4)
-f1vn <- f(0.5,1,0.6,1,4)
-f2vn <- f(0.5,1,0.6,2,4)
-f3vn <- f(0.5,1,0.6,3,4)
-f4vn <- f(0.5,1,0.6,4,4)
+f0vn <- f(0.5,0.6,0,4)
+f1vn <- f(0.5,0.6,1,4)
+f2vn <- f(0.5,0.6,2,4)
+f3vn <- f(0.5,0.6,3,4)
+f4vn <- f(0.5,0.6,4,4)
 
 utilityvn <- c(f0vn,f1vn,f2vn,f3vn,f4vn)
 concentrationvn <- c(0:4)
 
-f0r2 <- f(0.5,1,0.6,0,12)
-f1r2 <- f(0.5,1,0.6,1,12)
-f2r2 <- f(0.5,1,0.6,2,12)
-f3r2 <- f(0.5,1,0.6,3,12)
-f4r2 <- f(0.5,1,0.6,4,12)
-f5r2 <- f(0.5,1,0.6,5,12)
-f6r2 <- f(0.5,1,0.6,6,12)
-f7r2 <- f(0.5,1,0.6,7,12)
-f8r2 <- f(0.5,1,0.6,8,12)
-f9r2 <- f(0.5,1,0.6,9,12)
-f10r2 <- f(0.5,1,0.6,10,12)
-f11r2 <- f(0.5,1,0.6,11,12)
-f12r2 <- f(0.5,1,0.6,12,12)
+f0r2 <- f(0.5,0.6,0,12)
+f1r2 <- f(0.5,0.6,1,12)
+f2r2 <- f(0.5,0.6,2,12)
+f3r2 <- f(0.5,0.6,3,12)
+f4r2 <- f(0.5,0.6,4,12)
+f5r2 <- f(0.5,0.6,5,12)
+f6r2 <- f(0.5,0.6,6,12)
+f7r2 <- f(0.5,0.6,7,12)
+f8r2 <- f(0.5,0.6,8,12)
+f9r2 <- f(0.5,0.6,9,12)
+f10r2 <- f(0.5,0.6,10,12)
+f11r2 <- f(0.5,0.6,11,12)
+f12r2 <- f(0.5,0.6,12,12)
 
 utilityr2 <- c(f0r2,f1r2,f2r2,f3r2,f4r2,f5r2,f6r2,f7r2,f8r2,f9r2,f10r2,f11r2,f12r2)
 concentrationr2 <- c(0:12)
 
-f0t6 <- f(0.5,1,0.6,0,6)
-f1t6 <- f(0.5,1,0.6,1,6)
-f2t6 <- f(0.5,1,0.6,2,6)
-f3t6 <- f(0.5,1,0.6,3,6)
-f4t6 <- f(0.5,1,0.6,4,6)
-f5t6 <- f(0.5,1,0.6,5,6)
-f6t6 <- f(0.5,1,0.6,6,6)
+f0t6 <- f(0.5,0.6,0,6)
+f1t6 <- f(0.5,0.6,1,6)
+f2t6 <- f(0.5,0.6,2,6)
+f3t6 <- f(0.5,0.6,3,6)
+f4t6 <- f(0.5,0.6,4,6)
+f5t6 <- f(0.5,0.6,5,6)
+f6t6 <- f(0.5,0.6,6,6)
 
 utilityt6 <- c(f0t6,f1t6,f2t6,f3t6,f4t6,f5t6,f6t6)
 concentrationt6 <- c(0:6)
