@@ -90,7 +90,7 @@ $$
 U=
 \begin{cases}
 \frac{x}{np}, & \text{if} \ x \leq np, \\
-(2Z-M)+\frac{(M-Z)x}{p}, & otherwise
+(2Z-M)+\frac{(M-Z)x}{np}, & otherwise
 \end{cases}
 $$
 
@@ -102,20 +102,24 @@ $$
 U=
 \begin{cases}
 \frac{x}{np}, & \text{if} \ x \leq np, \\
-(2-M)+\frac{(M-1)x}{p}, & otherwise
+(2-M)+\frac{(M-1)x}{np}, & otherwise
 \end{cases}
 $$
 
 
-The first 3 steps compares to @zhang2004 results, Z = 1 and M = 0.6 the last one is to test with a neighborhood of 6 patches. With $m=0$, utility is constant once the ideal payoff is reached as in a threshold model, with $m=1$, symmetrical peaked function results. To edit in table
-^[Not managed to implement Flache's formula on slides, either not understood correctly what it would translate on my formula: p = n number of agents; f = P desired concentration.]
+The first 3 steps compares to @zhang2004 results, Z = 1 and M = 0.6 the last one is to test with a neighborhood of 8 patches. With $m=0$, utility is constant once the ideal payoff is reached as in a threshold model, with $m=1$, symmetrical peaked function results. To edit in table
+^[Not managed to implement Flache's formula on slides, either not understood correctly what it would translate on my formula: p = n number of agents; f = P desired concentration.]\
+* With p = 0.2 the right-side of peaked function goes below 0, in sum conditions as p = 0.8 and p = 0.3 utility is approximated above .9 but does not reach 1.
+
+
 
 ```{r testing function, echo=FALSE}
 
 
 f <- function(p,M,x,n){
   if (x  <= (n*p)){U <- (x/(n*p))}
-  else {U <- (2-M) + (((M-1)*x)/(n*p))}
+  else {U <- M + ((1-(x/n))*(1-M))/(1-p)}
+ # else {U <- (2-M) + (((M-1)*x)/(n*p))} M + ((1-(x/n))*(1-M))/(1-p)}
   round(U,digits = 3)
  # print(U)
 }
@@ -160,16 +164,18 @@ f12r2 <- f(0.5,0.6,12,12)
 utilityr2 <- c(f0r2,f1r2,f2r2,f3r2,f4r2,f5r2,f6r2,f7r2,f8r2,f9r2,f10r2,f11r2,f12r2)
 concentrationr2 <- c(0:12)
 
-f0t6 <- f(0.5,0.6,0,6)
-f1t6 <- f(0.5,0.6,1,6)
-f2t6 <- f(0.5,0.6,2,6)
-f3t6 <- f(0.5,0.6,3,6)
-f4t6 <- f(0.5,0.6,4,6)
-f5t6 <- f(0.5,0.6,5,6)
-f6t6 <- f(0.5,0.6,6,6)
+f0t8 <- f(0.5,0.6,0,8)
+f1t8 <- f(0.5,0.6,1,8)
+f2t8 <- f(0.5,0.6,2,8)
+f3t8 <- f(0.5,0.6,3,8)
+f4t8 <- f(0.5,0.6,4,8)
+f5t8 <- f(0.5,0.6,5,8)
+f6t8 <- f(0.5,0.6,6,8)
+f7t8 <- f(0.5,0.6,7,8)
+f8t8 <- f(0.5,0.6,8,8)
 
-utilityt6 <- c(f0t6,f1t6,f2t6,f3t6,f4t6,f5t6,f6t6)
-concentrationt6 <- c(0:6)
+utilityt8 <- c(f0t8,f1t8,f2t8,f3t8,f4t8,f5t8,f6t8,f7t8)
+concentrationt8 <- c(0:7)
 
 
 
@@ -185,8 +191,8 @@ plot(concentrationm,utilitym)
 print(utilityr2)
 plot(concentrationr2,utilityr2)
 
-print(utilityt6)
-plot(concentrationt6,utilityt6)
+print(utilityt8)
+plot(concentrationt8,utilityt8)
 
 ```
 
