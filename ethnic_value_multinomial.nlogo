@@ -1,6 +1,5 @@
 globals [
  somme
-  blue_eth
 ]
 
 patches-own [
@@ -445,7 +444,7 @@ HORIZONTAL
 SLIDER
 176
 278
-331
+330
 311
 value_opt2_peak
 value_opt2_peak
