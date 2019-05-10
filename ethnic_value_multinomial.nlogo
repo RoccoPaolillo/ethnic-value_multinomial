@@ -1,6 +1,6 @@
 globals [
  somme
-  sum_prob
+  blue_eth
 ]
 
 patches-own [
@@ -9,8 +9,6 @@ patches-own [
   uti_ses
   raw_choice
   expa
-
-;  somme
   prob
 ]
 
@@ -21,57 +19,57 @@ turtles-own [
   ethnic_peak
   value_peak
   ses_peak
-  utility_myself_ethnic
-  utility_myself_value
-  utility_myself_ses
-
+  utility_myself
 ]
 
 to  setup
 
- clear-all
+clear-all
 ;  set sum_prob 0
  ask patches [ set pcolor white
     if random 100 < density [sprout 1 [
     ifelse random 100 < fraction_blue [        ; ratio blue/orange is drawn (relative ethnic group size)
-
-      ifelse random 100 < high_ses_blue       ; ratio value-oriented / ethnicity-oriented is drawn for majority group blue (relative value group size)
+        ifelse random 100 < high_ses_blue
         [set color  108
         ifelse random 100 < tol_high_ses_blue
-          [set shape "circle"]
-          [set shape "square"]
+        [set shape "circle"]
+        [set shape "square"]
         ]
         [set color  105
-         ifelse random 100 < tol_low_ses_blue
+        ifelse random 100 < tol_low_ses_blue
         [set shape "circle"]
-          [set shape "square"]
+        [set shape "square"]
         ]
-      ]
+
+        ]
+
        [
       ifelse random 100 <  high_ses_orange     ; ratio value-oriented / ethnicity-oriented is drawn for minority group orange (relative value group size)
         [set color 28
         ifelse random 100 < tol_high_ses_orange
-          [set shape "circle"]
-          [set shape "square"]
+        [set shape "circle"]
+        [set shape "square"]
          ]
         [set color 25
         ifelse random 100 < tol_low_ses_orange
         [set shape "circle"]
-          [set shape "square"]
+        [set shape "square"]
         ]
+      ]
 
-    ]
 
     attribute-preferences  ;; to attribute beta in the initialization (can be updated)
+
+      ]
     ]
-    ]
-  ]
+   ]
 
  reset-ticks
 end
 
 to go
  update-turtles
+
  tick
 end
 
@@ -90,14 +88,15 @@ to update-turtles
 
 
 
+
   ask options [
     let xe count (turtles-on neighbors)  with [abs (color - color-myself) = 3 or (color - color-myself) = 0 ]
     let xv count (turtles-on neighbors)  with [shape = shape-myself]
     let xs count (turtles-on neighbors) with [color mod 2 = ses-myself]
     let n  count (turtles-on neighbors)
 
-      set uti_eth ifelse-value ((xe / n) <= [ethnic_peak] of myself) [xe  / n] [M + (( (1 - (xe / n)) * (1 - M)) / (1 - [ethnic_peak] of myself))]
-     set uti_val ifelse-value ((xv / n) <= [value_peak] of myself) [xv  / n] [M + (( (1 - (xv / n)) * (1 - M)) / (1 - [value_peak] of myself))]
+    set uti_eth ifelse-value ((xe / n) <= [ethnic_peak] of myself) [xe  / n] [M + (( (1 - (xe / n)) * (1 - M)) / (1 - [ethnic_peak] of myself))]
+    set uti_val ifelse-value ((xv / n) <= [value_peak] of myself) [xv  / n] [M + (( (1 - (xv / n)) * (1 - M)) / (1 - [value_peak] of myself))]
     set uti_ses ifelse-value ((xs / n) <= [ses_peak] of myself) [xs / n] [M + (( (1 - (xs / n)) * (1 - M)) / (1 - [ses_peak] of myself))]
 
       set raw_choice  ([beta_value] of myself * uti_val) + ([beta_ses] of myself * uti_ses)  + ([beta_ethnic] of myself * uti_eth)
@@ -112,10 +111,9 @@ to update-turtles
 
     ifelse [prob] of patch-here > r [
       move-to patch-here
-      set utility_myself_ethnic [uti_eth] of patch-here
-      set utility_myself_value [uti_val] of patch-here
-      set utility_myself_ses [uti_ses] of patch-here
-     ][move-to alternative] ;  implementation of random utility/multinomial choice. This is correct: frozen states
+      set utility_myself (([uti_eth] of patch-here + [uti_val] of patch-here + [uti_ses] of patch-here) / 3)
+      ][
+      move-to alternative] ;  implementation of random utility/multinomial choice. This is correct: frozen states
                                                                                                                          ;   appear when comparison between current patch and alternative is done
   ]
 
@@ -134,14 +132,12 @@ to attribute-preferences
     set beta_value ifelse-value (color = 105 or color = 108) [value_opt1_beta][value_opt2_beta]
   set beta_ses ifelse-value (color = 105 or color = 108) [ses_opt1_beta][ses_opt2_beta]
   ]
-
-
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-350
+343
 11
-729
+722
 391
 -1
 -1
@@ -166,27 +162,10 @@ ticks
 30.0
 
 BUTTON
-373
-412
-436
-445
-setup
-setup
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-376
-457
-431
-490
+677
+550
+732
+583
 go
 go\n
 T
@@ -215,21 +194,6 @@ NIL
 HORIZONTAL
 
 SLIDER
-14
-113
-170
-146
-tol_high_ses_blue
-tol_high_ses_blue
-0
-100
-80.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
 7
 10
 179
@@ -245,11 +209,11 @@ NIL
 HORIZONTAL
 
 PLOT
-737
-12
-1055
-162
-all agents segregation
+754
+10
+1072
+155
+all agents
 NIL
 NIL
 0.0
@@ -263,56 +227,13 @@ PENS
 "ethnic-seg" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [ count (turtles-on neighbors) >= 1]"
 "value-seg" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1]"
 "ses-seg" 1.0 0 -2674135 true "" "plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [count (turtles-on neighbors) >= 1]"
+"utility" 1.0 0 -16777216 true "" "plot mean [utility_myself] of turtles"
 
 MONITOR
-391
-513
-478
-558
-% circle_blue
-(count turtles with [color = 105 or color = 108 and shape = \"circle\"] / count turtles with [color = 105 or color = 108]) * 100
-2
-1
-11
-
-MONITOR
-482
-511
-583
-556
-% circle_orange
-(count turtles with [color = 25 or color = 28 and shape = \"circle\"] / count turtles with [color = 25 or color = 28]) * 100
-1
-1
-11
-
-MONITOR
-392
-563
-479
-608
-% square_blue
-(count turtles with [color = 105 or color = 108 and shape = \"square\"] / count turtles with [color = 105 or color = 108]) * 100
-1
-1
-11
-
-MONITOR
-482
-562
-585
-607
-% square_orange
-(count turtles with [color = 25 or color = 28 and shape = \"square\"] / count turtles with [color = 25 or color = 28]) * 100
-1
-1
-11
-
-MONITOR
-543
-408
-630
-453
+398
+399
+481
+444
 % circle_pop
 (count turtles with [shape = \"circle\"] / count turtles) * 100
 1
@@ -320,35 +241,20 @@ MONITOR
 11
 
 MONITOR
-544
-457
-630
-502
+398
+448
+480
+493
 % square_pop
 (count turtles with [shape = \"square\"] / count turtles) * 100
 1
 1
 11
 
-SLIDER
-14
-150
-171
-183
-tol_low_ses_blue
-tol_low_ses_blue
-0
-100
-50.0
-1
-1
-NIL
-HORIZONTAL
-
 TEXTBOX
-83
+79
 58
-113
+109
 76
 blue
 11
@@ -356,9 +262,9 @@ blue
 1
 
 TEXTBOX
-233
+229
 57
-269
+265
 75
 orange
 11
@@ -366,10 +272,10 @@ orange
 1
 
 MONITOR
-459
-407
-540
-452
+333
+398
+393
+443
 % blue
 (count turtles with [color = 105 or color = 108] / count turtles) * 100
 2
@@ -377,10 +283,10 @@ MONITOR
 11
 
 MONITOR
-461
-455
-540
-500
+332
+447
+393
+492
 % orange
 (count turtles with [color = 25 or color = 28] / count turtles) * 100
 2
@@ -388,9 +294,9 @@ MONITOR
 11
 
 SLIDER
-91
+87
 553
-263
+259
 586
 check_noise
 check_noise
@@ -425,24 +331,24 @@ sum_prob
 11
 
 SLIDER
-15
+11
 77
-171
+167
 110
 high_ses_blue
 high_ses_blue
 0
 100
-80.0
+70.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-176
+172
 76
-335
+326
 109
 high_ses_orange
 high_ses_orange
@@ -455,143 +361,121 @@ NIL
 HORIZONTAL
 
 MONITOR
-589
-511
-697
-556
-%high_ses_blue
-(count turtles with [color = 108] / count turtles with [color = 105 or color = 108]) * 100
-2
-1
-11
-
-MONITOR
-590
-562
-696
-607
-%high_ses_orange
-(count turtles with [color = 25 or color = 28] / count turtles with [color = 25 or color = 28]) * 100
-2
-1
-11
-
-MONITOR
-634
-408
-724
-453
-%high_ses_pop
+485
+400
+563
+445
+% bright_pop
 (count turtles with [color mod 2 = 0] / count turtles) * 100
 2
 1
 11
 
 MONITOR
-636
-455
-723
-500
-%low_ses_pop
-(count turtles with [(color mod 2) = 1] / count turtles) * 100
+486
+448
+564
+493
+% dark_pop
+(count turtles with [color mod 2 = 1] / count turtles) * 100
 2
 1
 11
 
 SLIDER
-18
+14
 240
-169
+165
 273
 ethnic_opt1_peak
 ethnic_opt1_peak
 0
 1
-0.2
+0.0
 0.1
 1
 %
 HORIZONTAL
 
 SLIDER
-19
+15
 276
-168
+164
 309
 value_opt1_peak
 value_opt1_peak
 0
 1
-0.7
+0.0
 0.1
 1
 %
 HORIZONTAL
 
 SLIDER
-17
+13
 313
-170
+166
 346
 ses_opt1_peak
 ses_opt1_peak
 0
 1
-0.9
+0.0
 0.1
 1
 %
 HORIZONTAL
 
 SLIDER
-177
+173
 241
-334
+330
 274
 ethnic_opt2_peak
 ethnic_opt2_peak
 0
 1
-0.8
+0.0
 0.1
 1
 %
 HORIZONTAL
 
 SLIDER
-180
+176
 278
-335
+331
 311
 value_opt2_peak
 value_opt2_peak
 0
 1
-0.7
+0.0
 0.1
 1
 %
 HORIZONTAL
 
 SLIDER
-179
+175
 312
-332
+328
 345
 ses_opt2_peak
 ses_opt2_peak
 0
 1
-0.3
+0.0
 0.1
 1
 %
 HORIZONTAL
 
 SLIDER
-83
+79
 363
-255
+251
 396
 M
 M
@@ -604,121 +488,101 @@ NIL
 HORIZONTAL
 
 SLIDER
-21
+17
 434
-164
+160
 467
 ethnic_opt1_beta
 ethnic_opt1_beta
 0
 100
-0.0
+100.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-20
+16
 471
-163
+159
 504
 value_opt1_beta
 value_opt1_beta
 0
 100
-0.0
+100.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-19
+15
 507
-163
+159
 540
 ses_opt1_beta
 ses_opt1_beta
 0
 100
-18.0
+100.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-175
+171
 433
-322
+318
 466
 ethnic_opt2_beta
 ethnic_opt2_beta
 0
 100
-0.0
+100.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-175
+171
 471
-321
+317
 504
 value_opt2_beta
 value_opt2_beta
 0
 100
-0.0
+100.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-175
+171
 509
-322
+318
 542
 ses_opt2_beta
 ses_opt2_beta
 0
 100
-8.0
+100.0
 1
 1
 NIL
 HORIZONTAL
 
 PLOT
-1072
-10
-1387
-161
-all agents utility
-NIL
-NIL
-0.0
-10.0
-0.0
-1.0
-true
-true
-"" ""
-PENS
-"ethnic-uti" 1.0 0 -5825686 true "" "plot mean [utility_myself_ethnic] of turtles"
-"value-uti" 1.0 0 -10899396 true "" "plot mean [utility_myself_value] of turtles"
-"ses-uti" 1.0 0 -2674135 true "" "plot mean [utility_myself_ses] of turtles"
-
-PLOT
-736
-170
-1055
-319
-blue agents segregation
+754
+158
+1073
+301
+blue agents
 NIL
 NIL
 0.0
@@ -732,36 +596,321 @@ PENS
 "ethnic-seg" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [ count (turtles-on neighbors) >= 1 and color = 105 or color = 108]"
 "value-seg" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and color = 105 or color = 108]"
 "ses-seg" 1.0 0 -2674135 true "" "plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [count (turtles-on neighbors) >= 1 and color = 105 or color = 108]"
+"utility" 1.0 0 -16777216 true "" "plot mean [utility_myself] of turtles with [color = 105 or color = 108]"
 
 SLIDER
-176
-113
-338
-146
+174
+151
+328
+184
+tol_low_ses_orange
+tol_low_ses_orange
+0
+100
+100.0
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+677
+505
+734
+538
+setup
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+PLOT
+1084
+156
+1402
+299
+orange agents
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"ethnic-seg" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [ count (turtles-on neighbors) >= 1 and color = 28 or color = 25]\n"
+"value-seg" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and color = 28 or color = 25]"
+"ses-seg" 1.0 0 -2674135 true "" "plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [count (turtles-on neighbors) >= 1 and color = 28 or color = 25]"
+"utility" 1.0 0 -16777216 true "" "plot mean [utility_myself] of turtles with [color = 28 or color = 25]"
+
+SLIDER
+172
+115
+328
+148
 tol_high_ses_orange
 tol_high_ses_orange
 0
 100
-50.0
+83.0
+1
+1
+NIL
+HORIZONTAL
+
+MONITOR
+329
+501
+409
+546
+% blu_cir_brg
+((count turtles with [color = 108 or color = 105 and shape = \"circle\" and color mod 2 = 0]) / count turtles) * 100
+2
+1
+11
+
+SLIDER
+11
+115
+169
+148
+tol_high_ses_blue
+tol_high_ses_blue
+0
+100
+19.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-176
+11
 152
-338
+171
 185
-tol_low_ses_orange
-tol_low_ses_orange
+tol_low_ses_blue
+tol_low_ses_blue
 0
 100
-50.0
+10.0
 1
 1
 NIL
 HORIZONTAL
+
+MONITOR
+413
+501
+496
+546
+% blu_sqr_brg
+((count turtles with [color = 108 or color = 105 and shape = \"square\" and color mod 2 = 0]) / count turtles) * 100
+2
+1
+11
+
+MONITOR
+329
+549
+410
+594
+% blu_cir_drk
+((count turtles with [color = 108 or color = 105 and shape = \"circle\"  and color mod 2 = 1]) / count turtles) * 100
+2
+1
+11
+
+MONITOR
+413
+549
+494
+594
+% blu_sqr_drk
+((count turtles with [color = 108 or color = 105 and shape = \"square\"  and color mod 2 = 1]) / count turtles) * 100
+2
+1
+11
+
+MONITOR
+499
+504
+579
+549
+% org_cir_brg
+((count turtles with [color = 28 or color = 25 and shape = \"circle\" and color mod 2 = 0]) / count turtles) * 100
+2
+1
+11
+
+MONITOR
+584
+505
+668
+550
+%org_sqr_brg
+((count turtles with [color = 28 or color = 25 and shape = \"square\" and color mod 2 = 0]) / count turtles) * 100
+2
+1
+11
+
+MONITOR
+499
+551
+580
+596
+%org_cir_drk
+((count turtles with [color = 28 or color = 25 and shape = \"circle\"  and color mod 2 = 1]) / count turtles) * 100
+2
+1
+11
+
+MONITOR
+583
+551
+670
+596
+%_org_sqr_drk
+((count turtles with [color = 28 or color = 25 and shape = \"square\"  and color mod 2 = 1]) / count turtles) * 100
+2
+1
+11
+
+MONITOR
+575
+400
+653
+445
+%cirle_blue
+(count turtles with [color = 108 or color = 105 and shape = \"circle\"] / count turtles with [color = 108 or color = 105]) * 100
+2
+1
+11
+
+MONITOR
+576
+446
+652
+491
+%bright_blue
+(count turtles with [color = 108 or color = 105 and color mod 2 = 0] / count turtles  with [color = 108 or color = 105]) * 100
+2
+1
+11
+
+MONITOR
+659
+398
+733
+443
+% circle_org
+(count turtles with [color = 28 or color = 25 and shape = \"circle\"] / count turtles with [color = 28 or color = 25]) * 100
+2
+1
+11
+
+MONITOR
+660
+444
+734
+489
+% bright_org
+(count turtles with [color = 28 or color = 25 and color mod 2 = 0] / count turtles  with [color = 28 or color = 25]) * 100
+2
+1
+11
+
+PLOT
+754
+304
+1072
+446
+tolerant agents
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"ethnic-seg" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [shape = \"circle\" and count (turtles-on neighbors) >= 1]"
+"value-seg" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [shape = \"circle\" and  count (turtles-on neighbors) >= 1]"
+"ses-seg" 1.0 0 -2674135 true "" "plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [shape = \"circle\" and count (turtles-on neighbors) >= 1]"
+"utility" 1.0 0 -16777216 true "" "plot mean [utility_myself] of turtles with [shape = \"circle\"]"
+
+PLOT
+754
+451
+1073
+592
+high ses agents
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"ethnic-seg" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color mod 2 = 0 and count (turtles-on neighbors) >= 1]"
+"value-seg" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [color mod 2 = 0 and  count (turtles-on neighbors) >= 1]"
+"ses-seg" 1.0 0 -2674135 true "" "plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color mod 2 = 0 and count (turtles-on neighbors) >= 1]"
+"utility" 1.0 0 -16777216 true "" "plot mean [utility_myself] of turtles with [color mod 2 = 0]"
+
+PLOT
+1084
+303
+1403
+445
+intolerant agents
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"ethnic-seg" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [shape = \"square\" and count (turtles-on neighbors) >= 1]"
+"value-seg" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [shape = \"square\" and  count (turtles-on neighbors) >= 1]"
+"ses-seg" 1.0 0 -2674135 true "" "plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [shape = \"square\" and count (turtles-on neighbors) >= 1]"
+"utility" 1.0 0 -16777216 true "" "plot mean [utility_myself] of turtles with [shape = \"square\"]"
+
+PLOT
+1081
+453
+1403
+594
+low ses agents
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"ethnic-seg" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color mod 2 = 1 and count (turtles-on neighbors) >= 1]"
+"value-seg" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [color mod 2 = 1 and  count (turtles-on neighbors) >= 1]"
+"ses-seg" 1.0 0 -2674135 true "" "plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color mod 2 = 1 and count (turtles-on neighbors) >= 1]"
+"utility" 1.0 0 -16777216 true "" "plot mean [utility_myself] of turtles with [color mod 2 = 1]"
 
 @#$#@#$#@
 ## WHAT IS IT?

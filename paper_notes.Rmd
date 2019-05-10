@@ -111,6 +111,7 @@ The first 3 steps compares to @zhang2004 results, Z = 1 and M = 0.6 the last one
 ^[Not managed to implement Flache's formula on slides, either not understood correctly what it would translate on my formula: p = n number of agents; f = P desired concentration.]\
 * With p = 0.2 the right-side of peaked function goes below 0, in sum conditions as p = 0.8 and p = 0.3 utility is approximated above .9 but does not reach 1.
 
+Test for $utility = 1$, utility = 0 means that agents want $0%$ similars in their neighbborhood, thus neighborhoods with not any similar one will have max utility and literally decreasing for neighborhoods with more similar ones. With $\beta = 0$, agents don't care about the composition of the neighborhood, so that both current location and alternative patch have prob. equal to zero, selecting alternative or current one randomly, sometimes relocating. Increasing $\beta$, the utility attributed to the patch due to neighborhood composition is multiplied times $\beta$, meaning those neighborhoods less inhabited by similar ones will higher probability to be chosen, thus increasing integration. It is not agents don't care, but agents care that similar ones are not there. See if this is related to @bruch2006's error cited by @van2009
 
 
 ```{r testing function, echo=FALSE}
@@ -164,15 +165,15 @@ f12r2 <- f(0.5,0.6,12,12)
 utilityr2 <- c(f0r2,f1r2,f2r2,f3r2,f4r2,f5r2,f6r2,f7r2,f8r2,f9r2,f10r2,f11r2,f12r2)
 concentrationr2 <- c(0:12)
 
-f0t8 <- f(0.5,0.6,0,8)
-f1t8 <- f(0.5,0.6,1,8)
-f2t8 <- f(0.5,0.6,2,8)
-f3t8 <- f(0.5,0.6,3,8)
-f4t8 <- f(0.5,0.6,4,8)
-f5t8 <- f(0.5,0.6,5,8)
-f6t8 <- f(0.5,0.6,6,8)
-f7t8 <- f(0.5,0.6,7,8)
-f8t8 <- f(0.5,0.6,8,8)
+f0t8 <- f(0,0.6,0,8)
+f1t8 <- f(0,0.6,1,8)
+f2t8 <- f(0,0.6,2,8)
+f3t8 <- f(0,0.6,3,8)
+f4t8 <- f(0,0.6,4,8)
+f5t8 <- f(0,0.6,5,8)
+f6t8 <- f(0,0.6,6,8)
+f7t8 <- f(0,0.6,7,8)
+f8t8 <- f(0,0.6,8,8)
 
 utilityt8 <- c(f0t8,f1t8,f2t8,f3t8,f4t8,f5t8,f6t8,f7t8)
 concentrationt8 <- c(0:7)

@@ -1,0 +1,42 @@
+plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [ count (turtles-on neighbors) >= 1]
+plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1]
+plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [count (turtles-on neighbors) >= 1]
+plot mean [utility_myself] of turtles
+
+
+
+((count turtles with [color = 108 or color = 105 and shape = "circle" and color mod 2 = 0]) / count turtles) * 100
+((count turtles with [color = 108 or color = 105 and shape = "square" and color mod 2 = 0]) / count turtles) * 100
+((count turtles with [color = 108 or color = 105 and shape = "circle"  and color mod 2 = 1]) / count turtles) * 100
+((count turtles with [color = 108 or color = 105 and shape = "square"  and color mod 2 = 1]) / count turtles) * 100
+
+((count turtles with [color = 28 or color = 25 and shape = "circle" and color mod 2 = 0]) / count turtles) * 100
+((count turtles with [color = 28 or color = 25 and shape = "square" and color mod 2 = 0]) / count turtles) * 100
+((count turtles with [color = 28 or color = 25 and shape = "circle"  and color mod 2 = 1]) / count turtles) * 100
+((count turtles with [color = 28 or color = 25 and shape = "square"  and color mod 2 = 1]) / count turtles) * 100
+
+(count turtles with [color = 28 or color = 25 and shape = "circle"] / count turtles with [color = 28 or color = 25]) * 100
+(count turtles with [color = 28 or color = 25 and color mod = 0] / count turtles  with [color = 28 or color = 25]) * 100
+
+
+plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [shape = "circle" and count (turtles-on neighbors) >= 1]
+plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [shape = "circle" and  count (turtles-on neighbors) >= 1]
+plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [shape = "circle" and count (turtles-on neighbors) >= 1]
+plot mean [utility_myself] of turtles with [shape = "circle"]
+
+
+plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [shape = "square" and count (turtles-on neighbors) >= 1]
+plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [shape = "square" and  count (turtles-on neighbors) >= 1]
+plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [shape = "square" and count (turtles-on neighbors) >= 1]
+plot mean [utility_myself] of turtles with [shape = "square"]
+
+
+plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color mod 2 = 0 and count (turtles-on neighbors) >= 1]
+plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [color mod 2 = 0 and  count (turtles-on neighbors) >= 1]
+plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color mod 2 = 0 and count (turtles-on neighbors) >= 1]
+plot mean [utility_myself] of turtles with [color mod 2 = 0]
+
+plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color mod 2 = 1 and count (turtles-on neighbors) >= 1]
+plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [color mod 2 = 1 and  count (turtles-on neighbors) >= 1]
+plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color mod 2 = 1 and count (turtles-on neighbors) >= 1]
+plot mean [utility_myself] of turtles with [color mod 2 = 1]
