@@ -124,12 +124,12 @@ to attribute-preferences
     move-to one-of patches with [not any?  turtles-here]            ;  noise: agents move to an empty cell
   ]
   [
-    set ethnic_peak ifelse-value (color = 105 or color = 108) [ethnic_opt1_peak][ethnic_opt2_peak]
-    set value_peak ifelse-value (color = 105 or color = 108) [value_opt1_peak][value_opt2_peak]
-    set ses_peak ifelse-value (color = 105 or color = 108) [ses_opt1_peak][ses_opt2_peak]
-  set beta_ethnic ifelse-value (color = 105 or color = 108) [ethnic_opt1_beta][ethnic_opt2_beta]
-    set beta_value ifelse-value (color = 105 or color = 108) [value_opt1_beta][value_opt2_beta]
-  set beta_ses ifelse-value (color = 105 or color = 108) [ses_opt1_beta][ses_opt2_beta]
+    set ethnic_peak ifelse-value (shape = "square") [ethnic_square_peak][ethnic_circle_peak]
+    set value_peak ifelse-value (shape = "square") [value_square_peak][value_circle_peak]
+    set ses_peak ifelse-value (shape = "square") [ses_square_peak][ses_circle_peak]
+  set beta_ethnic ifelse-value (shape = "square") [ethnic_square_beta][ethnic_circle_beta]
+    set beta_value ifelse-value (shape = "square") [value_square_beta][value_circle_beta]
+  set beta_ses ifelse-value (shape = "square") [ses_square_beta][ses_circle_beta]
   ]
 end
 @#$#@#$#@
@@ -384,10 +384,10 @@ MONITOR
 SLIDER
 14
 240
-165
+189
 273
-ethnic_opt1_peak
-ethnic_opt1_peak
+ethnic_square_peak
+ethnic_square_peak
 0
 1
 0.0
@@ -401,8 +401,8 @@ SLIDER
 276
 164
 309
-value_opt1_peak
-value_opt1_peak
+value_square_peak
+value_square_peak
 0
 1
 0.0
@@ -416,8 +416,8 @@ SLIDER
 313
 166
 346
-ses_opt1_peak
-ses_opt1_peak
+ses_square_peak
+ses_square_peak
 0
 1
 0.0
@@ -431,8 +431,8 @@ SLIDER
 241
 330
 274
-ethnic_opt2_peak
-ethnic_opt2_peak
+ethnic_circle_peak
+ethnic_circle_peak
 0
 1
 0.0
@@ -446,8 +446,8 @@ SLIDER
 278
 330
 311
-value_opt2_peak
-value_opt2_peak
+value_circle_peak
+value_circle_peak
 0
 1
 0.0
@@ -461,8 +461,8 @@ SLIDER
 312
 328
 345
-ses_opt2_peak
-ses_opt2_peak
+ses_circle_peak
+ses_circle_peak
 0
 1
 0.0
@@ -480,7 +480,7 @@ M
 M
 0
 1
-0.6
+0.5
 0.1
 1
 NIL
@@ -491,8 +491,8 @@ SLIDER
 434
 160
 467
-ethnic_opt1_beta
-ethnic_opt1_beta
+ethnic_square_beta
+ethnic_square_beta
 0
 100
 100.0
@@ -506,8 +506,8 @@ SLIDER
 471
 159
 504
-value_opt1_beta
-value_opt1_beta
+value_square_beta
+value_square_beta
 0
 100
 100.0
@@ -521,8 +521,8 @@ SLIDER
 507
 159
 540
-ses_opt1_beta
-ses_opt1_beta
+ses_square_beta
+ses_square_beta
 0
 100
 100.0
@@ -536,8 +536,8 @@ SLIDER
 433
 318
 466
-ethnic_opt2_beta
-ethnic_opt2_beta
+ethnic_circle_beta
+ethnic_circle_beta
 0
 100
 100.0
@@ -551,8 +551,8 @@ SLIDER
 471
 317
 504
-value_opt2_beta
-value_opt2_beta
+value_circle_beta
+value_circle_beta
 0
 100
 100.0
@@ -566,8 +566,8 @@ SLIDER
 509
 318
 542
-ses_opt2_beta
-ses_opt2_beta
+ses_circle_beta
+ses_circle_beta
 0
 100
 100.0
