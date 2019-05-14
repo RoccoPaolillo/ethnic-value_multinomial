@@ -40,3 +40,117 @@ plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 
 plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [color mod 2 = 1 and  count (turtles-on neighbors) >= 1]
 plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color mod 2 = 1 and count (turtles-on neighbors) >= 1]
 plot mean [utility_myself] of turtles with [color mod 2 = 1]
+
+
+---------------
+"blu-hig-sqr"
+
+if subgroup = "blu-hig-sqr" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of
+ turtles with [color = 108 or color = 105 and shape = "square" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "blu-hig-sqr" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of 
+turtles with [ color = 108 or color = 105 and shape = "square" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "blu-hig-sqr" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of 
+turtles with [color = 108 or color = 105 and shape = "square" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "blu-hig-sqr" [plot mean [utility_myself] of turtles with [color = 108 or color = 105 and shape = "square" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]
+
+"blu-low-sqr"
+
+if subgroup = "blu-low-sqr" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of
+ turtles with [color = 108 or color = 105 and shape = "square" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "blu-low-sqr" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of 
+turtles with [ color = 108 or color = 105 and shape = "square" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "blu-low-sqr" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of
+ turtles with [color = 108 or color = 105 and shape = "square" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "blu-low-sqr" [plot mean [utility_myself] of turtles with [color = 108 or color = 105 and shape = "square" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]
+
+----
+
+"blu-hig-crl"
+
+if subgroup = "blu-hig-crl" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of 
+turtles with [color = 108 or color = 105 and shape = "circle" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "blu-hig-crl" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of 
+turtles with [ color = 108 or color = 105 and shape = "circle" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "blu-hig-crl" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of
+ turtles with [color = 108 or color = 105 and shape = "circle" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "blu-hig-crl" [plot mean [utility_myself] of turtles with [color = 108 or color = 105 and shape = "circle" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]
+
+"blu-low-crl"
+
+if subgroup = "blu-low-crl" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of
+ turtles with [color = 108 or color = 105 and shape = "circle" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "blu-low-crl" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of 
+turtles with [ color = 108 or color = 105 and shape = "circle" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "blu-low-crl" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of
+ turtles with [color = 108 or color = 105 and shape = "circle" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "blu-low-crl" [plot mean [utility_myself] of turtles with [color = 108 or color = 105 and shape = "circle" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]
+
+----orange-------------------
+
+"org-hig-sqr"
+
+if subgroup = "org-hig-sqr" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of
+ turtles with [color = 28 or color = 25 and shape = "square" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "org-hig-sqr" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of 
+turtles with [ color = 28 or color = 25  and shape = "square" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "org-hig-sqr" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of 
+turtles with [color = 28 or color = 25 and shape = "square" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "org-hig-sqr" [plot mean [utility_myself] of turtles with [color = 28 or color = 25 and shape = "square" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]
+
+"org-low-sqr"
+
+if subgroup = "org-low-sqr" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of
+ turtles with [color = 28 or color = 25 and shape = "square" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "org-low-sqr" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of 
+turtles with [color = 28 or color = 25 and shape = "square" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "org-low-sqr" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of
+ turtles with [color = 28 or color = 25 and shape = "square" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "org-low-sqr" [plot mean [utility_myself] of turtles with [color = 28 or color = 25 and shape = "square" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]
+
+---
+--
+-
+
+"org-hig-crl"
+
+if subgroup = "org-hig-crl" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of
+ turtles with [color = 28 or color = 25 and shape = "circle" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "org-hig-crl" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of 
+turtles with [ color = 28 or color = 25  and shape = "circle" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "org-hig-crl" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of 
+turtles with [color = 28 or color = 25 and shape = "circle" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "org-hig-crl" [plot mean [utility_myself] of turtles with [color = 28 or color = 25 and shape = "circle" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]
+
+"org-low-crl"
+
+if subgroup = "org-low-crl" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of
+ turtles with [color = 28 or color = 25 and shape = "circle" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "org-low-crl" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of 
+turtles with [color = 28 or color = 25 and shape = "circle" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "org-low-crl" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of
+ turtles with [color = 28 or color = 25 and shape = "circle" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]
+
+if subgroup = "org-low-crl" [plot mean [utility_myself] of turtles with [color = 28 or color = 25 and shape = "circle" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]
