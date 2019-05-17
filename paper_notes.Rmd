@@ -2,12 +2,12 @@
 output:
   bookdown::pdf_document2:
     toc: false
-    keep_tex: false
+ #   keep_tex: false
     fig_caption: yes
-title: "Title"
-author: Author
+title: "Paper notes"
+author: Rocco Paolillo
 bibliography: "references.bib"
-csl: apa.csl # by default: Chicago style
+# csl: apa.csl # by default: Chicago style
 header-includes:
 - \usepackage{float}
 - \usepackage{multirow}
@@ -17,6 +17,15 @@ header-includes:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.lp="fig:")
+
+
+f <- function(p,M,x,n){
+  if (x  <= (n*p)){U <- (x/(n*p))}
+  else {U <- M + ((1-(x/n))*(1-M))/(1-p)}
+ # else {U <- (2-M) + (((M-1)*x)/(n*p))} M + ((1-(x/n))*(1-M))/(1-p)}
+  round(U,digits = 3)
+ # print(U)
+}
 
 # install.packages("tinytex", repos = "https://cloud.r-project.org" ) if debug needed?
 
@@ -29,62 +38,59 @@ knitr::opts_chunk$set(echo = TRUE, fig.lp="fig:")
 \newcommand{\rocco}[1]{\textcolor{red}{{Rocco:}#1}} <!-- <- this is a command to appear in pdf -->
 <!-- command not to appear in pdf -->
 
-# Introduction and Questions
 
-@zhang2004 cites and refers to @schelling1978 for his prominent influence on threshold and tipping model, still then elaborates on a model based on random utility with single-peaked function and $\beta$. How much can a rational model which uses peak of utility and probability of choice be considered to rely on Schelling's threshold model?\
-What is the relation between random utility models and threshold models?\
-\
-
-- @zhang2004 assumes an entire world, not empty patches, so that $utility = 1$ at 50% is because $4/8$ of agents are of similar ethnicity (plus the peak function). To replicate his model there should be not empty space. @bruch2006 models with $15%$ empty patches. Should our world have not empty patches, so to maximize utility? This can allow also to test density effects on satisfaction and not bias on concentration calculation.
-
-## Component of probability of the choice
+# Component of probability of the choice
 
 - Object of choice: neighborhood
 - Choice: relocate to a neighborhood
-- Utility: payoff one is likely to accept to make the choice, i.e. to relocate to one neighborhood (which implies to stay on the same neighborhood). In @zhang2004 it is made up of:
-  - deterministic component $U$: how much people desire/value one preference  in order to make the choice, e.g. degree of ethnic concentration (e.g. max utility = 1 at 100% similars). @zhang2004 uses a single-peaked function (vs maximization).
-  - random term $\epsilon$ that refers to other characteristics of the option, i.e. the neighborhood, that influence the payoff to choose the neighborhood although not related to the deterministic component. In regression models  this is the random  error terms. Random utility models in abm recreate with the exponential function, so that not always the best option according to the deterministic component is taken.
-- Probability of the choice: $\beta u (.) + \epsilon$\
-$\beta$ is a parameter indicating how much the random term is important modeled as a positive constant. The lower is \$beta\, the higher is random term $\epsilon$, i.e. other random characteristics, are relevant to choose one neighborhood. The higher is $\beta$, the lower will be the importance of random term $\epsilon$ and higher the importance of deterministic utility component to make a choice, i.e. moving to the neighborhood.
+- Utility: payoff one is likely to accept to make the choice, i.e. to relocate to one neighborhood (or stay on current one). In @zhang2004 it is made up of:
+  - deterministic component $U$: how much people desire/value one preference  in order to make the choice as ideal payoff, e.g. degree of ethnic concentration (e.g. max utility = 1 at 100% similars). @zhang2004 uses a single-peaked function (vs maximization).
+  - random term $\epsilon$ that refers to other characteristics of the option, i.e. the neighborhood, that influence the choice but independent of utility payoff. In regression models  this is the random  error terms. Random utility models in abm recreate with the exponential function, so that not always the best option according to the deterministic component $U$ is chosen.
+- Probability of the choice: $\beta u (.) + \epsilon$\, which is conceptually different but related to payoff $u$
+  - $\beta$ is a parameter indicating how much the characteristic of the option is important in the probability to make a choice, or the random term $\epsilon$. It is modeled as a positive constant: the lower is $\beta$, the higher is random term $\epsilon$, i.e. other random characteristics, are relevant to choose one neighborhood. The higher is $\beta$, the lower will be the importance of random term $\epsilon$ and higher the importance of deterministic utility component to make a choice, i.e. moving to the neighborhood.
 \
-- Given the existence of an ideal payoff to make a choice $u$, why should someone give more importance to that dimension over the other, that is, why should $\beta$ vary among individuals? An answer in @esser2010 is social, educational, economic capital. For instance:
-  - The lower an agent speaks a language, the higher for ethnic homophily would be  $\beta_{ethnic}$;
-  - the higher is social mobility intention, the higher the wealth (socio-economic status) of the neighborhood would be $\beta_{status}$
-  - the higher the need to associate with people sharing the same values of local community (receiving context in Esser [@esser2010] (e.g. political orientations, norm beliefs...), the higher 
-- Costs of relocation can be included as costs that hinder relocation despite high probability to choose. This can be one application of  @esser2010's definition of costs as limit to the investment on the receving context option (although in the ethnic population, but it can be extended). In @esser2010 costs is loosely derived from social, economic and cultural capital milieu, e.g. risk of social exclusion from in-group, but economic costs of relocation can be one simple implementation now.
+
 
 
 # Aim of the paper
 
-- The conceptual difference between $u$ and  $\beta$ should be $u$: what is the ideal point (payoff) to make the choice and $\beta$ how important is that component to people to make a choice. The paper could focus on the interplay between different utility functions at ethnic group level and the individual importance for each of them. This would allow to test how segregation can emerge from the interplay of different homophily preferences.
-  - The model could be initialized with correlations from data, as Andreas suggested, plus literature (e.g. right-wing and anti-diversity/migrant attitude)
-- Given the interplay of homophily preferences, to compare the difference between threshold models and random utility models with single peaked function. It makes sense to consider $\beta$ would apply equally to threshold models and single-peaked function, as well as the inclusion of randomness in a pure Schelling-type model. Check @bruch2006 who should have had similar  interest.
-  - This aim/study would make a straight connection with the ACS paper and its conclusion
-- The model can address the question why $\beta$, the importance of one characteristic of the neighborhood, would change depending on the needs (characteristics) of the individuals (households)
-- The model can address the question of how costs interact with needs and preferences (economic capital) of individuals.
-  - Both points above (need $\rightarrow$ change in $\beta$) and costs of relocation can be linked to @esser2010 focus on capital theory. Relative group size and ethnic boundary making in @esser2010 are supposed to influence probability to make a choice. As linking to the ACS paper, they realize into relative group size and symbolic boundary making through homophily preferences.  
-  This would foster the linkage Schelling-Esser of the general project agenda.
-- As in the Schelling's model [@schelling1969;@schelling1971], there is not question on why preferences for similar exist. While in the ACS paper we extended the model by including different dimensions of similarity. Extension to rational models as this would benefit understanding of different homophily preferences through their explicative reasons.
+- Independent of the ideal payoff $u$ people have for one characteristic of the neighborhood, my question is why someone should give more importance to that characteristic over the others, that is:
+\par
+why should $\beta$ vary among individuals?
+\par
+An answer in @esser2010 is social, educational, economic capital and how it translates into the investment of people into receiving context/ethnic context and his general suggestion. For instance:
+  - The lower an agent speaks a language, the higher the need for aggregating with co-ethnics would be, so to increase $\beta_{ethnic}$ independently of what is the ideal payoff for ethnic composition of the neighborhood;
+  - the higher is social mobility intention either as investment or value in the own community, the higher the wealth (socio-economic status) of the neighborhood would be $\beta_{status}$
+  - the higher the need to associate with people sharing the same values of local community (receiving context in Esser [@esser2010] (e.g. political orientations, norm beliefs...) even as strategy for crossing ethnic boundaries [@wimmer2013], the higher the composition of value-orientation would become with increase of $\beta_{value}$ 
+- Costs of relocation can be included as costs that hinder relocation despite the choice. This can be one application of  @esser2010's definition of costs as limit to the investment on the receving context option. In @esser2010 costs is loosely derived from social, economic and cultural capital milieu and are basically conceptualized upon the concrete choice actors (i.e. migrants) want to engage in, costs of relocation can be one of many.
 
-- The formula $\beta u (.) + \epsilon$ should become something like $$N_{e} U_{e} + N_{v} U_{v} + N_{s} U_{s} - C$$ where $N$ =  needs, $C$ = costs and $e,v,s$ the ethnic, value and socio-economic status dimension. The random term $\epsilon$ is implemented through the exponential function.
+- In the ACS paper [@paolillo2018] we focused on the interplay of different homophily preferences in Schelling's threshold model and diffent type of segregation that emerge. With this direction the next paper could link to the ACS paper [@paolillo2018] by:
+  * addressing the reason why people would have preference for one characteristic over the other
+  * what's the effect of people holding different preferences at same grades, while in the ACS they were exclusive tolerant: value, intolerant: ethnicity
+  * extension to the random utility model as in @zhang2004 would distinguish between the ideal payoff $u$ for a characteristic and how important is that characteristic to people $\beta$
+  * an additional point to random utility models would be to link $\beta$ to needs and resources of people as in @esser2010. This has some advantages to me:
+    - relative group size and ethnic boundary making in @esser2010 are supposed to influence probability to make a choice.In the ACS paper we included symbolic boundaries through the definition of similarity and relative group size, now we would include the overall frame of the model with need $\rightarrow$ change in $\beta$) and costs of relocation
+    - as in the original Schelling [@schelling1969;@schelling1971] and other literature, homophily *per se* is a mechanism which describes the aggregation dynamics, but it does not provide causal mechanism on why people should aggregate based on one dimension over the others. This frame of the paper could fill this point
+    - foster the linkage between @esser2010's speculation and Schelling's model, so to benefit the long term agenda of the project
+    - deeper definition of utility frame and rational choice, linking to the literature in abm and concretisize @esser2010's model itself, which was elaborated as a summa of general and abstract rational choice
 
-# Model
+- Linking $\beta$ to needs and including costs, $\beta u (.) + \epsilon$ should become something like $$N_{e} U_{e} + N_{v} U_{v} + N_{s} U_{s} - C$$ where $N$ =  needs, $C$ = costs and $e,v,s$ the ethnic, value and socio-economic status dimension. The random term $\epsilon$ is implemented through the exponential function.
 
-- Notes: at the moment the distribution of values or ses is at the ethnic group level, it is not nested. E.g. it would be possible to extend with distribution of tolerant/intolerants within high ses class and independent distribution of tolerant/intolerant within low ses class. I think this would allow to better address the correlation between the dimensions at a more realistic rate, but increase the number of parameter.
+# Notes on the model
 
-- A way to reduce the number of parameters and make the model more realistic might be to have $u$ changing as function of the identification agents hold for the three categories (value, ethnicity and ses), changing the category to a gradient $-1 ...+1$, e.g.:
-  - value: extreme right-wing $\longleftrightarrow$ extreme leftwing, or pro loval norms $\longleftrightarrow$ vs local norms
+- Now agents' characteristics of ethnicity, value and ses are nested. I think it would be worth to have a change in $u$ and $\beta$ for any intersection, but with risk to increase the number of parameters. The simplest solution I found so far was to link it to the value-orientation of agents as in the ACS paper [@paolillo2018].
+
+- A way to reduce the number of parameters and make the model more realistic might be to have $u$ changing as function of the identification agents hold for the three categories (value, ethnicity and ses), changing the categories to a gradient $-1 ...+1$, e.g.:
+  - value: extreme right-wing $\longleftrightarrow$ extreme leftwing, or pro local norms $\longleftrightarrow$ vs local norms.
   - ses: extrem low $\longleftrightarrow$ extreme high
   - ethnicity: dychotomous group 1 vs group 2
-People who recognize as extremely leftwing or extremely rightwing might be more likely to attribute higher value to $\beta_{v}$ than people who are on the average position. Other dynamics that might be associated can be different homophily/heterophily behavior: 
-  - people at the lowest continuum for socio-economic status might be willing to move to richer neighborhoods (i.e. heterophily behavior) than people higher in the scale who would relocate to neighborhoods with similar status (i.e. homophily)
-  - inter-relation between identification and homophily preferences: if values is considered as tolerance towards diversity as in the ACS paper, people at the middle position should not care about ethnicity, those at the extreme intolerant position devalue the neighborhood, thus increasing the ethnic homophily preference.
-A way could be considering as similar those who fall into a $+0.10\backslash0.10$ range. The slope of utility including M can be derived by the position of the agent along the continuum, starting from 0.5 for those in the average position. E.g. 0 value would have a threshold of 0.5 and progressively losing it. An extreme agent at 1, with utility 100% of those considered as similar, the same for $-1$ with $u = 1$ at 100% similar (extremely liberal agents). Also less than $50%$ would mean others not similar, including extreme ones would be in the neighborhood.
-
-The function below works with the modelization of utility. In @zhang2004, it is assumed people have a preference for mixed neighborhood ($u=1$  at 50%), depending on number of agents in neighborhood. As formulated now, the number of desired agents $n$ is substituted with the desired concentration.
+This way would maybe allow to explore more with fewer parameters: 
+  - ideal payoff function $u$ as in the single-peaked function could derive from how people positionate along the continuum, as well combination of different homophily preferences. Assuming value as tolerance towards diversity, people extremely conservative would likely want in their neighborhood people both of the same ethnic group, but also of the same value orientation. People in the middler positions would care less about the value-orientation of others (as in the current ACS paper)
+  - the model would be relaxated which would justify the single-peaked function, linking $u$ to  shift in $M$ and affect the right slope: people who aim at 100% similar neighborhood would be more likely to choose a 90% similar neighborhood than 30%, as well as people aiming at a mixed 50% neighborhood would be more likely to choose a 60% of similar, as in Zhang [@zhang2004]
+  - different and more realistic scenarios, and examples in literature could be compared [@van2012] or what data show. This supports  the aim of the abm/project to clarify how different scenarios of integration/segregation are possible in an unified model and theory building
 
 
-
+I implemented in the model the single-peaked funcition as in @zhang2004 since I think it allows to explore more articulated scenarios. I think it would be worth to question about as above.
 
 $$
 U=
@@ -96,34 +102,36 @@ $$
 
 
 
-Assuming $Z=1$ as peak of utility at desired fraction $P$, then the equation becomes:
+Assuming $Z=1$ as peak of utility at desired fraction $P$, then the equation becomes as follow. This is how I implemented  for the three utilities (ethnicity, value, ses). Did not understand to be honest how the second equation @zhang2004 (otherwise) is reduced to the one used  in Andreas Flache's slides and Sage's model (how 2Z-M disappears). I adapted their equation, but I  understand it and it works as I tested.
 
 $$
 U=
 \begin{cases}
 \frac{x}{np}, & \text{if} \ x \leq np, \\
-(2-M)+\frac{(M-1)x}{np}, & otherwise
+M+\frac{(1-(x/n))*(1-M)}{(1-p)}, & otherwise
 \end{cases}
 $$
+\
+
+where
+M = constant for the right slope \
+x = number of similar ones in Moore neighborhood \
+n = number of agents in the Moore neighborhod $\rightarrow$ x/n: fraction similars \
+p = desired concentration \
+
+Fig. \ref{fig:moore} replicates @zhang2004 for desired fraction $p=0.5$ in an 8 patches Moore neighborhood, $Z=1$ and $M=0.6$.\
+Fig  \ref{fig:sechneg} shows how the function will not change for the same proportion within a different number of patches occupied in the neighborhood, here with occupied patches equal to 6.\
+Fig. \ref{fig:emmeone} shows how for M=1 utility becomes constant once the ideal payoff is reached, kind similar to threshold models\
+Fig. \ref{fig:emmezero} shows how for M=0 the right slope is symmetrical with left one.
+
+Fig. \ref{fig:utzero} shows the condition where desired concentration $p=0$ in a 8 patches neighborhoood, with $M=0.6$, which means agents actively do not want any similar in the neighborhood. This means that although utility = 1 at 0 is not possible, the function becomes linear decreasing.\
+Fig. \ref{fig:integr} shows how this translates in the  model with $\beta=100$. Seems to me it increases stable integration, and it is not an error: as @zhang2004 describes, with $\beta=0$ agents just move randomly, with equal chance to move to alternative patch or stay in neighborhood. Here with $\beta=100$ the characteristic of the neighborhood is relevant to them, although the payoff is 0 and $\beta * u=0$, correct I think conceptually and as the stable patterns of emerged segregations and average utility show. To check if this can be related to @bruch2006's error cited by @van2009
 
 
-The first 3 steps compares to @zhang2004 results, Z = 1 and M = 0.6 the last one is to test with a neighborhood of 8 patches. With $m=0$, utility is constant once the ideal payoff is reached as in a threshold model, with $m=1$, symmetrical peaked function results. To edit in table
-^[Not managed to implement Flache's formula on slides, either not understood correctly what it would translate on my formula: p = n number of agents; f = P desired concentration.]\
-* With p = 0.2 the right-side of peaked function goes below 0, in sum conditions as p = 0.8 and p = 0.3 utility is approximated above .9 but does not reach 1.
 
-Test for $utility = 1$, utility = 0 means that agents want $0%$ similars in their neighbborhood, thus neighborhoods with not any similar one will have max utility and literally decreasing for neighborhoods with more similar ones. With $\beta = 0$, agents don't care about the composition of the neighborhood, so that both current location and alternative patch have prob. equal to zero, selecting alternative or current one randomly, sometimes relocating. Increasing $\beta$, the utility attributed to the patch due to neighborhood composition is multiplied times $\beta$, meaning those neighborhoods less inhabited by similar ones will higher probability to be chosen, thus increasing integration. It is not agents don't care, but agents care that similar ones are not there. See if this is related to @bruch2006's error cited by @van2009
+```{r moore, echo=FALSE, fig.cap="utility in Moore 8 patches; desired fraction 50%, M=0.6, Z=1"}
 
 
-```{r testing function, echo=FALSE}
-
-
-f <- function(p,M,x,n){
-  if (x  <= (n*p)){U <- (x/(n*p))}
-  else {U <- M + ((1-(x/n))*(1-M))/(1-p)}
- # else {U <- (2-M) + (((M-1)*x)/(n*p))} M + ((1-(x/n))*(1-M))/(1-p)}
-  round(U,digits = 3)
- # print(U)
-}
 
 f0m <- f(0.5,0.6,0,8)
 f1m <- f(0.5,0.6,1,8)
@@ -135,8 +143,82 @@ f6m <- f(0.5,0.6,6,8)
 f7m <- f(0.5,0.6,7,8)
 f8m <- f(0.5,0.6,8,8)
 
-utilitym <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
+utility_Moore <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
 concentrationm <- c(0:8)
+
+
+# print(utilitym)
+plot(concentrationm,utility_Moore)
+```
+
+```{r sechneg, echo=FALSE, fig.cap="utility in Moore 6 patches; desired fraction 50%, M=0.6, Z=1"}
+
+f0t6 <- f(0.5,0.6,0,6)
+f1t6 <- f(0.5,0.6,1,6)
+f2t6<- f(0.5,0.6,2,6)
+f3t6 <- f(0.5,0.6,3,6)
+f4t6 <- f(0.5,0.6,4,6)
+f5t6 <- f(0.5,0.6,5,6)
+f6t6 <- f(0.5,0.6,6,6)
+
+utilityt6 <- c(f0t6,f1t6,f2t6,f3t6,f4t6,f5t6,f6t6)
+concentrationt6 <- c(0:6)
+
+
+# print(utilityt8)
+plot(concentrationt6,utilityt6)
+
+```
+
+
+
+```{r emmeone, echo=FALSE, fig.cap="utility in Moore 8 patches; desired fraction 50%, M=1, Z=1"}
+
+
+
+f0m <- f(0.5,1,0,8)
+f1m <- f(0.5,1,1,8)
+f2m <- f(0.5,1,2,8)
+f3m <- f(0.5,1,3,8)
+f4m <- f(0.5,1,4,8)
+f5m <- f(0.5,1,5,8)
+f6m <- f(0.5,1,6,8)
+f7m <- f(0.5,1,7,8)
+f8m <- f(0.5,1,8,8)
+
+utility_Moore <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
+concentrationm <- c(0:8)
+
+
+# print(utilitym)
+plot(concentrationm,utility_Moore)
+```
+
+```{r emmezero, echo=FALSE, fig.cap="utility in Moore 8 patches; desired fraction 50%, M=0, Z=1"}
+
+
+
+f0m <- f(0.5,0,0,8)
+f1m <- f(0.5,0,1,8)
+f2m <- f(0.5,0,2,8)
+f3m <- f(0.5,0,3,8)
+f4m <- f(0.5,0,4,8)
+f5m <- f(0.5,0,5,8)
+f6m <- f(0.5,0,6,8)
+f7m <- f(0.5,0,7,8)
+f8m <- f(0.5,0,8,8)
+
+utility_Moore <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
+concentrationm <- c(0:8)
+
+
+# print(utilitym)
+plot(concentrationm,utility_Moore)
+```
+
+
+```{r vn, echo=FALSE, include=FALSE, fig.cap="utility in Von Neumann 4 patches; desired fraction 50%, M=0.6, Z=1"}
+
 
 
 f0vn <- f(0.5,0.6,0,4)
@@ -147,6 +229,15 @@ f4vn <- f(0.5,0.6,4,4)
 
 utilityvn <- c(f0vn,f1vn,f2vn,f3vn,f4vn)
 concentrationvn <- c(0:4)
+
+#print(utilityvn)
+plot(concentrationvn,utilityvn)
+
+```
+
+
+```{r R2,include=FALSE, echo=FALSE, fig.cap="utility in R2 12 patches; desired fraction 50%, M=0.6, Z=1"}
+
 
 f0r2 <- f(0.5,0.6,0,12)
 f1r2 <- f(0.5,0.6,1,12)
@@ -165,6 +256,17 @@ f12r2 <- f(0.5,0.6,12,12)
 utilityr2 <- c(f0r2,f1r2,f2r2,f3r2,f4r2,f5r2,f6r2,f7r2,f8r2,f9r2,f10r2,f11r2,f12r2)
 concentrationr2 <- c(0:12)
 
+
+#print(utilityr2)
+plot(concentrationr2,utilityr2)
+
+```
+
+
+
+
+```{r utzero, echo=FALSE, fig.cap="Results with desired fraction p = 0 in Moore neighborhood 8 patches, M=0.6 and Z=1"}
+
 f0t8 <- f(0,0.6,0,8)
 f1t8 <- f(0,0.6,1,8)
 f2t8 <- f(0,0.6,2,8)
@@ -175,32 +277,29 @@ f6t8 <- f(0,0.6,6,8)
 f7t8 <- f(0,0.6,7,8)
 f8t8 <- f(0,0.6,8,8)
 
-utilityt8 <- c(f0t8,f1t8,f2t8,f3t8,f4t8,f5t8,f6t8,f7t8)
-concentrationt8 <- c(0:7)
+utilityt8 <- c(f0t8,f1t8,f2t8,f3t8,f4t8,f5t8,f6t8,f7t8,f8t8)
+concentrationt8 <- c(0:8)
 
-
-
-
-
-print(utilityvn)
-plot(concentrationvn,utilityvn)
-
-print(utilitym)
-plot(concentrationm,utilitym)
-
-
-print(utilityr2)
-plot(concentrationr2,utilityr2)
-
-print(utilityt8)
+# print(utilityt8)
 plot(concentrationt8,utilityt8)
 
 ```
 
-# Limits
 
-- Both $u$ and $\beta$ can vary across individuals, but the model would explode in its complexity
-- Even if we consider households as agents who make a choice, the decision to relocate can be the product of negotiation of people in that household. Too complicated to be included
+```{r integr, fig.pos='h' , out.widh = '100%', fig.aign='center', fig.cap="Even subgroups ethnicityXvalueXses (12,5% of population each), utility = 0, beta = 100, M = 0.6", echo=FALSE, include=TRUE}
+
+knitr::include_graphics("C:/Users/rocpa/OneDrive/Desktop/upload/integration_0.jpg")
+
+```
+
+
+
+# Doubts
+
+
+* It is still not very clear to me what you can get out of a regression model for what concerns utility. Some material I am reading describes dependent variable y as the probability to choose option x, and assumes this to be expression of the term utility quantified in beta coefficient times variable(characteristic) for each characteristic. But following @zhang2004, utility of the option made per se would be already the product of $\beta$ probability of choice * $u$ ideal payoff. I do not understand if it is possible to disentangle the two components from a regression, although intuitive cases come to mind (e.g. finding negative correlation between costs in @esser2010 and probability of choice). @borghans2015 use the deviance of betas related to difference within groups, which I understand how to connect to multinomial choice as differences in choice due to characteristics of people, but it is not to my doubt. It is how to disentangle utility in empirical terms which is not very clear to me, and how the modeling choice can be related to empirical data, or if I am overthinking on it. In  any case I would need to study more.
+
+* Some models as @zhang2004 and @bruch2006 put random utility models within Schelling's framework. As I understand so far there  are different components that collapse as multinomial choice, single-peaked function etc. In general they seems to me to fit within utility perspective, but it is not clear to me how much these utility models conceptually fit in @schelling1969 threshold model they cite or are innerly different. In my understanding a threshold model would not care about the left-slope of a single-peaked function, and utility would be constant as @bruch2006 also describes. There would be not consideration of (random) probabilities but prob = 1 once threshold is guaranteed, despite adding randomness, and not assessment of different options, as in the white flight. I think there is a difference conceptually and it should be marked. I also wonder how much a threshold model and utility models would differ when compared with empirical data and how they could be compared, which many abm paper do not focus on. I would like to study this as well, would make sense considering the ACS paper is a threshold model and now shifting to utility, but I think it would be beyond this paper. In general for my PhD I have to wite a paper of my onw.
 
 <!-- read @Brock2001, @Brock1997 -->
 

@@ -97,10 +97,11 @@ to update-turtles
     let xs count (turtles-on neighbors) with [color mod 2 = ses-myself]               ; concentration same brightness (ses) (color mod 2 = 0 bright high ses agents; color mod 2 = 1 dark low ses agents)
     let n  count (turtles-on neighbors)                                               ; count turtles on neighbors
 
+    ; modified in case not turtles on neighbors: utility set to 0, calculated with single-peaked function otherwise
 
-    set uti_eth ifelse-value ((xe / n) <= [ethnic_peak] of myself) [xe  / n] [M + (( (1 - (xe / n)) * (1 - M)) / (1 - [ethnic_peak] of myself))]     ; ethnic utility
-    set uti_val ifelse-value ((xv / n) <= [value_peak] of myself) [xv  / n] [M + (( (1 - (xv / n)) * (1 - M)) / (1 - [value_peak] of myself))]       ; value utility
-    set uti_ses ifelse-value ((xs / n) <= [ses_peak] of myself) [xs / n] [M + (( (1 - (xs / n)) * (1 - M)) / (1 - [ses_peak] of myself))]            ; ses utility
+    set uti_eth ifelse-value (n = 0) [0][ifelse-value ((xe / n) <= [ethnic_peak] of myself) [xe  / n] [M + (( (1 - (xe / n)) * (1 - M)) / (1 - [ethnic_peak] of myself))]]     ; ethnic utility
+    set uti_val ifelse-value (n = 0) [0][ifelse-value ((xv / n) <= [value_peak] of myself) [xv  / n] [M + (( (1 - (xv / n)) * (1 - M)) / (1 - [value_peak] of myself))]]       ; value utility
+    set uti_ses ifelse-value (n = 0) [0][ifelse-value  ((xs / n) <= [ses_peak] of myself) [xs / n] [M + (( (1 - (xs / n)) * (1 - M)) / (1 - [ses_peak] of myself))]]             ; ses utility
 
       set raw_choice  ([beta_value] of myself * uti_val) + ([beta_ses] of myself * uti_ses)  + ([beta_ethnic] of myself * uti_eth) ; raw chooice option = sum beta*utility for each characteristic
       set expa  exp raw_choice  ;  includsion randomness: beta*Utility + epsilon
@@ -202,7 +203,7 @@ fraction_blue
 fraction_blue
 50
 100
-80.0
+50.0
 1
 1
 NIL
@@ -247,7 +248,7 @@ tol_high_ses_orange
 tol_high_ses_orange
 0
 100
-20.0
+49.0
 1
 1
 NIL
@@ -292,7 +293,7 @@ ethnic_square_peak
 ethnic_square_peak
 0
 1
-0.4
+0.3
 0.1
 1
 NIL
@@ -307,7 +308,7 @@ ethnic_circle_peak
 ethnic_circle_peak
 0
 1
-0.3
+0.9
 0.1
 1
 NIL
@@ -322,7 +323,7 @@ value_square_peak
 value_square_peak
 0
 1
-0.8
+0.1
 0.1
 1
 NIL
@@ -337,7 +338,7 @@ value_circle_peak
 value_circle_peak
 0
 1
-0.6
+0.8
 0.1
 1
 NIL
@@ -352,7 +353,7 @@ ses_square_peak
 ses_square_peak
 0
 1
-0.4
+0.5
 0.1
 1
 NIL
@@ -367,7 +368,7 @@ ses_circle_peak
 ses_circle_peak
 0
 1
-0.3
+0.6
 0.1
 1
 NIL
@@ -397,7 +398,7 @@ ethnic_square_beta
 ethnic_square_beta
 0
 100
-46.0
+30.0
 1
 1
 NIL
@@ -412,7 +413,7 @@ ethnic_circle_beta
 ethnic_circle_beta
 0
 100
-79.0
+21.0
 1
 1
 NIL
@@ -427,7 +428,7 @@ value_square_beta
 value_square_beta
 0
 100
-71.0
+32.0
 1
 1
 NIL
@@ -442,7 +443,7 @@ value_circle_beta
 value_circle_beta
 0
 100
-61.0
+20.0
 1
 1
 NIL
@@ -457,7 +458,7 @@ ses_square_beta
 ses_square_beta
 0
 100
-33.0
+32.0
 1
 1
 NIL
@@ -472,7 +473,7 @@ ses_circle_beta
 ses_circle_beta
 0
 100
-78.0
+22.0
 1
 1
 NIL
@@ -965,7 +966,7 @@ The parameters are independent for square agents and circle agents.
 	* ethnic segregation
 	* value segregation
 	* ses segregation
-- Average degree of utility agents (calcualted  as average of the three utility for current patch:
+- Average degree of utility agents (calcualted  as average of the three utility for current patch):
 (ethnic utility + value utility + ses utility ) / 3
 
 Plots  refer to:
@@ -978,24 +979,12 @@ Plots  refer to:
 ## THINGS TO TRY
 
 Set up distribution of agents in each category ethnicity > ses > value-orientation.
-Set slides for utility referred to different neighborhood characteristics + M
-Set slides for beta for that neighborhood characteristic
+Set sliders for utility referred to different neighborhood characteristics + M
+Set sliders for beta for that neighborhood characteristic
 
 ## EXTENDING THE MODEL
 
-I think more clear dynamics and conditions would emerge if utility is defined independently for each subgroup, but at cost of increasing number of parameters.
-
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
-
-## CREDITS AND REFERENCES
-
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+* I think more clear dynamics and conditions would emerge if utility is defined independently for each subgroup, but at cost of increasing number of parameters.
 @#$#@#$#@
 default
 true
