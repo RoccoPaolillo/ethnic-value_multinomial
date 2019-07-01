@@ -42,6 +42,28 @@ plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mo
 plot mean [utility_myself] of turtles with [color mod 2 = 1]
 
 
+-----
+
+
+set uti_eth ifelse-value (ethnic_peak = 0 and (xe / n) = 0) [1][ ifelse-value (n = 0) 
+        [0]
+        [ifelse-value ((xe / n) <= [ethnic_peak] of myself) [(xe / n) / [ethnic_peak] of myself] [M + (( (1 - (xe / n)) * (1 - M)) / (1 - [ethnic_peak] of myself))]
+      ]
+      ]     ; ethnic utility
+      
+      set uti_val ifelse-value (value_peak = 0 and (xv / n) = 0) [1][ifelse-value (n = 0) 
+        [0]
+        [ifelse-value ((xv / n) <= [value_peak] of myself) [(xv / n) / [value_peak] of myself] [M + (( (1 - (xv / n)) * (1 - M)) / (1 - [value_peak] of myself))]
+        ]
+        ]        ; value utility
+      
+      
+      set uti_ses ifelse-value (ses_peak = 0 and (xs / n) = 0) [1][ifelse-value (n = 0)
+      [0]
+      [ifelse-value  ((xs / n) <= [ses_peak] of myself) [(xs / n) / [ses_peak] of myself] [M + (( (1 - (xs / n)) * (1 - M)) / (1 - [ses_peak] of myself))]
+        ]
+        ]
+
 ---------------
 "blu-hig-sqr"
 

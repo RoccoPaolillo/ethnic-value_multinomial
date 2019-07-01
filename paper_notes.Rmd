@@ -286,11 +286,6 @@ plot(concentrationt8,utilityt8)
 ```
 
 
-```{r integr, fig.pos='h' , out.widh = '100%', fig.aign='center', fig.cap="Even subgroups ethnicityXvalueXses (12,5% of population each), utility = 0, beta = 100, M = 0.6", echo=FALSE, include=TRUE}
-
-knitr::include_graphics("C:/Users/rocpa/OneDrive/Desktop/upload/integration_0.jpg")
-
-```
 
 
 
