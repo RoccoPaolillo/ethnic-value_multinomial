@@ -97,11 +97,38 @@ to update-turtles
     let xs count (turtles-on neighbors) with [color mod 2 = ses-myself]               ; concentration same brightness (ses) (color mod 2 = 0 bright high ses agents; color mod 2 = 1 dark low ses agents)
     let n  count (turtles-on neighbors)                                               ; count turtles on neighbors
 
-    ; modified in case not turtles on neighbors: utility set to 0, calculated with single-peaked function otherwise
 
-    set uti_eth ifelse-value (n = 0) [0][ifelse-value ((xe / n) <= [ethnic_peak] of myself) [xe  / n] [M + (( (1 - (xe / n)) * (1 - M)) / (1 - [ethnic_peak] of myself))]]     ; ethnic utility
-    set uti_val ifelse-value (n = 0) [0][ifelse-value ((xv / n) <= [value_peak] of myself) [xv  / n] [M + (( (1 - (xv / n)) * (1 - M)) / (1 - [value_peak] of myself))]]       ; value utility
-    set uti_ses ifelse-value (n = 0) [0][ifelse-value  ((xs / n) <= [ses_peak] of myself) [xs / n] [M + (( (1 - (xs / n)) * (1 - M)) / (1 - [ses_peak] of myself))]]             ; ses utility
+
+   ; ethnic utility
+ ;    set uti_eth ifelse-value (n = 0) [0][
+  ;    ifelse-value ((xe / n) <= [ethnic_peak] of myself)
+   ;        [(xe / n) / [ethnic_peak] of myself]
+    ;        [M + (( (1 - (xe / n)) * (1 - M)) / (1 - [ethnic_peak] of myself))]
+   ;     ]
+
+   set uti_eth ifelse-value (n = 0) [ifelse-value ([ethnic_peak] of myself = 0) [1][0]][
+         ifelse-value ((xe / n) <= [ethnic_peak] of myself)
+         [ifelse-value ([ethnic_peak] of myself = 0) [1][(xe / n) / [ethnic_peak] of myself]]
+          [M + (( (1 - (xe / n)) * (1 - M)) / (1 - [ethnic_peak] of myself))]
+       ]
+
+
+
+    ; value utility
+   ;   set uti_val ifelse-value (n = 0) [0][
+   ;     ifelse-value ((xv / n) <= [value_peak] of myself)
+   ;         [(xv / n) / [value_peak] of myself]
+      ;      [M + (( (1 - (xv / n)) * (1 - M)) / (1 - [value_peak] of myself))]
+     ;   ]
+
+   ; ses utility
+      ;  set uti_ses ifelse-value (n = 0) [0][
+       ;   ifelse-value ((xs / n) <= [ses_peak] of myself)
+         ;   [(xs / n) / [ses_peak] of myself]
+        ;    [M + (( (1 - (xs / n)) * (1 - M)) / (1 - [ses_peak] of myself))]
+     ;   ]
+
+
 
       set raw_choice  ([beta_value] of myself * uti_val) + ([beta_ses] of myself * uti_ses)  + ([beta_ethnic] of myself * uti_eth) ; raw chooice option = sum beta*utility for each characteristic
       set expa  exp raw_choice  ;  includsion randomness: beta*Utility + epsilon
@@ -171,9 +198,9 @@ SLIDER
 43
 density
 density
-50
+0
 99
-99.0
+92.0
 1
 1
 NIL
@@ -248,7 +275,7 @@ tol_high_ses_orange
 tol_high_ses_orange
 0
 100
-49.0
+50.0
 1
 1
 NIL
@@ -293,7 +320,7 @@ ethnic_square_peak
 ethnic_square_peak
 0
 1
-0.3
+0.0
 0.1
 1
 NIL
@@ -308,7 +335,7 @@ ethnic_circle_peak
 ethnic_circle_peak
 0
 1
-0.9
+0.0
 0.1
 1
 NIL
@@ -323,7 +350,7 @@ value_square_peak
 value_square_peak
 0
 1
-0.1
+0.0
 0.1
 1
 NIL
@@ -338,7 +365,7 @@ value_circle_peak
 value_circle_peak
 0
 1
-0.8
+0.7
 0.1
 1
 NIL
@@ -353,7 +380,7 @@ ses_square_peak
 ses_square_peak
 0
 1
-0.5
+0.0
 0.1
 1
 NIL
@@ -368,7 +395,7 @@ ses_circle_peak
 ses_circle_peak
 0
 1
-0.6
+0.0
 0.1
 1
 NIL
@@ -383,7 +410,7 @@ M
 M
 0
 1
-0.6
+0.0
 0.1
 1
 NIL
@@ -398,7 +425,7 @@ ethnic_square_beta
 ethnic_square_beta
 0
 100
-30.0
+100.0
 1
 1
 NIL
@@ -413,7 +440,7 @@ ethnic_circle_beta
 ethnic_circle_beta
 0
 100
-21.0
+100.0
 1
 1
 NIL
@@ -428,7 +455,7 @@ value_square_beta
 value_square_beta
 0
 100
-32.0
+0.0
 1
 1
 NIL
@@ -443,7 +470,7 @@ value_circle_beta
 value_circle_beta
 0
 100
-20.0
+100.0
 1
 1
 NIL
@@ -458,7 +485,7 @@ ses_square_beta
 ses_square_beta
 0
 100
-32.0
+0.0
 1
 1
 NIL
@@ -473,7 +500,7 @@ ses_circle_beta
 ses_circle_beta
 0
 100
-22.0
+0.0
 1
 1
 NIL
@@ -889,10 +916,10 @@ true
 true
 "" ""
 PENS
-"ethnic-seg" 1.0 0 -5825686 true "" "if subgroup = \"blu-hig-sqr\" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = \"square\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-low-sqr\" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = \"square\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-hig-crl\" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = \"circle\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-low-crl\" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = \"circle\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-hig-sqr\" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = \"square\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-low-sqr\" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = \"square\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-hig-crl\" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = \"circle\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-low-crl\" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = \"circle\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\n\n\n"
-"value-seg" 1.0 0 -10899396 true "" "if subgroup = \"blu-hig-sqr\" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 108 or color = 105 and shape = \"square\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-low-sqr\" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 108 or color = 105 and shape = \"square\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-hig-crl\" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 108 or color = 105 and shape = \"circle\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-low-crl\" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 108 or color = 105 and shape = \"circle\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-hig-sqr\" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 28 or color = 25  and shape = \"square\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-low-sqr\" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [color = 28 or color = 25 and shape = \"square\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-hig-crl\" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 28 or color = 25  and shape = \"circle\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-low-crl\" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [color = 28 or color = 25 and shape = \"circle\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]"
-"ses-seg" 1.0 0 -2674135 true "" "if subgroup = \"blu-hig-sqr\" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = \"square\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-low-sqr\" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = \"square\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-hig-crl\" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = \"circle\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-low-crl\" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = \"circle\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-hig-sqr\" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = \"square\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-low-sqr\" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = \"square\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-hig-crl\" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = \"circle\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-low-crl\" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = \"circle\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\n"
-"utility" 1.0 0 -16777216 true "" "if subgroup = \"blu-hig-sqr\" [plot mean [utility_myself] of turtles with [color = 108 or color = 105 and shape = \"square\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-low-sqr\" [plot mean [utility_myself] of turtles with [color = 108 or color = 105 and shape = \"square\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-hig-crl\" [plot mean [utility_myself] of turtles with [color = 108 or color = 105 and shape = \"circle\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-low-crl\" [plot mean [utility_myself] of turtles with [color = 108 or color = 105 and shape = \"circle\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-hig-sqr\" [plot mean [utility_myself] of turtles with [color = 28 or color = 25 and shape = \"square\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-low-sqr\" [plot mean [utility_myself] of turtles with [color = 28 or color = 25 and shape = \"square\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-hig-crl\" [plot mean [utility_myself] of turtles with [color = 28 or color = 25 and shape = \"circle\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-low-crl\" [plot mean [utility_myself] of turtles with [color = 28 or color = 25 and shape = \"circle\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]"
+"ethnic-seg" 1.0 0 -5825686 true "" "if subgroup = \"blu-brg-sqr\" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = \"square\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-drk-sqr\" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = \"square\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-brg-crl\" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = \"circle\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-drk-crl\" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = \"circle\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-brg-sqr\" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = \"square\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-drk-sqr\" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = \"square\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-brg-crl\" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = \"circle\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-drk-crl\" [plot mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = \"circle\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\n\n\n"
+"value-seg" 1.0 0 -10899396 true "" "if subgroup = \"blu-brg-sqr\" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 108 or color = 105 and shape = \"square\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-drk-sqr\" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 108 or color = 105 and shape = \"square\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-brg-crl\" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 108 or color = 105 and shape = \"circle\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-drk-crl\" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 108 or color = 105 and shape = \"circle\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-brg-sqr\" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 28 or color = 25  and shape = \"square\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-drk-sqr\" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [color = 28 or color = 25 and shape = \"square\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-brg-crl\" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 28 or color = 25  and shape = \"circle\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-drk-crl\" [plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [color = 28 or color = 25 and shape = \"circle\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]"
+"ses-seg" 1.0 0 -2674135 true "" "if subgroup = \"blu-brg-sqr\" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = \"square\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-drk-sqr\" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = \"square\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-brg-crl\" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = \"circle\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-drk-crl\" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = \"circle\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-brg-sqr\" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = \"square\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-drk-sqr\" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = \"square\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-brg-crl\" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = \"circle\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-drk-crl\" [plot mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = \"circle\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\n"
+"utility" 1.0 0 -16777216 true "" "if subgroup = \"blu-brg-sqr\" [plot mean [utility_myself] of turtles with [color = 108 or color = 105 and shape = \"square\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-drk-sqr\" [plot mean [utility_myself] of turtles with [color = 108 or color = 105 and shape = \"square\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-brg-crl\" [plot mean [utility_myself] of turtles with [color = 108 or color = 105 and shape = \"circle\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"blu-drk-crl\" [plot mean [utility_myself] of turtles with [color = 108 or color = 105 and shape = \"circle\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-brg-sqr\" [plot mean [utility_myself] of turtles with [color = 28 or color = 25 and shape = \"square\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-drk-sqr\" [plot mean [utility_myself] of turtles with [color = 28 or color = 25 and shape = \"square\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-brg-crl\" [plot mean [utility_myself] of turtles with [color = 28 or color = 25 and shape = \"circle\" and color mod 2 = 0 and count (turtles-on neighbors) >= 1]]\nif subgroup = \"org-drk-crl\" [plot mean [utility_myself] of turtles with [color = 28 or color = 25 and shape = \"circle\" and color mod 2 = 1 and count (turtles-on neighbors) >= 1]]"
 
 CHOOSER
 1350
@@ -901,8 +928,8 @@ CHOOSER
 161
 subgroup
 subgroup
-"blu-hig-sqr" "blu-low-sqr" "blu-hig-crl" "blu-low-crl" "org-hig-sqr" "org-low-sqr" "org-hig-crl" "org-low-crl"
-4
+"blu-brg-sqr" "blu-drk-sqr" "blu-brg-crl" "blu-drk-crl" "org-brg-sqr" "org-drk-sqr" "org-brg-crl" "org-drk-crl"
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -1291,10 +1318,145 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.4
+NetLogo 6.1.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="experiment" repetitions="1" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <metric>mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [ count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [utility_myself] of turtles</metric>
+    <metric>mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [ color = 105 or color = 108 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [color = 105 or color = 108 and count (turtles-on neighbors) &gt;= 1 ]</metric>
+    <metric>mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 105 or color = 108 and count (turtles-on neighbors) &gt;= 1 ]</metric>
+    <metric>mean [utility_myself] of turtles with [color = 105 or color = 108]</metric>
+    <metric>mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [color = 28 or color = 25 and count (turtles-on neighbors) &gt;= 1 ]</metric>
+    <metric>mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [utility_myself] of turtles with [color = 28 or color = 25]</metric>
+    <metric>mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [shape = "circle" and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [shape = "circle" and  count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [shape = "circle" and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [utility_myself] of turtles with [shape = "circle"]</metric>
+    <metric>mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [shape = "square" and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [shape = "square" and  count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [shape = "square" and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [utility_myself] of turtles with [shape = "square"]</metric>
+    <metric>mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [color mod 2 = 0 and  count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [utility_myself] of turtles with [color mod 2 = 0]</metric>
+    <metric>mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [color mod 2 = 1 and  count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [utility_myself] of turtles with [color mod 2 = 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = "square" and color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = "square" and color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = "circle" and color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = "circle" and color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = "square" and color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = "square" and color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = "circle" and color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [abs (color - [color] of myself) = 3 or (color - [color] of myself) = 0 ] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = "circle" and color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 108 or color = 105 and shape = "square" and color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 108 or color = 105 and shape = "square" and color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 108 or color = 105 and shape = "circle" and color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 108 or color = 105 and shape = "circle" and color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 28 or color = 25  and shape = "square" and color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [color = 28 or color = 25 and shape = "square" and color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ color = 28 or color = 25  and shape = "circle" and color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [color = 28 or color = 25 and shape = "circle" and color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = "square" and color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = "square" and color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = "circle" and color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 108 or color = 105 and shape = "circle" and color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = "square" and color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = "square" and color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = "circle" and color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [count (turtles-on neighbors) with [color mod 2 = [color] of myself mod 2] / count (turtles-on neighbors)] of turtles with [color = 28 or color = 25 and shape = "circle" and color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [utility_myself] of turtles with [color = 108 or color = 105 and shape = "square" and color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [utility_myself] of turtles with [color = 108 or color = 105 and shape = "square" and color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [utility_myself] of turtles with [color = 108 or color = 105 and shape = "circle" and color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [utility_myself] of turtles with [color = 108 or color = 105 and shape = "circle" and color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [utility_myself] of turtles with [color = 28 or color = 25 and shape = "square" and color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [utility_myself] of turtles with [color = 28 or color = 25 and shape = "square" and color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [utility_myself] of turtles with [color = 28 or color = 25 and shape = "circle" and color mod 2 = 0 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [utility_myself] of turtles with [color = 28 or color = 25 and shape = "circle" and color mod 2 = 1 and count (turtles-on neighbors) &gt;= 1]</metric>
+    <enumeratedValueSet variable="ethnic_square_beta">
+      <value value="30"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="density">
+      <value value="99"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="tol_high_ses_orange">
+      <value value="49"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ethnic_circle_beta">
+      <value value="21"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="tol_low_ses_blue">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ses_square_beta">
+      <value value="32"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="high_ses_orange">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="check_noise">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ethnic_square_peak">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="fraction_blue">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="tol_high_ses_blue">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="M">
+      <value value="0.6"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ethnic_circle_peak">
+      <value value="0.9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ses_circle_beta">
+      <value value="22"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="value_square_beta">
+      <value value="32"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="high_ses_blue">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ses_square_peak">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="value_circle_beta">
+      <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="subgroup">
+      <value value="&quot;org-hig-sqr&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="tol_low_ses_orange">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ses_circle_peak">
+      <value value="0.6"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="value_square_peak">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="value_circle_peak">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
