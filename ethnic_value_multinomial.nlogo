@@ -112,6 +112,18 @@ to update-turtles
           [M + (( (1 - (xe / n)) * (1 - M)) / (1 - [ethnic_peak] of myself))]
        ]
 
+ set uti_val ifelse-value (n = 0) [ifelse-value ([value_peak] of myself = 0) [1][0]][
+         ifelse-value ((xv / n) <= [value_peak] of myself)
+         [ifelse-value ([value_peak] of myself = 0) [1][(xv / n) / [value_peak] of myself]]
+          [M + (( (1 - (xv / n)) * (1 - M)) / (1 - [value_peak] of myself))]
+       ]
+
+
+ set uti_ses ifelse-value (n = 0) [ifelse-value ([ses_peak] of myself = 0) [1][0]][
+         ifelse-value ((xs / n) <= [ses_peak] of myself)
+         [ifelse-value ([ses_peak] of myself = 0) [1][(xs / n) / [ses_peak] of myself]]
+          [M + (( (1 - (xs / n)) * (1 - M)) / (1 - [ses_peak] of myself))]
+       ]
 
 
     ; value utility
@@ -365,7 +377,7 @@ value_circle_peak
 value_circle_peak
 0
 1
-0.7
+0.0
 0.1
 1
 NIL
@@ -455,7 +467,7 @@ value_square_beta
 value_square_beta
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -485,7 +497,7 @@ ses_square_beta
 ses_square_beta
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -500,7 +512,7 @@ ses_circle_beta
 ses_circle_beta
 0
 100
-0.0
+100.0
 1
 1
 NIL
