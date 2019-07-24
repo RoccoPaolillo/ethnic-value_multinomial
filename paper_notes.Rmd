@@ -18,14 +18,53 @@ header-includes:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.lp="fig:")
 
+library(Hmisc)
 
-f <- function(p,M,x,n){
-  if (x  <= (n*p)){U <- (x/(n*p))}
-  else {U <- M + ((1-(x/n))*(1-M))/(1-p)}
+
+
+#old
+# f <- function(p,M,x,n){
+#  if (x  <= (n*p)){U <- (x/(n*p))}
+#  else {U <- M + ((1-(x/n))*(1-M))/(1-p)}
  # else {U <- (2-M) + (((M-1)*x)/(n*p))} M + ((1-(x/n))*(1-M))/(1-p)}
-  round(U,digits = 3)
- # print(U)
-}
+#  round(U,digits = 3)
+# } 
+  
+#f_dist <- function(o,ot,M,i,S){
+#  if (abs(o-ot) < i) {
+#    U <- (abs(o-ot)/i) * S
+#    }else if (abs(o-ot) > i){
+#      U <- M + ((1-abs(o-ot))*(1-M))/(1-i)
+#    }else{
+#        U <- 1}
+#  round(U,digits = 3)
+#  }
+
+
+#f_val <- function(o,ot,M,i,S){
+# if (round(abs(o-ot), digits=2) >= i) {
+#    U <- 1
+#  }else {
+#      U <- # (1 - (1-(abs(o-ot))/i) * S)
+#         1 -  (M + ((1-(1-abs(o-ot)))/(1-M))/(1-(1-i)))
+#       1 - (M + ((1-(1-abs(o-ot)))*(1-M))/(1-(1-i)))
+#    }
+#  round(U,digits = 3)
+#  }
+
+#f_val_repr <- function(sim,M,i,S){
+#  if (sim <= i) {
+#    U <- sim/i * S
+#     }else if (sim > i){
+# U <- M + ((1-sim)*(1-M))/(1-i)
+#    }else{
+#         U <- 1}
+#   round(U,digits = 3)
+#   }
+
+
+
+
 
 # install.packages("tinytex", repos = "https://cloud.r-project.org" ) if debug needed?
 
@@ -34,9 +73,123 @@ f <- function(p,M,x,n){
 # http://rmarkdown.rstudio.com
 # echo = TRUE <- makes all next cmds appear
 
+
+
+
 ```
+
+```{r value_similarity, echo=FALSE, }
+
+f_val <- function(o,ot,M,i,S){
+  if (round(abs(o-ot), digits=2) <= i) {
+    U <- 1
+    }else{
+      U <- (M + ((1-(round(abs(o-ot), digits=2)))*(1-M))/(1-i)) * S
+    }
+  round(U,digits = 2)
+  }
+
+i <- 0.2
+S  <- 1
+M <- 0
+
+
+#  f_dist <- (o,ot,M,i,S)
+
+for (o in seq (0.0,1.0, by = 0.1)){
+
+fv0d2 <- f_val(o,0,M,i,S)
+fv1d2 <- f_val(o,0.1,M,i,S)
+fv2d2 <- f_val(o,0.2,M,i,S)
+fv3d2 <- f_val(o,0.3,M,i,S)
+fv4d2 <- f_val(o,0.4,M,i,S)
+fv5d2 <- f_val(o,0.5,M,i,S)
+fv6d2 <- f_val(o,0.6,M,i,S)
+fv7d2 <- f_val(o,0.7,M,i,S)
+fv8d2 <- f_val(o,0.8,M,i,S)
+fv9d2 <- f_val(o,0.9,M,i,S)
+fv10d2 <- f_val(o,1.0,M,i,S)
+
+value_mean_neighborhood <- seq(0.0, 1.0, by = 0.1)
+Utility_V <- c(fv0d2,fv1d2,fv2d2,fv3d2,fv4d2,fv5d2,fv6d2,fv7d2,fv8d2,fv9d2,fv10d2)
+name <- paste0("Ethnic weight i = ", o,";distance desired i = ",i,"; M = ",M,"; S = ",S)
+
+plot(value_mean_neighborhood,Utility_V, xlab = "Mean ethnic weight neighborhood j", ylab = "Value Utility",  main = "Value Utility for neighborhood j of agent i",  sub = name)
+
+report <- paste0("M = ",M," ??? S = ",S," ??? Ethnic weight i = ",o, " ??? desired distance i = ",i," ??? Mean ethnic weight j = ", seq(0.0, 1.0, by = 0.1), " ??? Utility ij = ", Utility_V)
+
+print(report)
+
+
+}
+
+```
+
 \newcommand{\rocco}[1]{\textcolor{red}{{Rocco:}#1}} <!-- <- this is a command to appear in pdf -->
 <!-- command not to appear in pdf -->
+
+
+```{ethnic utility, moore neighborhood}
+
+f_eth <- function(p,M,x,n,S){
+  if (x  < (n*p)){
+    U <- (x / (n*p)) * S
+    }else if (x > (n*p)){
+      U <- M + ((1-(x/n))*(1-M))/(1-p)
+    }else{
+        U <- 1}
+  round(U,digits = 2)
+}
+
+# f2 <- function(p,M,x,n,S)
+
+p = 0.5
+M = 1
+S = 1
+
+f0m <- f_eth(p,M,0,8,S)
+f1m <- f_eth(p,M,1,8,S)
+f2m <- f_eth(p,M,2,8,S)
+f3m <- f_eth(p,M,3,8,S)
+f4m <- f_eth(p,M,4,8,S)
+f5m <- f_eth(p,M,5,8,S)
+f6m <- f_eth(p,M,6,8,S)
+f7m <- f_eth(p,M,7,8,S)
+f8m <- f_eth(p,M,8,8,S)
+
+ethnic_concentration_neighborhood <- seq(0.0, 0.8, length.out = 9)
+Utility_E <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
+
+# print(utilitym)
+print(c("Ethnic Utility",Utility_E)) 
+plot(ethnic_concentration_neighborhood,Utility_E,title("Ethnic Utility"))
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r testing logistic}
+
+prob <- function(l,s,t,d,p,q){1 / (1 + exp(-l*(s-t)) + exp(-d*(p-q)))}
+
+prob1 <- prob(100,300,100,1,100,100)
+plot(prob1)
+```
+
+
+
+
 
 
 # Component of probability of the choice
@@ -129,44 +282,24 @@ Fig. \ref{fig:integr} shows how this translates in the  model with $\beta=100$. 
 
 
 
-```{r moore, echo=FALSE, fig.cap="utility in Moore 8 patches; desired fraction 50%, M=0.6, Z=1"}
 
-
-
-f0m <- f(0.5,0.6,0,8)
-f1m <- f(0.5,0.6,1,8)
-f2m <- f(0.5,0.6,2,8)
-f3m <- f(0.5,0.6,3,8)
-f4m <- f(0.5,0.6,4,8)
-f5m <- f(0.5,0.6,5,8)
-f6m <- f(0.5,0.6,6,8)
-f7m <- f(0.5,0.6,7,8)
-f8m <- f(0.5,0.6,8,8)
-
-utility_Moore <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
-concentrationm <- c(0:8)
-
-
-# print(utilitym)
-plot(concentrationm,utility_Moore)
-```
 
 ```{r sechneg, echo=FALSE, fig.cap="utility in Moore 6 patches; desired fraction 50%, M=0.6, Z=1"}
 
-f0t6 <- f(0.5,0.6,0,6)
-f1t6 <- f(0.5,0.6,1,6)
-f2t6<- f(0.5,0.6,2,6)
-f3t6 <- f(0.5,0.6,3,6)
-f4t6 <- f(0.5,0.6,4,6)
-f5t6 <- f(0.5,0.6,5,6)
-f6t6 <- f(0.5,0.6,6,6)
+# f0t6 <- f(0.5,0.6,0,6)
+# f1t6 <- f(0.5,0.6,1,6)
+# f2t6<- f(0.5,0.6,2,6)
+# f3t6 <- f(0.5,0.6,3,6)
+# f4t6 <- f(0.5,0.6,4,6)
+# f5t6 <- f(0.5,0.6,5,6)
+# f6t6 <- f(0.5,0.6,6,6)
 
-utilityt6 <- c(f0t6,f1t6,f2t6,f3t6,f4t6,f5t6,f6t6)
-concentrationt6 <- c(0:6)
+# utilityt6 <- c(f0t6,f1t6,f2t6,f3t6,f4t6,f5t6,f6t6)
+# concentrationt6 <- c(0:6)
 
 
 # print(utilityt8)
-plot(concentrationt6,utilityt6)
+# plot(concentrationt6,utilityt6)
 
 ```
 
@@ -176,44 +309,44 @@ plot(concentrationt6,utilityt6)
 
 
 
-f0m <- f(0.5,1,0,8)
-f1m <- f(0.5,1,1,8)
-f2m <- f(0.5,1,2,8)
-f3m <- f(0.5,1,3,8)
-f4m <- f(0.5,1,4,8)
-f5m <- f(0.5,1,5,8)
-f6m <- f(0.5,1,6,8)
-f7m <- f(0.5,1,7,8)
-f8m <- f(0.5,1,8,8)
+# f0m <- f(0.5,1,0,8)
+# f1m <- f(0.5,1,1,8)
+# f2m <- f(0.5,1,2,8)
+# f3m <- f(0.5,1,3,8)
+# f4m <- f(0.5,1,4,8)
+# f5m <- f(0.5,1,5,8)
+# f6m <- f(0.5,1,6,8)
+# f7m <- f(0.5,1,7,8)
+# f8m <- f(0.5,1,8,8)
 
-utility_Moore <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
-concentrationm <- c(0:8)
+# utility_Moore <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
+# concentrationm <- c(0:8)
 
 
 # print(utilitym)
-plot(concentrationm,utility_Moore)
+# plot(concentrationm,utility_Moore)
 ```
 
 ```{r emmezero, echo=FALSE, fig.cap="utility in Moore 8 patches; desired fraction 50%, M=0, Z=1"}
 
 
 
-f0m <- f(0.5,0,0,8)
-f1m <- f(0.5,0,1,8)
-f2m <- f(0.5,0,2,8)
-f3m <- f(0.5,0,3,8)
-f4m <- f(0.5,0,4,8)
-f5m <- f(0.5,0,5,8)
-f6m <- f(0.5,0,6,8)
-f7m <- f(0.5,0,7,8)
-f8m <- f(0.5,0,8,8)
+# f0m <- f(0.5,0,0,8)
+# f1m <- f(0.5,0,1,8)
+# f2m <- f(0.5,0,2,8)
+# f3m <- f(0.5,0,3,8)
+# f4m <- f(0.5,0,4,8)
+# f5m <- f(0.5,0,5,8)
+# f6m <- f(0.5,0,6,8)
+# f7m <- f(0.5,0,7,8)
+# f8m <- f(0.5,0,8,8)
 
-utility_Moore <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
-concentrationm <- c(0:8)
+# utility_Moore <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
+# concentrationm <- c(0:8)
 
 
 # print(utilitym)
-plot(concentrationm,utility_Moore)
+# plot(concentrationm,utility_Moore)
 ```
 
 
