@@ -20,105 +20,112 @@ knitr::opts_chunk$set(echo = TRUE, fig.lp="fig:")
 
 library(Hmisc)
 
+# v_w <- 1 - e_w
+
+f_eth <- function(i_e,M,x,n,S){
+  if (x > n){
+    U <- NA}else{
+  if (x < round(n*i_e,digits = 2)){
+   U <- (x / round((n*i_e),digits = 2)) * S
+    }else if (x > round((n*i_e),digits = 2)){
+      U <- M + ((1- round((x/n),digits = 2))*(1-M))/(1-i_e)
+    }else{
+        U <- 1}
+  round(U,digits = 2)
+    }
+}
+
+f_val <- function(e_w,ew_ng,M,i_v,S){
+  if (round(abs(e_w-ew_ng), digits=2) <= i_v) {
+    U <- 1
+    }else{
+      U <- (M + ((1-(round(abs(e_w-ew_ng), digits=2)))*(1-M))/(1-i_v)) * S
+    }
+  round(U,digits = 2)
+}
 
 
-#old
-# f <- function(p,M,x,n){
-#  if (x  <= (n*p)){U <- (x/(n*p))}
-#  else {U <- M + ((1-(x/n))*(1-M))/(1-p)}
- # else {U <- (2-M) + (((M-1)*x)/(n*p))} M + ((1-(x/n))*(1-M))/(1-p)}
-#  round(U,digits = 3)
-# } 
-  
-#f_dist <- function(o,ot,M,i,S){
-#  if (abs(o-ot) < i) {
-#    U <- (abs(o-ot)/i) * S
-#    }else if (abs(o-ot) > i){
-#      U <- M + ((1-abs(o-ot))*(1-M))/(1-i)
-#    }else{
-#        U <- 1}
-#  round(U,digits = 3)
-#  }
-
-
-#f_val <- function(o,ot,M,i,S){
-# if (round(abs(o-ot), digits=2) >= i) {
-#    U <- 1
-#  }else {
-#      U <- # (1 - (1-(abs(o-ot))/i) * S)
-#         1 -  (M + ((1-(1-abs(o-ot)))/(1-M))/(1-(1-i)))
-#       1 - (M + ((1-(1-abs(o-ot)))*(1-M))/(1-(1-i)))
-#    }
-#  round(U,digits = 3)
-#  }
-
-#f_val_repr <- function(sim,M,i,S){
-#  if (sim <= i) {
-#    U <- sim/i * S
-#     }else if (sim > i){
-# U <- M + ((1-sim)*(1-M))/(1-i)
-#    }else{
-#         U <- 1}
-#   round(U,digits = 3)
-#   }
-
-
-
+prob <- function(e_w,v_w,d_u_e,d_u_v){1 / (1 + exp(-e_w*(d_u_e)) + exp(-v_w*(d_u_v)))}
 
 
 # install.packages("tinytex", repos = "https://cloud.r-project.org" ) if debug needed?
 
-# library(namelibrary) for the R library
-
-# http://rmarkdown.rstudio.com
-# echo = TRUE <- makes all next cmds appear
-
-
-
-
 ```
+
+
+```{r ethnic_utility, moore neighborhood}
+
+
+# f2 <- function(p,M,x,n,S)
+
+#i_e = 0.5
+M = 0
+S = 1
+n = 8
+
+for (i_e in seq (0.0,1.0, by = 0.1)){
+  
+f0m <- f_eth(i_e,M,0,n,S)
+f1m <- f_eth(i_e,M,1,n,S)
+f2m <- f_eth(i_e,M,2,n,S)
+f3m <- f_eth(i_e,M,3,n,S)
+f4m <- f_eth(i_e,M,4,n,S)
+f5m <- f_eth(i_e,M,5,n,S)
+f6m <- f_eth(i_e,M,6,n,S)
+f7m <- f_eth(i_e,M,7,n,S)
+f8m <- f_eth(i_e,M,8,n,S)
+
+num_sim_col <- seq(0, 8, by = 1)
+Utility_E <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
+name_E <- paste0("Desired proportion i = ",i_e,"; M = ",M,"; S = ",S)
+
+plot(num_sim_col,Utility_E, xlab = "Similar ethnics neighborhood j", ylab = "Ethnic Utility",  main = "Ethnic Utility for neighborhood j of agent i",  sub = name_E)
+
+report_E <- paste0("M = ",M,"; S = ",S,"; Desired proportion i = ",i_e,"; Similar ethnics neighborhood j = ", seq(0, 8, by = 1), "; Utility ij = ", Utility_E)
+
+print(report_E)
+
+}
+```
+
+
+
+
+
 
 ```{r value_similarity, echo=FALSE, }
 
-f_val <- function(o,ot,M,i,S){
-  if (round(abs(o-ot), digits=2) <= i) {
-    U <- 1
-    }else{
-      U <- (M + ((1-(round(abs(o-ot), digits=2)))*(1-M))/(1-i)) * S
-    }
-  round(U,digits = 2)
-  }
 
-i <- 0.2
+i_v <- 0
 S  <- 1
 M <- 0
 
 
 #  f_dist <- (o,ot,M,i,S)
 
-for (o in seq (0.0,1.0, by = 0.1)){
+for (e_w in seq (0.0,1.0, by = 0.1)){
 
-fv0d2 <- f_val(o,0,M,i,S)
-fv1d2 <- f_val(o,0.1,M,i,S)
-fv2d2 <- f_val(o,0.2,M,i,S)
-fv3d2 <- f_val(o,0.3,M,i,S)
-fv4d2 <- f_val(o,0.4,M,i,S)
-fv5d2 <- f_val(o,0.5,M,i,S)
-fv6d2 <- f_val(o,0.6,M,i,S)
-fv7d2 <- f_val(o,0.7,M,i,S)
-fv8d2 <- f_val(o,0.8,M,i,S)
-fv9d2 <- f_val(o,0.9,M,i,S)
-fv10d2 <- f_val(o,1.0,M,i,S)
+fv0d2 <- f_val(e_w,0,M,i_v,S)
+fv1d2 <- f_val(e_w,0.1,M,i_v,S)
+fv2d2 <- f_val(e_w,0.2,M,i_v,S)
+fv3d2 <- f_val(e_w,0.3,M,i_v,S)
+fv4d2 <- f_val(e_w,0.4,M,i_v,S)
+fv5d2 <- f_val(e_w,0.5,M,i_v,S)
+fv6d2 <- f_val(e_w,0.6,M,i_v,S)
+fv7d2 <- f_val(e_w,0.7,M,i_v,S)
+fv8d2 <- f_val(e_w,0.8,M,i_v,S)
+fv9d2 <- f_val(e_w,0.9,M,i_v,S)
+fv10d2 <- f_val(e_w,1.0,M,i_v,S)
 
 value_mean_neighborhood <- seq(0.0, 1.0, by = 0.1)
 Utility_V <- c(fv0d2,fv1d2,fv2d2,fv3d2,fv4d2,fv5d2,fv6d2,fv7d2,fv8d2,fv9d2,fv10d2)
-name <- paste0("Ethnic weight i = ", o,";distance desired i = ",i,"; M = ",M,"; S = ",S)
+name <- paste0("Ethnic weight i = ", e_w,"; desired distance i = ",i_v,"; M = ",M,"; S = ",S)
 
 plot(value_mean_neighborhood,Utility_V, xlab = "Mean ethnic weight neighborhood j", ylab = "Value Utility",  main = "Value Utility for neighborhood j of agent i",  sub = name)
 
-report <- paste0("M = ",M," ??? S = ",S," ??? Ethnic weight i = ",o, " ??? desired distance i = ",i," ??? Mean ethnic weight j = ", seq(0.0, 1.0, by = 0.1), " ??? Utility ij = ", Utility_V)
+report_v <- paste0(name,"; Mean ethnic weight j = ", seq(0.0, 1.0, by = 0.1), "; Utility ij = ", Utility_V)
 
-print(report)
+print(report_v)
 
 
 }
@@ -128,43 +135,6 @@ print(report)
 \newcommand{\rocco}[1]{\textcolor{red}{{Rocco:}#1}} <!-- <- this is a command to appear in pdf -->
 <!-- command not to appear in pdf -->
 
-
-```{ethnic utility, moore neighborhood}
-
-f_eth <- function(p,M,x,n,S){
-  if (x  < (n*p)){
-    U <- (x / (n*p)) * S
-    }else if (x > (n*p)){
-      U <- M + ((1-(x/n))*(1-M))/(1-p)
-    }else{
-        U <- 1}
-  round(U,digits = 2)
-}
-
-# f2 <- function(p,M,x,n,S)
-
-p = 0.5
-M = 1
-S = 1
-
-f0m <- f_eth(p,M,0,8,S)
-f1m <- f_eth(p,M,1,8,S)
-f2m <- f_eth(p,M,2,8,S)
-f3m <- f_eth(p,M,3,8,S)
-f4m <- f_eth(p,M,4,8,S)
-f5m <- f_eth(p,M,5,8,S)
-f6m <- f_eth(p,M,6,8,S)
-f7m <- f_eth(p,M,7,8,S)
-f8m <- f_eth(p,M,8,8,S)
-
-ethnic_concentration_neighborhood <- seq(0.0, 0.8, length.out = 9)
-Utility_E <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
-
-# print(utilitym)
-print(c("Ethnic Utility",Utility_E)) 
-plot(ethnic_concentration_neighborhood,Utility_E,title("Ethnic Utility"))
-
-```
 
 
 
@@ -181,9 +151,16 @@ plot(ethnic_concentration_neighborhood,Utility_E,title("Ethnic Utility"))
 
 ```{r testing logistic}
 
-prob <- function(l,s,t,d,p,q){1 / (1 + exp(-l*(s-t)) + exp(-d*(p-q)))}
+# prob <- function(e_w,s,t,v_w,p,q){1 / (1 + exp(-e_w*(d_u_e)) + exp(-v_w*(d_u_v)))}
+
+# Make: foreach d_u_e [0-1], v_u_e spans within each [0-1]
+
+
+
 
 prob1 <- prob(100,300,100,1,100,100)
+
+
 plot(prob1)
 ```
 
@@ -347,75 +324,6 @@ Fig. \ref{fig:integr} shows how this translates in the  model with $\beta=100$. 
 
 # print(utilitym)
 # plot(concentrationm,utility_Moore)
-```
-
-
-```{r vn, echo=FALSE, include=FALSE, fig.cap="utility in Von Neumann 4 patches; desired fraction 50%, M=0.6, Z=1"}
-
-
-
-f0vn <- f(0.5,0.6,0,4)
-f1vn <- f(0.5,0.6,1,4)
-f2vn <- f(0.5,0.6,2,4)
-f3vn <- f(0.5,0.6,3,4)
-f4vn <- f(0.5,0.6,4,4)
-
-utilityvn <- c(f0vn,f1vn,f2vn,f3vn,f4vn)
-concentrationvn <- c(0:4)
-
-#print(utilityvn)
-plot(concentrationvn,utilityvn)
-
-```
-
-
-```{r R2,include=FALSE, echo=FALSE, fig.cap="utility in R2 12 patches; desired fraction 50%, M=0.6, Z=1"}
-
-
-f0r2 <- f(0.5,0.6,0,12)
-f1r2 <- f(0.5,0.6,1,12)
-f2r2 <- f(0.5,0.6,2,12)
-f3r2 <- f(0.5,0.6,3,12)
-f4r2 <- f(0.5,0.6,4,12)
-f5r2 <- f(0.5,0.6,5,12)
-f6r2 <- f(0.5,0.6,6,12)
-f7r2 <- f(0.5,0.6,7,12)
-f8r2 <- f(0.5,0.6,8,12)
-f9r2 <- f(0.5,0.6,9,12)
-f10r2 <- f(0.5,0.6,10,12)
-f11r2 <- f(0.5,0.6,11,12)
-f12r2 <- f(0.5,0.6,12,12)
-
-utilityr2 <- c(f0r2,f1r2,f2r2,f3r2,f4r2,f5r2,f6r2,f7r2,f8r2,f9r2,f10r2,f11r2,f12r2)
-concentrationr2 <- c(0:12)
-
-
-#print(utilityr2)
-plot(concentrationr2,utilityr2)
-
-```
-
-
-
-
-```{r utzero, echo=FALSE, fig.cap="Results with desired fraction p = 0 in Moore neighborhood 8 patches, M=0.6 and Z=1"}
-
-f0t8 <- f(0,0.6,0,8)
-f1t8 <- f(0,0.6,1,8)
-f2t8 <- f(0,0.6,2,8)
-f3t8 <- f(0,0.6,3,8)
-f4t8 <- f(0,0.6,4,8)
-f5t8 <- f(0,0.6,5,8)
-f6t8 <- f(0,0.6,6,8)
-f7t8 <- f(0,0.6,7,8)
-f8t8 <- f(0,0.6,8,8)
-
-utilityt8 <- c(f0t8,f1t8,f2t8,f3t8,f4t8,f5t8,f6t8,f7t8,f8t8)
-concentrationt8 <- c(0:8)
-
-# print(utilityt8)
-plot(concentrationt8,utilityt8)
-
 ```
 
 
