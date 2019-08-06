@@ -15,12 +15,16 @@ header-includes:
 - \usepackage{amsmath}
 ---
 
+\newcommand{\rocco}[1]{\textcolor{red}{{Rocco:}#1}} <!-- <- this is a command to appear in pdf -->
+<!-- command not to appear in pdf -->
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.lp="fig:")
 
 library(Hmisc)
 
-# v_w <- 1 - e_w
+# Here functions that are used.
+
+# Calculation ethnic utility (for each option)
 
 f_eth <- function(i_e,M,x,n,S){
   if (x > n){
@@ -35,6 +39,8 @@ f_eth <- function(i_e,M,x,n,S){
     }
 }
 
+# Calculation value utility (for each option)
+
 f_val <- function(e_w,ew_ng,M,i_v,S){
   if (round(abs(e_w-ew_ng), digits=2) <= i_v) {
     U <- 1
@@ -44,14 +50,21 @@ f_val <- function(e_w,ew_ng,M,i_v,S){
   round(U,digits = 2)
 }
 
+# Probability (random utility with logistic regression) to relocate
 
+prob <- function(d_u_e,d_u_v,e_w,par_v){round(1 / (1 + exp(-(e_w*10)*(d_u_e) + (-(v_w*10)*(d_u_v)))),digits= 2)}
 
 # install.packages("tinytex", repos = "https://cloud.r-project.org" ) if debug needed?
 
 ```
 
 
-```{r ethnic_utility, moore neighborhood}
+Write down how the three types of functions (Zhang, Schelling, new -> symmetric, threshold, costant) can be built out of the parameters M and S. Make a graph
+
+Ethnic utility, separating ethnic_weight and ideal payoff for ethnicity (i_e) -> based on ethnicity of agents (color)
+The ethnic weight follows the beta distribution, *maybe* report Blitzstein 4 beta cases, and anyway considering ethnic_weight and value_weight are complementary
+
+```{r ethnic_utility, moore neighborhood, include=TRUE, echo=FALSE}
 
 
 # f2 <- function(p,M,x,n,S)
@@ -86,20 +99,17 @@ print(report_E)
 }
 ```
 
+Value utility, based on agents' desired distance (i_v) between the agent's ethnic_weight (e_w) and neighborhood's average ethnic_weight (calculated out of agents residing there)
+Calculate ethnic weight average of neighborhoods with n agents > 0.
 
 
-
-
+ **check:** Explain how S and M vary for the constant function, the comment seems lost
 
 ```{r value_similarity, echo=FALSE, }
-
 
 i_v <- 0
 S  <- 1
 M <- 0
-
-
-#  f_dist <- (o,ot,M,i,S)
 
 for (e_w in seq (0.0,1.0, by = 0.1)){
 
@@ -119,37 +129,25 @@ value_mean_neighborhood <- seq(0.0, 1.0, by = 0.1)
 Utility_V <- c(fv0d2,fv1d2,fv2d2,fv3d2,fv4d2,fv5d2,fv6d2,fv7d2,fv8d2,fv9d2,fv10d2)
 name_V <- paste0("Ethnic weight i = ", e_w,"; desired distance i = ",i_v,"; M = ",M,"; S = ",S)
 
-plot(value_mean_neighborhood,Utility_V, xlab = "Mean ethnic weight neighborhood j", ylab = "Value Utility",  main = "Value Utility for neighborhood j of agent i",  sub = name_V)
+plot(value_mean_neighborhood,Utility_V, xlab = "Mean ethnic weight neighborhood j", ylab = "Value Utility neighborhood j",  main = "Value Utility for neighborhood j of agent i",  sub = name_V)
 
 report_v <- paste0(name_V,"; Mean ethnic weight j = ", seq(0.0, 1.0, by = 0.1), "; Utility ij = ", Utility_V)
 
 print(report_v)
 
-
 }
 
 ```
 
-\newcommand{\rocco}[1]{\textcolor{red}{{Rocco:}#1}} <!-- <- this is a command to appear in pdf -->
-<!-- command not to appear in pdf -->
-
-
-
-
-
-
-
+Once calculated the ethnic utility and value utility, apply prob above (logistic function) in the decision rule of the agent, with prob(to_new) >= random-float 0-1
 
 
 ```{r logistic putting as in abm ethnic_weight, value_weight}
 
-prob <- function(d_u_e,d_u_v,e_w,par_v){round(1 / (1 + exp(-(e_w*10)*(d_u_e) + (-(v_w*10)*(d_u_v)))),digits= 2)}
-
-
 for (d_u_e in seq (-1.0,1.0, by = 0.1)){
   
-e_w <- 0
-v_w <- 0
+e_w <- 0.8
+v_w <- 1 - e_w
 
 # d_u_e <- -1
 
@@ -192,6 +190,10 @@ axis(2,at=seq(0.0, 1.0, by = 0.25))
 
 
 ```
+
+
+
+
 
 ```{r logistic in sequence, to test with parameters, to be deleted}
 
