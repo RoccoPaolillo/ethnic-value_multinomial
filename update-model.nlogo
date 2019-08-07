@@ -1,6 +1,6 @@
 patches-own [
-  uti_eth
-  uti_val
+  uti-eth
+  uti-val
 ]
 
 turtles-own [
@@ -31,15 +31,20 @@ to attribute-preferences                            ; the smaller alpha and beta
 end
 
 to go
+  setup
   update-turtles
 end
 
 to update-turtles
-
-  ask turtles [
+  ask one-of turtles [
+    set color green
+    ask patch-here [set pcolor yellow]
     let alternative one-of patches with [not any? turtles-here]
-
-
+    let options (patch-set alternative patch-here)
+    ask options [set uti-eth utility-eth]
+    show [uti-eth] of alternative
+    show [uti-eth] of patch-here
+    if [uti-eth] of alternative > [uti-eth] of patch-here [move-to alternative ask alternative [set pcolor red]]
 
 
   ]
@@ -48,6 +53,10 @@ to update-turtles
 
 
 
+end
+
+to-report utility-eth
+  report random-float 1
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -110,13 +119,13 @@ HORIZONTAL
 SLIDER
 14
 60
-186
+189
 93
 alpha
 alpha
 0.01
-10
-10.0
+100
+0.01
 0.01
 1
 NIL
@@ -130,8 +139,8 @@ SLIDER
 beta
 beta
 0.01
-10
-0.71
+100
+50.0
 0.01
 1
 NIL
