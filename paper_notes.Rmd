@@ -25,6 +25,12 @@ library(Hmisc)
 # Here functions that are used.
 
 # Calculation ethnic utility (for each option)
+# i_e: ethnic threshold (ideal point)
+# M: right-side slope
+# x: number agents in neighborhood with same color
+# n: total number agents in neighborhood
+# S: left-side slope
+# Note: if (x > n){U <- NA} to show the case number of agents in neighborhood different from 8, so that utility is calculated based on this, although x-axis in graph has 8 points  (excluded from calculation)
 
 f_eth <- function(i_e,M,x,n,S){
   if (x > n){
@@ -63,6 +69,58 @@ Write down how the three types of functions (Zhang, Schelling, new -> symmetric,
 
 Ethnic utility, separating ethnic_weight and ideal payoff for ethnicity (i_e) -> based on ethnicity of agents (color)
 The ethnic weight follows the beta distribution, *maybe* report Blitzstein 4 beta cases, and anyway considering ethnic_weight and value_weight are complementary
+
+Specify n > x <- U:NA in formula
+
+
+
+```{r ethnic utility individual-run include=TRUE, echo=FALSE}
+
+
+# f2 <- function(p,M,x,n,S)
+
+i_e = 0.5
+M = 0
+S = 1
+n = 8
+
+f0m <- f_eth(i_e,M,0,n,S)
+f1m <- f_eth(i_e,M,1,n,S)
+f2m <- f_eth(i_e,M,2,n,S)
+f3m <- f_eth(i_e,M,3,n,S)
+f4m <- f_eth(i_e,M,4,n,S)
+f5m <- f_eth(i_e,M,5,n,S)
+f6m <- f_eth(i_e,M,6,n,S)
+f7m <- f_eth(i_e,M,7,n,S)
+f8m <- f_eth(i_e,M,8,n,S)
+
+num_sim_col <- seq(0, 8, by = 1)
+Utility_E <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
+name_E <- paste0("Desired proportion i = ",i_e,"; M = ",M,"; S = ",S)
+
+plot(num_sim_col,Utility_E, xlab = "Similar ethnics neighborhood j", ylab = "Ethnic Utility",  main = "Ethnic Utility for neighborhood j of agent i",  sub = name_E)
+
+report_E <- paste0("M = ",M,"; S = ",S,"; Desired proportion i = ",i_e,"; Similar ethnics neighborhood j = ", seq(0, 8, by = 1), "; Utility ij = ", Utility_E)
+
+print(report_E)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ```{r ethnic_utility, moore neighborhood, include=TRUE, echo=FALSE}
 
