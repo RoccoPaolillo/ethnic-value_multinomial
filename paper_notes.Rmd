@@ -79,7 +79,7 @@ Specify n > x <- U:NA in formula
 
 # f2 <- function(p,M,x,n,S)
 
-i_e = 0.5
+i_e = 0.7
 M = 0
 S = 1
 n = 8

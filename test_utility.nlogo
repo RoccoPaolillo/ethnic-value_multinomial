@@ -63,7 +63,7 @@ to-report utility-eth [xe n]
 
   report ( ifelse-value (n = 0) [ifelse-value (i_e = 0) [1][0]]
     [ifelse-value (xe = (n * i_e)) [1]
-      [ifelse-value (xe < precision (n * i_e) 2)  [ precision ((xe / precision (n * i_e) 2) * S) 2]
+      [ifelse-value (xe < (n * i_e))  [ precision ((xe / precision (n * i_e) 2) * S) 2]
         [ precision (M + (1 - precision (xe / n) 2 * (1 - M)) / (1 - i_e)) 2]
 
 
@@ -122,7 +122,7 @@ density
 density
 0
 99
-85.0
+96.0
 1
 1
 NIL
@@ -235,7 +235,7 @@ i_e
 i_e
 0
 1
-0.5
+0.7
 0.1
 1
 NIL

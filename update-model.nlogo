@@ -31,20 +31,24 @@ to attribute-preferences                            ; the smaller alpha and beta
 end
 
 to go
-  setup
   update-turtles
 end
 
 to update-turtles
   ask one-of turtles [
-    set color green
-    ask patch-here [set pcolor yellow]
+   set shape "circle" set size .6
+    let color-myself color
     let alternative one-of patches with [not any? turtles-here]
     let options (patch-set alternative patch-here)
-    ask options [set uti-eth utility-eth]
-    show [uti-eth] of alternative
-    show [uti-eth] of patch-here
-    if [uti-eth] of alternative > [uti-eth] of patch-here [move-to alternative ask alternative [set pcolor red]]
+      ask patch-here [set pcolor yellow]
+      ask alternative [set pcolor green]
+
+
+    ask options [
+      let xe count (turtles-on neighbors) with [color = color-myself ]
+      let n count (turtles-on neighbors)
+      set uti-eth utility-eth xe n]
+
 
 
   ]
@@ -55,8 +59,31 @@ to update-turtles
 
 end
 
-to-report utility-eth
-  report random-float 1
+to-report utility-eth [xe n]
+
+  report ( ifelse-value (n = 0) [ifelse-value (i_e = 0) [1][0]]
+    [ifelse-value (xe = (n * i_e)) [1]
+      [ifelse-value (xe < (n * i_e))  [ precision ((xe / precision (n * i_e) 2) * S) 2]
+        [ precision (M + (1 - precision (xe / n) 2 * (1 - M)) / (1 - i_e)) 2]
+
+
+      ]
+    ]
+
+
+  )
+
+
+
+
+ ; ifelse (i_e = 0) [ifelse n = 0 [report 1] [report 0]]
+  ;  [ifelse (xe = (n * i_e)) [report 1] [ifelse (xe < (n * i_e))
+  ;    [report (xe / (n * i_e))]
+  ;    [report M + (1 - (xe / n) * (1 - M)) / (1 - i_e)]
+ ;   ]]
+
+
+
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -95,7 +122,7 @@ density
 density
 0
 99
-99.0
+96.0
 1
 1
 NIL
@@ -147,10 +174,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-74
-291
-137
-324
+547
+461
+610
+494
 setup
 setup
 NIL
@@ -183,10 +210,10 @@ PENS
 "val-weight" 1.0 1 -16777216 true "" "set-histogram-num-bars 100\nhistogram [val-weight] of turtles"
 
 BUTTON
-91
-339
-154
-372
+619
+461
+682
+494
 go
 go
 NIL
@@ -204,11 +231,11 @@ SLIDER
 156
 183
 189
-ethnic_threshold
-ethnic_threshold
+i_e
+i_e
 0
 1
-1.0
+0.7
 0.1
 1
 NIL
@@ -228,6 +255,58 @@ opinion_distance
 1
 NIL
 HORIZONTAL
+
+SLIDER
+36
+251
+208
+284
+M
+M
+0
+1
+0.0
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+37
+287
+209
+320
+S
+S
+0
+1
+1.0
+0.1
+1
+NIL
+HORIZONTAL
+
+MONITOR
+918
+200
+1003
+245
+alternative
+[uti-eth] of patches with [pcolor = green]
+2
+1
+11
+
+MONITOR
+1009
+200
+1086
+245
+current
+[uti-eth] of patches with [pcolor = yellow]
+2
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
