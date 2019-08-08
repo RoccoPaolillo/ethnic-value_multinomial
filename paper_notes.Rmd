@@ -21,6 +21,7 @@ header-includes:
 knitr::opts_chunk$set(echo = TRUE, fig.lp="fig:")
 
 library(Hmisc)
+library(ggplot2)
 
 # Here functions that are used.
 
@@ -67,6 +68,119 @@ prob <- function(d_u_e,d_u_v,e_w,par_v){round(1 / (1 + exp(-(e_w*10)*(d_u_e) + (
 
 Write down how the three types of functions (Zhang, Schelling, new -> symmetric, threshold, costant) can be built out of the parameters M and S. Make a graph
 
+
+```{r graph function include=TRUE, echo=FALSE}
+
+
+
+# f2 <- function(p,M,x,n,S)
+
+i_e = 0.5
+M = 0
+S = 1
+n = 8
+
+f0s <- f_eth(i_e,M,0,n,S)
+f1s <- f_eth(i_e,M,1,n,S)
+f2s <- f_eth(i_e,M,2,n,S)
+f3s <- f_eth(i_e,M,3,n,S)
+f4s <- f_eth(i_e,M,4,n,S)
+f5s <- f_eth(i_e,M,5,n,S)
+f6s <- f_eth(i_e,M,6,n,S)
+f7s <- f_eth(i_e,M,7,n,S)
+f8s <- f_eth(i_e,M,8,n,S)
+
+i_e = 0.5
+M = 1
+S = 1
+n = 8
+
+f0c <- f_eth(i_e,M,0,n,S)
+f1c <- f_eth(i_e,M,1,n,S)
+f2c <- f_eth(i_e,M,2,n,S)
+f3c <- f_eth(i_e,M,3,n,S)
+f4c <- f_eth(i_e,M,4,n,S)
+f5c <- f_eth(i_e,M,5,n,S)
+f6c <- f_eth(i_e,M,6,n,S)
+f7c <- f_eth(i_e,M,7,n,S)
+f8c <- f_eth(i_e,M,8,n,S)
+
+
+i_e = 0.5
+M = 1
+S = 0
+n = 8
+
+f0t <- f_eth(i_e,M,0,n,S)
+f1t <- f_eth(i_e,M,1,n,S)
+f2t <- f_eth(i_e,M,2,n,S)
+f3t <- f_eth(i_e,M,3,n,S)
+f4t <- f_eth(i_e,M,4,n,S)
+f5t <- f_eth(i_e,M,5,n,S)
+f6t <- f_eth(i_e,M,6,n,S)
+f7t <- f_eth(i_e,M,7,n,S)
+f8t <- f_eth(i_e,M,8,n,S)
+
+Utility_S <- c(f0s,f1s,f2s,f3s,f4s,f5s,f6s,f7s,f8s)
+Utility_C <- c(f0c,f1c,f2c,f3c,f4c,f5c,f6c,f7c,f8c)
+Utility_T <- c(f0t,f1t,f2t,f3t,f4t,f5t,f6t,f7t,f8t)
+
+
+# name_E <- paste0("Desired proportion i = ",i_e,"; M = ",M,"; S = ",S)
+# plot(num_sim_col,Utility_T, xlab = "Similar ethnics neighborhood j", ylab = "Ethnic Utility",  main = "Ethnic Utility for neighborhood j of agent i",  sub = name_E)
+# report_E <- paste0("M = ",M,"; S = ",S,"; Desired proportion i = ",i_e,"; Similar ethnics neighborhood j = ", seq(0, 8, by = 1), "; Utility ij = ", Utility_T)
+# print(report_E)
+
+
+# func_type <- c(rep("symmetric",9),rep("constant",9),rep("threshold",9))
+
+x_graph <- rep(seq(0, 8, by = 1),3)
+funct_symm <- c(rep("symmetric",9),rep("constant",9),rep("threshold",9))
+utility_location <- c(Utility_S,Utility_C,Utility_T)
+
+A <- data.frame(x_graph,utility_location,funct_symm)
+
+
+A
+
+write.csv2(A,file="C:/Users/rocpa/OneDrive/Desktop/08_08_2019/ethnic-value_multinomial/data_utility")
+
+A_graph <- ggplot(A,aes(x_graph,utility_location)) 
+
+A_graph + geom_point(aes(colour = funct_symm, shape= funct_symm, size = funct_symm)) + scale_size_manual(values = c(4,5,3)) + scale_shape_manual(values = c(19,19,19)) + scale_color_manual(values = c("darkorchid","forestgreen","black"))
+
+
+
+```
+
+```{r overlap_function include=TRUE, echo=FALSE}
+
+
+x_graph_overlap <- rep(seq(0, 100, by = 12.5),4)
+
+S_0 <- c(0,0,0,0,0,NA,NA,NA,NA)
+M_1 <- c(NA,NA,NA,NA,1,1,1,1,1)
+S_1 <- c(0,0.25,0.5,0.75,1,NA,NA,NA,NA)
+M_0 <- c(NA,NA,NA,NA,1,0.76,0.5,0.24,0)  # should be 0.75 and 0.24, I think due to round(U)2 in the function
+
+
+funct_overlap <- c(rep("S = 0",9),rep("M = 1",9),rep("S = 1",9),rep("M = 0",9))
+utility_overlap <- c(S_0,M_1,S_1,M_0)
+
+overlap <- data.frame(x_graph_overlap,utility_overlap,funct_overlap)
+
+
+# overlap
+
+graph_overlap <- ggplot(overlap,aes(x_graph_overlap,utility_overlap))
+
+suppressWarnings(print(
+graph_overlap + geom_line(aes(colour = funct_overlap)) + scale_color_manual(values = c("red","forestgreen","black","purple"),name = "Parameters Setting") + theme_bw() + labs(x = "percentage similars",y = "utility for location")
+))
+
+
+```
+
 Ethnic utility, separating ethnic_weight and ideal payoff for ethnicity (i_e) -> based on ethnicity of agents (color)
 The ethnic weight follows the beta distribution, *maybe* report Blitzstein 4 beta cases, and anyway considering ethnic_weight and value_weight are complementary
 
@@ -79,10 +193,10 @@ Specify n > x <- U:NA in formula
 
 # f2 <- function(p,M,x,n,S)
 
-i_e = 0.7
+i_e = 0.5
 M = 0
 S = 1
-n = 8
+n = 7
 
 f0m <- f_eth(i_e,M,0,n,S)
 f1m <- f_eth(i_e,M,1,n,S)
