@@ -64,14 +64,12 @@ to-report utility-eth [xe n]
   report ( ifelse-value (n = 0) [ifelse-value (i_e = 0) [1][0]]
     [ifelse-value (xe = (n * i_e)) [1]
       [ifelse-value (xe < (n * i_e))  [ precision ((xe / precision (n * i_e) 2) * S) 2]
-        [ precision (M + (1 - precision (xe / n) 2 * (1 - M)) / (1 - i_e)) 2]
+        [  M + ((1 -  (xe / n)) * (1 - M)) / (1 - i_e) ]
 
 
       ]
     ]
-
-
-  )
+)
 
 
 
@@ -152,7 +150,7 @@ alpha
 alpha
 0.01
 100
-0.01
+21.26
 0.01
 1
 NIL
@@ -167,7 +165,7 @@ beta
 beta
 0.01
 100
-50.0
+24.85
 0.01
 1
 NIL
@@ -235,7 +233,7 @@ i_e
 i_e
 0
 1
-0.7
+0.5
 0.1
 1
 NIL
@@ -289,20 +287,20 @@ HORIZONTAL
 MONITOR
 918
 200
-1003
+1030
 245
-alternative
+alternative_green
 [uti-eth] of patches with [pcolor = green]
 2
 1
 11
 
 MONITOR
-1009
+1035
 200
-1086
+1128
 245
-current
+current-yellow
 [uti-eth] of patches with [pcolor = yellow]
 2
 1
