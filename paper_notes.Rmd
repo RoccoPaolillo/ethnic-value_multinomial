@@ -39,7 +39,7 @@ f_eth <- function(i_e,M,x,n,S){
   if (x < round(n*i_e,digits = 2)){
    U <- (x / round((n*i_e),digits = 2)) * S
     }else if (x > round((n*i_e),digits = 2)){
-      U <- M + ((1- round((x/n),digits = 2))*(1-M))/(1-i_e)
+      U <- M + ((1- (x/n))*(1-M))/(1-i_e)   
     }else{
         U <- 1}
   round(U,digits = 2)
@@ -138,14 +138,16 @@ x_graph <- rep(seq(0, 8, by = 1),3)
 funct_symm <- c(rep("symmetric",9),rep("constant",9),rep("threshold",9))
 utility_location <- c(Utility_S,Utility_C,Utility_T)
 
-A <- data.frame(x_graph,utility_location,funct_symm)
+A <- data.frame(x_graph[c(0:9)],utility_location[c(0:9)],funct_symm[c(0:9)])
 
 
 A
 
-write.csv2(A,file="C:/Users/rocpa/OneDrive/Desktop/08_08_2019/ethnic-value_multinomial/data_utility")
+# write.csv2(A,file="C:/Users/rocpa/OneDrive/Desktop/08_08_2019/ethnic-value_multinomial/data_utility")
 
-A_graph <- ggplot(A,aes(x_graph,utility_location)) 
+A_graph <- ggplot(A,aes(x_graph[c(0:9)],utility_location[c(0:9)])) 
+
+A_graph + geom_point()
 
 A_graph + geom_point(aes(colour = funct_symm, shape= funct_symm, size = funct_symm)) + scale_size_manual(values = c(4,5,3)) + scale_shape_manual(values = c(19,19,19)) + scale_color_manual(values = c("darkorchid","forestgreen","black"))
 
@@ -161,7 +163,7 @@ x_graph_overlap <- rep(seq(0, 100, by = 12.5),4)
 S_0 <- c(0,0,0,0,0,NA,NA,NA,NA)
 M_1 <- c(NA,NA,NA,NA,1,1,1,1,1)
 S_1 <- c(0,0.25,0.5,0.75,1,NA,NA,NA,NA)
-M_0 <- c(NA,NA,NA,NA,1,0.76,0.5,0.24,0)  # should be 0.75 and 0.24, I think due to round(U)2 in the function
+M_0 <- c(NA,NA,NA,NA,1,0.75,0.5,0.25,0)  # should be 0.75 and 0.24, I think due to round(U)2 in the function
 
 
 funct_overlap <- c(rep("S = 0",9),rep("M = 1",9),rep("S = 1",9),rep("M = 0",9))
@@ -196,7 +198,7 @@ Specify n > x <- U:NA in formula
 i_e = 0.5
 M = 0
 S = 1
-n = 7
+n = 8
 
 f0m <- f_eth(i_e,M,0,n,S)
 f1m <- f_eth(i_e,M,1,n,S)
