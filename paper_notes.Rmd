@@ -15,8 +15,6 @@ header-includes:
 - \usepackage{amsmath}
 ---
 
-\newcommand{\rocco}[1]{\textcolor{red}{{Rocco:}#1}} <!-- <- this is a command to appear in pdf -->
-<!-- command not to appear in pdf -->
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.lp="fig:")
 
@@ -24,14 +22,15 @@ library(Hmisc)
 library(ggplot2)
 library(gridExtra)
 library(ggpubr)
+
 # Here functions that are used.
 
 # Calculation ethnic utility (for each option)
 # i_e: ethnic threshold (ideal point)
-# M: right-side slope
+# M: right-side decreasing slope
 # x: number agents in neighborhood with same color
 # n: total number agents in neighborhood
-# S: left-side slope
+# S: left-side increasing slope
 # Note: if (x > n){U <- NA} to show the case number of agents in neighborhood different from 8, so that utility is calculated based on this, although x-axis in graph has 8 points  (excluded from calculation)
 
 f_eth <- function(i_e,M,x,n,S){
@@ -65,6 +64,32 @@ prob <- function(d_u_e,d_u_v,e_w,par_v){round(1 / (1 + exp(-(e_w*10)*(d_u_e) + (
 # install.packages("tinytex", repos = "https://cloud.r-project.org" ) if debug needed?
 
 ```
+
+
+The basic idea is to introduce a beta distribution for $\beta$ in the utility definition of neighborhood $j$ for agent $i$ :
+
+$$
+U_{(xj,yj)}   = \beta_xx_j + \beta_yy_j + \epsilon_j
+$$
+
+With $\beta_x$ the importance of ethnic composition $x_j$ of neighborhood $j$ and $\beta_y$ its value composition $y_i$.
+
+To avoid confusion between parameter beta and beta distribution used in the simulation, $\beta_x$ is called ethnic weight (ew in R code), $\beta_y$ is called value weight (v_w in R code).
+
+We want to compare different type of functions, in particular to compare the single-peaked function as modeled by [@zhang2011, graphic p. 174] with the Schelling's original threshold we also  used in the ACS paper, and a mixed one where utility increases until the ideal point as in Zhang, and remains constant at max. 1 when the ethnic composition exceeds the ideal point. The last function comes from the idea that it can be a realistic scenario in people's relocation choice. 
+
+To have all of the functions coming from the same computation and reduce as much, I modified @zhang2011's formula, assuming max Utility = 1 and introducing 2 parameters to the formula, as in the simulation:\par
+* $S[0,1]$, regulating the increasing left slope
+* $M[0,1]$, regulating the decreasing right slope (as in Zhang)
+
+$$
+U=
+\begin{cases}
+1, & \text{if} \ \frac{x}{n} = np, \\
+\frac{x}{np}\times S, & \text{if} \ x < np, \\
+M + ((1 - \frac{x}{n}) \times (1 - M)) / (1 - p), & \text{if} \ x > np
+\end{cases}
+$$
 
 
 Write down how the three types of functions (Zhang, Schelling, new -> symmetric, threshold, costant) can be built out of the parameters M and S. Make a graph
@@ -143,9 +168,9 @@ symmetric <- data.frame(x_graph[c(0:9)],utility_location[c(0:9)],funct_symm[c(0:
 constant <- data.frame(x_graph[c(10:18)],utility_location[c(10:18)],funct_symm[c(10:18)])
 threshold <- data.frame(x_graph[c(19:27)],utility_location[c(19:27)],funct_symm[c(19:27)])
 
-# symmetric
-# constant
-# threshold
+symmetric
+ constant
+ threshold
 
 # write.csv2(A,file="C:/Users/rocpa/OneDrive/Desktop/08_08_2019/ethnic-value_multinomial/data_utility")
 
@@ -207,7 +232,7 @@ Specify n > x <- U:NA in formula
 i_e = 0.5
 M = 0
 S = 1
-n = 8
+n = 7
 
 f0m <- f_eth(i_e,M,0,n,S)
 f1m <- f_eth(i_e,M,1,n,S)
@@ -329,12 +354,12 @@ Once calculated the ethnic utility and value utility, apply prob above (logistic
 
 for (d_u_e in seq (-1.0,1.0, by = 0.1)){
   
-e_w <- 0.8
-v_w <- 1 - e_w
+e_w <- 1
+v_w <- 1-e_w
 
 # d_u_e <- -1
 
-  dis_0   <- prob(d_u_e,0.0,e_w,v_w)
+dis_0   <- prob(d_u_e,0.0,e_w,v_w)
 dis_0.1 <- prob(d_u_e,0.1,e_w,v_w)
 dis_0.2 <- prob(d_u_e,0.2,e_w,v_w)
 dis_0.3 <- prob(d_u_e,0.3,e_w,v_w)
