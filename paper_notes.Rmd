@@ -79,25 +79,28 @@ To avoid confusion between parameter beta and beta distribution used in the simu
 We want to compare different type of functions, in particular to compare the single-peaked function as modeled by [@zhang2011, graphic p. 174] with the Schelling's original threshold we also  used in the ACS paper, and a mixed one where utility increases until the ideal point as in Zhang, and remains constant at max. 1 when the ethnic composition exceeds the ideal point. The last function comes from the idea that it can be a realistic scenario in people's relocation choice. 
 
 To have all of the functions coming from the same computation and reduce as much, I modified @zhang2011's formula, assuming max Utility = 1 and introducing 2 parameters to the formula, as in the simulation:\par
-* $S[0,1]$, regulating the increasing left slope
-* $M[0,1]$, regulating the decreasing right slope (as in Zhang)
+- $S[0,1]$, regulating the increasing left slope
+- $M[0,1]$, regulating the decreasing right slope (as in Zhang)
 
 $$
-U=
+U_e=
 \begin{cases}
-1, & \text{if} \ \frac{x}{n} = np, \\
-\frac{x}{np}\times S, & \text{if} \ x < np, \\
-M + ((1 - \frac{x}{n}) \times (1 - M)) / (1 - p), & \text{if} \ x > np
+1, & \text{if} \ x = n\times i_e, \\
+(\frac{x}{n \times i_e})\times S, & \text{if} \ x < n\times i_e, \\
+M + ((1 - \frac{x}{n}) \times (1 - M)) / (1 - i_e), & \text{if} \ x > n\times i_e 
 \end{cases}
 $$
 
+Where: \par
+- $U_e$: Ethnic utility
+- $x$: number of similar agents in the neighborhood
+- $n$: total number of agents in the neighborhood
+- $i_e$: desired ethnic composition
 
-Write down how the three types of functions (Zhang, Schelling, new -> symmetric, threshold, costant) can be built out of the parameters M and S. Make a graph
+Below example of the three functions, reporting how $S$ and $M$ are set to calculate them. The example refer to desired compostion $50\%$ ($i_e = 0.5$). It was calculated out of a 8 agents neighborhood (with 4 agents of same ethnicity representing the $50 \%$)
 
 
-```{r graph function, include=TRUE, echo=FALSE}
-
-
+```{r ethnic graph function, include=TRUE, echo=FALSE}
 
 # f2 <- function(p,M,x,n,S)
 
@@ -168,11 +171,9 @@ symmetric <- data.frame(x_graph[c(0:9)],utility_location[c(0:9)],funct_symm[c(0:
 constant <- data.frame(x_graph[c(10:18)],utility_location[c(10:18)],funct_symm[c(10:18)])
 threshold <- data.frame(x_graph[c(19:27)],utility_location[c(19:27)],funct_symm[c(19:27)])
 
-symmetric
- constant
- threshold
-
-# write.csv2(A,file="C:/Users/rocpa/OneDrive/Desktop/08_08_2019/ethnic-value_multinomial/data_utility")
+# symmetric
+# constant
+# threshold
 
 symmetric_graph <- ggplot(symmetric,aes(x_graph[c(0:9)],utility_location[c(0:9)])) 
 constant_graph <- ggplot(constant,aes(x_graph[c(10:18)],utility_location[c(10:18)])) 
@@ -190,30 +191,19 @@ grid.arrange(symmetric_plot, constant_plot,threshold_plot, ncol= 2,nrow = 2)
 
 ```
 
-```{r overlap_function, include=TRUE, echo=FALSE}
+*DOUBT*: for the value composition, have a distribution of opinions/beliefs for agents within ethnic groups, the value weight would be still  1 - e_w, and a parameter of how similar others are considered based on how they distantiate from the own opinion. This would be a comparison to Schelling's definition of similarity based on twofold, exhaustive and exclusive category (i.e. ethnicity), but rather on an cross-categorical, individual and constructed definition of similarity/desirability, and how important it is.
 
+```{r value graph function, include=TRUE, echo=FALSE}
 
-x_graph_overlap <- rep(seq(0, 100, by = 12.5),4)
+# f_val <- function(e_w,ew_ng,M,i_v,S)
 
-S_0 <- c(0,0,0,0,0,NA,NA,NA,NA)
-M_1 <- c(NA,NA,NA,NA,1,1,1,1,1)
-S_1 <- c(0,0.25,0.5,0.75,1,NA,NA,NA,NA)
-M_0 <- c(NA,NA,NA,NA,1,0.75,0.5,0.25,0)
+e_w <-
+e_w_ng <- 
+i_v <- 
+M <- 
+S <- 
 
-funct_overlap <- c(rep("S = 0",9),rep("M = 1",9),rep("S = 1",9),rep("M = 0",9))
-utility_overlap <- c(S_0,M_1,S_1,M_0)
-
-overlap <- data.frame(x_graph_overlap,utility_overlap,funct_overlap)
-
-
-# overlap
-
-graph_overlap <- ggplot(overlap,aes(x_graph_overlap,utility_overlap))
-
-suppressWarnings(print(
-graph_overlap + geom_line(aes(colour = funct_overlap)) + scale_color_manual(values = c("red","forestgreen","black","purple"),name = "Parameters Setting") + theme_bw() + labs(x = "percentage similars",y = "utility for location")
-))
-
+  
 
 ```
 
@@ -315,9 +305,9 @@ Calculate ethnic weight average of neighborhoods with n agents > 0.
 
 ```{r value_similarity, echo=FALSE }
 
-i_v <- 0
-S  <- 1
-M <- 0
+i_v <- 0.2
+S  <- 0
+M <- 1
 
 for (e_w in seq (0.0,1.0, by = 0.1)){
 
@@ -617,16 +607,33 @@ Fig. \ref{fig:integr} shows how this translates in the  model with $\beta=100$. 
 # plot(concentrationm,utility_Moore)
 ```
 
+I think for a paper would be worth it to show how the three functions can overlap due to setting, something like this
+```{r overlap_function, include=TRUE, echo=FALSE}
 
 
+x_graph_overlap <- rep(seq(0, 100, by = 12.5),4)
+
+S_0 <- c(0,0,0,0,0,NA,NA,NA,NA)
+M_1 <- c(NA,NA,NA,NA,1,1,1,1,1)
+S_1 <- c(0,0.25,0.5,0.75,1,NA,NA,NA,NA)
+M_0 <- c(NA,NA,NA,NA,1,0.75,0.5,0.25,0)
+
+funct_overlap <- c(rep("S = 0",9),rep("M = 1",9),rep("S = 1",9),rep("M = 0",9))
+utility_overlap <- c(S_0,M_1,S_1,M_0)
+
+overlap <- data.frame(x_graph_overlap,utility_overlap,funct_overlap)
 
 
-# Doubts
+# overlap
+
+graph_overlap <- ggplot(overlap,aes(x_graph_overlap,utility_overlap))
+
+suppressWarnings(print(
+graph_overlap + geom_line(aes(colour = funct_overlap)) + scale_color_manual(values = c("red","forestgreen","black","purple"),name = "Parameters Setting") + theme_bw() + labs(x = "percentage similars",y = "utility for location")
+))
 
 
-* It is still not very clear to me what you can get out of a regression model for what concerns utility. Some material I am reading describes dependent variable y as the probability to choose option x, and assumes this to be expression of the term utility quantified in beta coefficient times variable(characteristic) for each characteristic. But following @zhang2004, utility of the option made per se would be already the product of $\beta$ probability of choice * $u$ ideal payoff. I do not understand if it is possible to disentangle the two components from a regression, although intuitive cases come to mind (e.g. finding negative correlation between costs in @esser2010 and probability of choice). @borghans2015 use the deviance of betas related to difference within groups, which I understand how to connect to multinomial choice as differences in choice due to characteristics of people, but it is not to my doubt. It is how to disentangle utility in empirical terms which is not very clear to me, and how the modeling choice can be related to empirical data, or if I am overthinking on it. In  any case I would need to study more.
-
-* Some models as @zhang2004 and @bruch2006 put random utility models within Schelling's framework. As I understand so far there  are different components that collapse as multinomial choice, single-peaked function etc. In general they seems to me to fit within utility perspective, but it is not clear to me how much these utility models conceptually fit in @schelling1969 threshold model they cite or are innerly different. In my understanding a threshold model would not care about the left-slope of a single-peaked function, and utility would be constant as @bruch2006 also describes. There would be not consideration of (random) probabilities but prob = 1 once threshold is guaranteed, despite adding randomness, and not assessment of different options, as in the white flight. I think there is a difference conceptually and it should be marked. I also wonder how much a threshold model and utility models would differ when compared with empirical data and how they could be compared, which many abm paper do not focus on. I would like to study this as well, would make sense considering the ACS paper is a threshold model and now shifting to utility, but I think it would be beyond this paper. In general for my PhD I have to wite a paper of my onw.
+```
 
 <!-- read @Brock2001, @Brock1997 -->
 
