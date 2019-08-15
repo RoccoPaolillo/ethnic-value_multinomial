@@ -7,6 +7,7 @@ output:
 title: "Paper notes"
 author: Rocco Paolillo
 bibliography: "references.bib"
+# target: BIGSSS Research Day by September 15th, presented  on October 25th. 6000 words: around 12 pages.
 # csl: apa.csl # by default: Chicago style
 header-includes:
 - \usepackage{float}
