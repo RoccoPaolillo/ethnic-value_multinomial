@@ -33,29 +33,44 @@ library(ggpubr)
 # S: left-side increasing slope
 # Note: if (x > n){U <- NA} to show the case number of agents in neighborhood different from 8, so that utility is calculated based on this, although x-axis in graph has 8 points  (excluded from calculation)
 
-f_eth <- function(i_e,M,x,n,S){
-  if (x > n){
-    U <- NA}else{
-  if (x < round(n*i_e,digits = 2)){
-   U <- (x / round((n*i_e),digits = 2)) * S
-    }else if (x > round((n*i_e),digits = 2)){
-      U <- M + ((1- (x/n))*(1-M))/(1-i_e)   
-    }else{
-        U <- 1}
-  round(U,digits = 2)
-    }
-}
+ 
+
+ f_eth <- function(i_e,M,x,n,S){
+   if (x > n){
+     U <- NA}else{
+   if (x < round(n*i_e,digits = 2)){
+    U <- (x / round((n*i_e),digits = 2)) * S
+     }else {
+       U <- M + ((1- (x/n))*(1-M))/(1-i_e)   
+     }
+   round(U,digits = 2)
+     }
+ }
+
+
+
+
+
 
 # Calculation value utility (for each option)
 
-f_val <- function(e_w,ew_ng,M,i_v,S){
-  if (round(abs(e_w-ew_ng), digits=2) <= i_v) {
-    U <- 1
-    }else{
+ f_val <- function(e_w,ew_ng,M,i_v,S){
+   if (round(abs(e_w-ew_ng), digits=2) <= i_v) {
+     U <- 1
+     }else{
       U <- (M + ((1-(round(abs(e_w-ew_ng), digits=2)))*(1-M))/(1-i_v)) * S
     }
-  round(U,digits = 2)
-}
+   round(U,digits = 2)
+ }
+
+# f_val <- function(e_w,ew_ng,M,i_v,S){
+#   if (round(abs(e_w-ew_ng), digits=2) < i_v) {
+#     U <- 1
+#     }else{
+#       U <- (M + ((1-(round(abs(e_w-ew_ng), digits=2)))*(1-M))/(1-i_v)) * S
+#     }
+#   round(U,digits = 2)
+# }
 
 # Probability (random utility with logistic regression) to relocate
 
@@ -85,9 +100,8 @@ To have all of the functions coming from the same computation and reduce as much
 $$
 U_e=
 \begin{cases}
-1, & \text{if} \ x = n\times i_e, \\
 (\frac{x}{n \times i_e})\times S, & \text{if} \ x < n\times i_e, \\
-M + ((1 - \frac{x}{n}) \times (1 - M)) / (1 - i_e), & \text{if} \ x > n\times i_e 
+M + \frac{(1 - \frac{x}{n}) \times (1 - M)}{1 - i_e}, & \text{if} \ x \geq n\times i_e 
 \end{cases}
 $$
 
@@ -191,6 +205,15 @@ grid.arrange(symmetric_plot, constant_plot,threshold_plot, ncol= 2,nrow = 2)
 
 ```
 
+$$
+U_v=
+\begin{cases}
+1, & \text{if} \ e_w \leq i_v, \\
+\left(M + \frac{(1 - \mid{\overline{ew}_j - ew_i}\mid) \times (1 - M)}{1 - i_v}\right) \times S, & otherwise
+\end{cases}
+$$
+
+
 *DOUBT*: for the value composition, have a distribution of opinions/beliefs for agents within ethnic groups, the value weight would be still  1 - e_w, and a parameter of how similar others are considered based on how they distantiate from the own opinion. This would be a comparison to Schelling's definition of similarity based on twofold, exhaustive and exclusive category (i.e. ethnicity), but rather on an cross-categorical, individual and constructed definition of similarity/desirability, and how important it is.
 
 ```{r value graph function, include=TRUE, echo=FALSE}
@@ -219,7 +242,7 @@ e_w <- 0.2
 e_w_ng <- seq(0.0,1.0, by = 0.1)
 i_v <- 0.1
 S <- 0
-M <- 1
+M <- 0 #M can be either 0 or 1, M = 0 is for declining slope, M = 1 keeps utility = 1 for values out of range, so S = 0 keeps  the threshold  with values out of the distance equal 0
 
 
 fvf0t <- f_val(e_w,0,M,i_v,S)
@@ -247,9 +270,11 @@ threshold_val <- data.frame(x_graph_val,uti_val_th)
 symm_val_graph <- ggplot(symm_val,aes(x_graph_val,uti_val_pf))
 thres_val_graph <- ggplot(threshold_val,aes(x_graph_val,uti_val_th))
 
-symm_val_plot <- symm_val_graph + geom_point() + theme_bw() + labs(x = "Mean ethnic weight neighborhood j",y = "utility for location") + ggtitle(label = "Symmetric Single Peaked \n\r (S=1,M=0) ",subtitle = "desired distance = 0.2") + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))  + scale_x_continuous(breaks = seq(0.0,1.0,by = 0.1))
+subt_cont <- paste0("desired distance = ",i_v)
 
-thres_val_plot <- thres_val_graph + geom_point() + theme_bw() + labs(x = "Mean ethnic weight neighborhood j",y = "utility for location") + ggtitle(label = "Threshold Schelling \n\r (S=0,M=1) ",subtitle = "desired distance = 0.2") + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))  + scale_x_continuous(breaks = seq(0.0,1.0,by = 0.1))
+symm_val_plot <- symm_val_graph + geom_point() + theme_bw() + labs(x = "Mean ethnic weight neighborhood j",y = "utility for location") + ggtitle(label = "Symmetric Single Peaked \n\r (S=1,M=0) ",subtitle = subt_cont) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))  + scale_x_continuous(breaks = seq(0.0,1.0,by = 0.1))
+
+thres_val_plot <- thres_val_graph + geom_point() + theme_bw() + labs(x = "Mean ethnic weight neighborhood j",y = "utility for location") + ggtitle(label = "Threshold Schelling \n\r (S=0,M=1) ",subtitle = subt_cont) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))  + scale_x_continuous(breaks = seq(0.0,1.0,by = 0.1))
 
 # symm_val_plot
 # thres_val_plot
@@ -274,10 +299,10 @@ Specify n > x <- U:NA in formula
 
 # f2 <- function(p,M,x,n,S)
 
-i_e = 0.5
-M = 0
-S = 1
-n = 7
+i_e = 0.7
+M = 1
+S = 0
+n = 8
 
 f0m <- f_eth(i_e,M,0,n,S)
 f1m <- f_eth(i_e,M,1,n,S)
@@ -360,9 +385,9 @@ Calculate ethnic weight average of neighborhoods with n agents > 0.
 
 ```{r value_similarity, echo=FALSE }
 
-i_v <- 0.2
-S  <- 0
-M <- 1
+i_v <- 0.1
+S  <- 1
+M <- 0 #different values  of M do change results, even for M < 1
 
 for (e_w in seq (0.0,1.0, by = 0.1)){
 
