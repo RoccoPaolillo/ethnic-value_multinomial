@@ -19,11 +19,18 @@ header-includes:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.lp="fig:")
 
+install.packages("tinytex", repos = "https://cloud.r-project.org" )
+
+
+
+library(knitr)
 library(Hmisc)
 library(ggplot2)
 library(gridExtra)
 library(ggpubr)
-
+# library(kableExtra)
+library(dplyr)
+library(grid)
 # Here functions that are used.
 
 # Calculation ethnic utility (for each option)
@@ -49,29 +56,17 @@ library(ggpubr)
  }
 
 
-
-
-
-
 # Calculation value utility (for each option)
 
- f_val <- function(e_w,ew_ng,M,i_v,S){
-   if (round(abs(e_w-ew_ng), digits=2) <= i_v) {
-     U <- 1
-     }else{
+f_val <- function(e_w,ew_ng,M,i_v,S){
+  if (round(abs(e_w-ew_ng), digits=2) <= i_v) {
+    U <- 1
+    }else{
       U <- (M + ((1-(round(abs(e_w-ew_ng), digits=2)))*(1-M))/(1-i_v)) * S
-    }
-   round(U,digits = 2)
- }
-
-# f_val <- function(e_w,ew_ng,M,i_v,S){
-#   if (round(abs(e_w-ew_ng), digits=2) < i_v) {
-#     U <- 1
-#     }else{
-#       U <- (M + ((1-(round(abs(e_w-ew_ng), digits=2)))*(1-M))/(1-i_v)) * S
-#     }
-#   round(U,digits = 2)
-# }
+      }
+  round(U,digits = 2)
+  }
+ 
 
 # Probability (random utility with logistic regression) to relocate
 
@@ -85,7 +80,7 @@ prob <- function(d_u_e,d_u_v,e_w,par_v){round(1 / (1 + exp(-(e_w*10)*(d_u_e) + (
 The basic idea is to introduce a beta distribution for $\beta$ in the utility definition of neighborhood $j$ for agent $i$ :
 
 $$
-U_{(xj,yj)}   = \beta_xx_j + \beta_yy_j + \epsilon_j
+U^i_{(ej,yj)}   = \beta_xe_j + \beta_yv_j + \epsilon_j
 $$
 
 With $\beta_x$ the importance of ethnic composition $x_j$ of neighborhood $j$ and $\beta_y$ its value composition $y_i$.
@@ -98,16 +93,19 @@ To have all of the functions coming from the same computation and reduce as much
 - $S[0,1]$, regulating the increasing left slope
 - $M[0,1]$, regulating the decreasing right slope (as in Zhang)
 
+# Ethnic Utility {-}
+
 $$
-U_e=
+U^i_e=
 \begin{cases}
 (\frac{x}{n \times i_e})\times S, & \text{if} \ x < n\times i_e, \\
+\\
 M + \frac{(1 - \frac{x}{n}) \times (1 - M)}{1 - i_e}, & \text{if} \ x \geq n\times i_e 
 \end{cases}
 $$
 
 Where: \par
-- $U_e$: Ethnic utility
+- $U^i_e$: Ethnic utility of agent i
 - $x$: number of similar agents in the neighborhood
 - $n$: total number of agents in the neighborhood
 - $i_e$: desired ethnic composition
@@ -115,7 +113,7 @@ Where: \par
 Below example of the three functions, reporting how $S$ and $M$ are set to calculate them. The example refer to desired compostion $50\%$ ($i_e = 0.5$). It was calculated out of a 8 agents neighborhood (with 4 agents of same ethnicity representing the $50 \%$)
 
 
-```{r ethnic graph function, include=TRUE, echo=FALSE}
+```{r ethnic graph function, fig.width=6,fig.height= 8, fig.align="center",  include=TRUE, echo=FALSE}
 
 # f2 <- function(p,M,x,n,S)
 
@@ -194,30 +192,38 @@ symmetric_graph <- ggplot(symmetric,aes(x_graph[c(0:9)],utility_location[c(0:9)]
 constant_graph <- ggplot(constant,aes(x_graph[c(10:18)],utility_location[c(10:18)])) 
 threshold_graph <- ggplot(threshold,aes(x_graph[c(19:27)],utility_location[c(19:27)])) 
 
-symmetric_plot <- symmetric_graph + geom_point() + theme_bw() + labs(x = "percentage similars",y = "utility for location") + ggtitle("Symmetric Single Peaked \n\r (S=1,M=0) ") + theme(plot.title = element_text(hjust = 0.5))
-constant_plot <- constant_graph + geom_point() + theme_bw() + labs(x = "percentage similars",y = "utility for location") + ggtitle("Linear + Constant \n\r (S=1,M=1)") + theme(plot.title = element_text(hjust = 0.5))
-threshold_plot <- threshold_graph + geom_point() + theme_bw() + labs(x = "percentage similars",y = "utility for location") + ggtitle("Schelling Threshold \n\r (S=0,M=1) ") + theme(plot.title = element_text(hjust = 0.5)) 
+subt_cont_e <- paste0("Desired proportion i = ",i_e)
+
+symmetric_plot <- symmetric_graph + geom_point() + theme_bw() + labs(x = "percentage similars",y = "Ethnic Utility j") + ggtitle("Symmetric Single Peaked (S=1,M=0) ",subtitle = subt_cont_e) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25))
+constant_plot <- constant_graph + geom_point() + theme_bw() + labs(x = "percentage similars",y = "Ethnic Utility j") + ggtitle("Linear + Constant (S=1,M=1)",subtitle = subt_cont_e) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25))
+threshold_plot <- threshold_graph + geom_point() + theme_bw() + labs(x = "percentage similars",y = "Ethnic Utility j") + ggtitle("Schelling Threshold (S=0,M=1)",subtitle = subt_cont_e) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25))
 
 suppressWarnings(
-grid.arrange(symmetric_plot, constant_plot,threshold_plot, ncol= 2,nrow = 2)
+grid.arrange(symmetric_plot, constant_plot,threshold_plot, bottom = "Comparison of the three functions for ethnic utility of a neighborhood j")
 )
-
-
 
 ```
 
+# Value Utility {-}
+
 $$
-U_v=
+U^i_v=
 \begin{cases}
 1, & \text{if} \ e_w \leq i_v, \\
+\\
 \left(M + \frac{(1 - \mid{\overline{ew}_j - ew_i}\mid) \times (1 - M)}{1 - i_v}\right) \times S, & otherwise
 \end{cases}
 $$
 
+Where: \par
+- $U^i_v$: Ethnic utility of agent i
+- $\overline{ew}_j$: average ethnic weight in neighborhood \textit{j}
+- $ew_i$: ethnic weight of agent \textit{i}
+- $i_e$: desired ethnic composition
 
 *DOUBT*: for the value composition, have a distribution of opinions/beliefs for agents within ethnic groups, the value weight would be still  1 - e_w, and a parameter of how similar others are considered based on how they distantiate from the own opinion. This would be a comparison to Schelling's definition of similarity based on twofold, exhaustive and exclusive category (i.e. ethnicity), but rather on an cross-categorical, individual and constructed definition of similarity/desirability, and how important it is.
 
-```{r value graph function, include=TRUE, echo=FALSE}
+```{r value graph function, fig.width=5,fig.height= 6, fig.align="center", include=TRUE, echo=FALSE}
 
 # f_val <- function(e_w,ew_ng,M,i_v,S)
 
@@ -244,6 +250,7 @@ e_w_ng <- seq(0.0,1.0, by = 0.1)
 i_v <- 0.1
 S <- 0
 M <- 0 #M can be either 0 or 1, M = 0 is for declining slope, M = 1 keeps utility = 1 for values out of range, so S = 0 keeps  the threshold  with values out of the distance equal 0
+# M regulates the right side of the slope, S the left side of the slope
 
 
 fvf0t <- f_val(e_w,0,M,i_v,S)
@@ -271,18 +278,18 @@ threshold_val <- data.frame(x_graph_val,uti_val_th)
 symm_val_graph <- ggplot(symm_val,aes(x_graph_val,uti_val_pf))
 thres_val_graph <- ggplot(threshold_val,aes(x_graph_val,uti_val_th))
 
-subt_cont <- paste0("desired distance = ",i_v)
+subt_cont_v <- paste0("Ethnic weight i = ",e_w,"; ","Desired distance = ",i_v)
 
-symm_val_plot <- symm_val_graph + geom_point() + theme_bw() + labs(x = "Mean ethnic weight neighborhood j",y = "utility for location") + ggtitle(label = "Symmetric Single Peaked \n\r (S=1,M=0) ",subtitle = subt_cont) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))  + scale_x_continuous(breaks = seq(0.0,1.0,by = 0.1))
+symm_val_plot <- symm_val_graph + geom_point() + theme_bw() + labs(x = "Mean ethnic weight neighborhood j",y = "Value utility j") + ggtitle(label = "Symmetric Single Peaked (S=1,M=0) ",subtitle = subt_cont_v) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))  + scale_x_continuous(breaks = seq(0.0,1.0,by = 0.1)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25))
 
-thres_val_plot <- thres_val_graph + geom_point() + theme_bw() + labs(x = "Mean ethnic weight neighborhood j",y = "utility for location") + ggtitle(label = "Threshold Schelling \n\r (S=0,M=1) ",subtitle = subt_cont) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))  + scale_x_continuous(breaks = seq(0.0,1.0,by = 0.1))
+thres_val_plot <- thres_val_graph + geom_point() + theme_bw() + labs(x = "Mean ethnic weight neighborhood j",y = "Value utility j") + ggtitle(label = "Threshold Schelling (S=0) ",subtitle = subt_cont_v) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))  + scale_x_continuous(breaks = seq(0.0,1.0,by = 0.1)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25))
 
 # symm_val_plot
 # thres_val_plot
 
 
 suppressWarnings(
-grid.arrange(symm_val_plot, thres_val_plot, ncol= 2,nrow = 2)
+grid.arrange(symm_val_plot, thres_val_plot, bottom = "Comparison of the two functions for value utility of a neighborhood j.")
 )
 
 
@@ -295,15 +302,15 @@ Specify n > x <- U:NA in formula
 
 
 
-```{r ethnic utility individual-run, include=TRUE, echo=FALSE}
+```{r ethnic utility individual-run,fig.align="center", fig.pos="H", include=TRUE, echo=FALSE}
 
 
 # f2 <- function(p,M,x,n,S)
 
-i_e = 0.7
+i_e = 0.3
 M = 1
 S = 0
-n = 8
+n = 7
 
 f0m <- f_eth(i_e,M,0,n,S)
 f1m <- f_eth(i_e,M,1,n,S)
@@ -318,12 +325,21 @@ f8m <- f_eth(i_e,M,8,n,S)
 num_sim_col <- seq(0, 8, by = 1)
 Utility_E <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
 name_E <- paste0("Desired proportion i = ",i_e,"; M = ",M,"; S = ",S)
-
+ 
 plot(num_sim_col,Utility_E, xlab = "Similar ethnics neighborhood j", ylab = "Ethnic Utility",  main = "Ethnic Utility for neighborhood j of agent i",  sub = name_E)
 
-report_E <- paste0("M = ",M,"; S = ",S,"; Desired proportion i = ",i_e,"; Similar ethnics neighborhood j = ", seq(0, 8, by = 1), "; Utility ij = ", Utility_E)
+#report_E <- paste0("M = ",M,"; S = ",S,"; Desired proportion i = ",i_e,"; Similar ethnics neighborhood j = ", seq(0, 8, by = 1), "; Utility ij = ", Utility_E)
 
-print(report_E)
+
+M. <- rep(M,9)
+S. <- rep(S,9)
+prop_des <- rep(i_e,9)
+num_tot <- rep(n,9)
+num_sim <- seq(0, 8, by = 1)
+
+report_E <- data.frame(M.,S.,prop_des,num_tot,num_sim,Utility_E)
+
+knitr::kable(report_E,align="c") # much better printed visualization
 
 ```
 
@@ -372,6 +388,9 @@ name_E <- paste0("Desired proportion i = ",i_e,"; M = ",M,"; S = ",S)
 plot(num_sim_col,Utility_E, xlab = "Similar ethnics neighborhood j", ylab = "Ethnic Utility",  main = "Ethnic Utility for neighborhood j of agent i",  sub = name_E)
 
 report_E <- paste0("M = ",M,"; S = ",S,"; Desired proportion i = ",i_e,"; Similar ethnics neighborhood j = ", seq(0, 8, by = 1), "; Utility ij = ", Utility_E)
+
+
+
 
 print(report_E)
 
