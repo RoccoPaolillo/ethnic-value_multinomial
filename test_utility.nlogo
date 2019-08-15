@@ -61,26 +61,11 @@ end
 
 to-report utility-eth [xe n]
 
-  report ( ifelse-value (n = 0) [ifelse-value (i_e = 0) [1][0]]
-    [ifelse-value (xe = (n * i_e)) [1]
-      [ifelse-value (xe < (n * i_e))  [ precision ((xe / precision (n * i_e) 2) * S) 2]
+report ( ifelse-value (n = 0) [ifelse-value (i_e = 0) [1][0]]
+    [ifelse-value (xe < (n * i_e))  [ precision ((xe / precision (n * i_e) 2) * S) 2]
         [  M + ((1 -  (xe / n)) * (1 - M)) / (1 - i_e) ]
-
-
-      ]
     ]
 )
-
-
-
-
- ; ifelse (i_e = 0) [ifelse n = 0 [report 1] [report 0]]
-  ;  [ifelse (xe = (n * i_e)) [report 1] [ifelse (xe < (n * i_e))
-  ;    [report (xe / (n * i_e))]
-  ;    [report M + (1 - (xe / n) * (1 - M)) / (1 - i_e)]
- ;   ]]
-
-
 
 end
 @#$#@#$#@
@@ -233,7 +218,7 @@ i_e
 i_e
 0
 1
-0.5
+0.7
 0.1
 1
 NIL
@@ -263,7 +248,7 @@ M
 M
 0
 1
-0.0
+1.0
 0.1
 1
 NIL
@@ -278,14 +263,14 @@ S
 S
 0
 1
-1.0
+0.0
 0.1
 1
 NIL
 HORIZONTAL
 
 MONITOR
-918
+928
 200
 1030
 245
