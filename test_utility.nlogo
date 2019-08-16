@@ -61,11 +61,26 @@ end
 
 to-report utility-eth [xe n]
 
-report ( ifelse-value (n = 0) [ifelse-value (i_e = 0) [1][0]]
-    [ifelse-value (xe < (n * i_e))  [ precision ((xe / precision (n * i_e) 2) * S) 2]
-        [  M + ((1 -  (xe / n)) * (1 - M)) / (1 - i_e) ]
-    ]
+; report ( ifelse-value (n = 0) [ifelse-value (i_e = 0) [1][0]]
+ ;   [ifelse-value (xe < (n * i_e))  [ precision ((xe / precision (n * i_e) 2) * S) 2]
+  ;      [  M + ((1 -  (xe / n)) * (1 - M)) / (1 - i_e) ]
+   ; ]
+; )
+
+
+  report ( ifelse-value (n = 0) [ifelse-value (i_e = 0) [1][0]]
+[ifelse-value (xe = (n * i_e)) [1]
+  [ifelse-value (xe < (n * i_e))
+ [ precision
+          ((xe / precision (n * i_e) 2) * S) 3
+        ]
+[ precision ( M + ((1 -  (xe / n)) * (1 - M)) / (1 - i_e)) 3 ]
+ ]
+]
 )
+
+
+
 
 end
 @#$#@#$#@
@@ -105,7 +120,7 @@ density
 density
 0
 99
-96.0
+82.0
 1
 1
 NIL
@@ -218,7 +233,7 @@ i_e
 i_e
 0
 1
-0.7
+1.0
 0.1
 1
 NIL
@@ -248,7 +263,7 @@ M
 M
 0
 1
-1.0
+0.0
 0.1
 1
 NIL
@@ -263,31 +278,31 @@ S
 S
 0
 1
-0.0
+1.0
 0.1
 1
 NIL
 HORIZONTAL
 
 MONITOR
-928
+1038
 200
-1030
+1140
 245
 alternative_green
 [uti-eth] of patches with [pcolor = green]
-2
+3
 1
 11
 
 MONITOR
-1035
+939
 200
-1128
+1032
 245
 current-yellow
 [uti-eth] of patches with [pcolor = yellow]
-2
+3
 1
 11
 
