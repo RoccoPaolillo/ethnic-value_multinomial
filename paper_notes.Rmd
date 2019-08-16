@@ -31,6 +31,7 @@ library(ggpubr)
 # library(kableExtra)
 library(dplyr)
 library(grid)
+library(ggrepel)
 # Here functions that are used.
 
 # Calculation ethnic utility (for each option)
@@ -43,17 +44,33 @@ library(grid)
 
  
 
- f_eth <- function(i_e,M,x,n,S){
+ #  f_eth <- function(i_e,M,x,n,S){
+  #   if (x > n){
+  #     U <- NA}else{
+ #   if (x < round(n*i_e,digits = 2)){
+  #    U <- (x / round((n*i_e),digits = 2)) * S
+ #      }else {
+ #      U <- M + ((1- (x/n))*(1-M))/(1-i_e)   
+  #    }
+#     round(U,digits = 2)
+ #      }
+#   }
+
+
+
+  f_eth <- function(i_e,M,x,n,S){
    if (x > n){
      U <- NA}else{
-   if (x < round(n*i_e,digits = 2)){
-    U <- (x / round((n*i_e),digits = 2)) * S
-     }else {
-       U <- M + ((1- (x/n))*(1-M))/(1-i_e)   
-     }
-   round(U,digits = 2)
-     }
+     if (x < round(n*i_e,digits = 2)){
+   U <- (x / round((n*i_e),digits = 2)) * S
+      }else if (x > round((n*i_e),digits = 2)){
+         U <- M + ((1- (x/n))*(1-M))/(1-i_e) 
+        }else{
+     U <- 1}
+        round(U,digits = 3)
+      }
  }
+
 
 
 # Calculation value utility (for each option)
@@ -64,7 +81,7 @@ f_val <- function(e_w,ew_ng,M,i_v,S){
     }else{
       U <- (M + ((1-(round(abs(e_w-ew_ng), digits=2)))*(1-M))/(1-i_v)) * S
       }
-  round(U,digits = 2)
+  round(U,digits = 3)
   }
  
 
@@ -98,9 +115,11 @@ To have all of the functions coming from the same computation and reduce as much
 $$
 U^i_e=
 \begin{cases}
+1, & \text{if} x =  n\times i_e, \\
+\\
 (\frac{x}{n \times i_e})\times S, & \text{if} \ x < n\times i_e, \\
 \\
-M + \frac{(1 - \frac{x}{n}) \times (1 - M)}{1 - i_e}, & \text{if} \ x \geq n\times i_e 
+M + \frac{(1 - \frac{x}{n}) \times (1 - M)}{1 - i_e}, & \text{if} \ x > n\times i_e 
 \end{cases}
 $$
 
@@ -223,7 +242,7 @@ Where: \par
 
 *DOUBT*: for the value composition, have a distribution of opinions/beliefs for agents within ethnic groups, the value weight would be still  1 - e_w, and a parameter of how similar others are considered based on how they distantiate from the own opinion. This would be a comparison to Schelling's definition of similarity based on twofold, exhaustive and exclusive category (i.e. ethnicity), but rather on an cross-categorical, individual and constructed definition of similarity/desirability, and how important it is.
 
-```{r value graph function, fig.width=5,fig.height= 6, fig.align="center", include=TRUE, echo=FALSE}
+```{r value graph function, fig.width=6,fig.height=5, fig.align="center", include=TRUE, echo=FALSE}
 
 # f_val <- function(e_w,ew_ng,M,i_v,S)
 
@@ -301,150 +320,13 @@ The ethnic weight follows the beta distribution, *maybe* report Blitzstein 4 bet
 Specify n > x <- U:NA in formula
 
 
+```{r logistic,  fig.width=4,fig.height=3, fig.align="center", include=TRUE, echo=FALSE}
 
-```{r ethnic utility individual-run,fig.align="center", fig.pos="H", include=TRUE, echo=FALSE}
-
-
-# f2 <- function(p,M,x,n,S)
-
-i_e = 0.3
-M = 1
-S = 0
-n = 7
-
-f0m <- f_eth(i_e,M,0,n,S)
-f1m <- f_eth(i_e,M,1,n,S)
-f2m <- f_eth(i_e,M,2,n,S)
-f3m <- f_eth(i_e,M,3,n,S)
-f4m <- f_eth(i_e,M,4,n,S)
-f5m <- f_eth(i_e,M,5,n,S)
-f6m <- f_eth(i_e,M,6,n,S)
-f7m <- f_eth(i_e,M,7,n,S)
-f8m <- f_eth(i_e,M,8,n,S)
-
-num_sim_col <- seq(0, 8, by = 1)
-Utility_E <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
-name_E <- paste0("Desired proportion i = ",i_e,"; M = ",M,"; S = ",S)
- 
-plot(num_sim_col,Utility_E, xlab = "Similar ethnics neighborhood j", ylab = "Ethnic Utility",  main = "Ethnic Utility for neighborhood j of agent i",  sub = name_E)
-
-#report_E <- paste0("M = ",M,"; S = ",S,"; Desired proportion i = ",i_e,"; Similar ethnics neighborhood j = ", seq(0, 8, by = 1), "; Utility ij = ", Utility_E)
-
-
-M. <- rep(M,9)
-S. <- rep(S,9)
-prop_des <- rep(i_e,9)
-num_tot <- rep(n,9)
-num_sim <- seq(0, 8, by = 1)
-
-report_E <- data.frame(M.,S.,prop_des,num_tot,num_sim,Utility_E)
-
-knitr::kable(report_E,align="c") # much better printed visualization
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```{r ethnic_utility, moore neighborhood, include=TRUE, echo=FALSE}
-
-
-# f2 <- function(p,M,x,n,S)
-
-#i_e = 0.5
-M = 0
-S = 1
-n = 8
-
-for (i_e in seq (0.0,1.0, by = 0.1)){
-  
-f0m <- f_eth(i_e,M,0,n,S)
-f1m <- f_eth(i_e,M,1,n,S)
-f2m <- f_eth(i_e,M,2,n,S)
-f3m <- f_eth(i_e,M,3,n,S)
-f4m <- f_eth(i_e,M,4,n,S)
-f5m <- f_eth(i_e,M,5,n,S)
-f6m <- f_eth(i_e,M,6,n,S)
-f7m <- f_eth(i_e,M,7,n,S)
-f8m <- f_eth(i_e,M,8,n,S)
-
-num_sim_col <- seq(0, 8, by = 1)
-Utility_E <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
-name_E <- paste0("Desired proportion i = ",i_e,"; M = ",M,"; S = ",S)
-
-plot(num_sim_col,Utility_E, xlab = "Similar ethnics neighborhood j", ylab = "Ethnic Utility",  main = "Ethnic Utility for neighborhood j of agent i",  sub = name_E)
-
-report_E <- paste0("M = ",M,"; S = ",S,"; Desired proportion i = ",i_e,"; Similar ethnics neighborhood j = ", seq(0, 8, by = 1), "; Utility ij = ", Utility_E)
-
-
-
-
-print(report_E)
-
-}
-```
-
-Value utility, based on agents' desired distance (i_v) between the agent's ethnic_weight (e_w) and neighborhood's average ethnic_weight (calculated out of agents residing there)
-Calculate ethnic weight average of neighborhoods with n agents > 0.
-
-
- **check:** Explain how S and M vary for the constant function, the comment seems lost
-
-```{r value_similarity, echo=FALSE }
-
-i_v <- 0.1
-S  <- 1
-M <- 0 #different values  of M do change results, even for M < 1
-
-for (e_w in seq (0.0,1.0, by = 0.1)){
-
-fv0d2 <- f_val(e_w,0,M,i_v,S)
-fv1d2 <- f_val(e_w,0.1,M,i_v,S)
-fv2d2 <- f_val(e_w,0.2,M,i_v,S)
-fv3d2 <- f_val(e_w,0.3,M,i_v,S)
-fv4d2 <- f_val(e_w,0.4,M,i_v,S)
-fv5d2 <- f_val(e_w,0.5,M,i_v,S)
-fv6d2 <- f_val(e_w,0.6,M,i_v,S)
-fv7d2 <- f_val(e_w,0.7,M,i_v,S)
-fv8d2 <- f_val(e_w,0.8,M,i_v,S)
-fv9d2 <- f_val(e_w,0.9,M,i_v,S)
-fv10d2 <- f_val(e_w,1.0,M,i_v,S)
-
-value_mean_neighborhood <- seq(0.0, 1.0, by = 0.1)
-Utility_V <- c(fv0d2,fv1d2,fv2d2,fv3d2,fv4d2,fv5d2,fv6d2,fv7d2,fv8d2,fv9d2,fv10d2)
-name_V <- paste0("Ethnic weight i = ", e_w,"; desired distance i = ",i_v,"; M = ",M,"; S = ",S)
-
-plot(value_mean_neighborhood,Utility_V, xlab = "Mean ethnic weight neighborhood j", ylab = "Value Utility neighborhood j",  main = "Value Utility for neighborhood j of agent i",  sub = name_V)
-
-report_v <- paste0(name_V,"; Mean ethnic weight j = ", seq(0.0, 1.0, by = 0.1), "; Utility ij = ", Utility_V)
-
-print(report_v)
-
-}
-
-```
-
-Once calculated the ethnic utility and value utility, apply prob above (logistic function) in the decision rule of the agent, with prob(to_new) >= random-float 0-1
-
-
-```{r logistic putting as in abm ethnic_weight, value_weight}
+# to add: -1 for MIN. Utility Alternative, +1 for MAX Alternative Utility
 
 for (d_u_e in seq (-1.0,1.0, by = 0.1)){
   
-e_w <- 1
+e_w <- 0.4
 v_w <- 1-e_w
 
 # d_u_e <- -1
@@ -472,17 +354,23 @@ dis_0.9neg <- prob(d_u_e,-0.9,e_w,v_w)
 dis_1neg   <- prob(d_u_e,-1.0,e_w,v_w)
   
   value_difference <- seq(-1.0,1.0, by = 0.1)
-  prob_relocation <- seq(0.0, 1.0,  by = 0.1)
+#  prob_relocation <- seq(0.0, 1.0,  by = 0.1)
   
   prob_choice <- c(dis_1neg,dis_0.9neg,dis_0.8neg,dis_0.7neg,dis_0.6neg,dis_0.5neg,dis_0.4neg,dis_0.3neg,dis_0.2neg,dis_0.1neg,dis_0,dis_0.1,dis_0.2,dis_0.3,dis_0.4,dis_0.5,dis_0.6,dis_0.7,dis_0.8,dis_0.9,dis_1)
+ 
+ 
+  title_cond_prob <- paste0("PROB ALT","Diff eth = ",d_u_e,"Ew = ",e_w*10,"Vw = ",v_w*10)
+   
+  report_prob <- na.omit(data.frame(value_difference,prob_choice))
   
-  name_diff <- paste0("Note: "," Ethnic parameter = ", e_w*10," ;"," Value parameter = ", v_w*10, 
-                      "\r\n Utility Difference -1 = MIN Utility Alternative, 1 = MAX Utility Alternative")
+  plot_report_prob <- ggplot(report_prob,aes(value_difference,prob_choice))
   
-  name_diff_title <-paste0("Probability to move to alternative","\r\n Difference Ethnic Utility (Alternative - Current) = ", d_u_e)
+ final_prob <-  suppressWarnings(suppressMessages(
+    plot_report_prob + geom_point() + theme_bw() + labs(x = "DIFF VAL",y = "Probability") + ggtitle(label = title_cond_prob) + theme(plot.title = element_text(hjust = 0.5)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25)) + scale_x_continuous(limits =  c(-1,1), breaks = seq(-1,1,by = 0.2)) + geom_vline(xintercept = 0, colour = "red", linetype = "dotted") + geom_hline(yintercept = 0.5, colour = "red", linetype = "dotted") 
+  ))
   
-plot(value_difference,prob_choice, xlab = "x-axis: Difference Value Utility (Alternative - Current) \r\n",ylab = "probability", main = name_diff_title, sub = name_diff,ylim = c(0,1), yaxt = 'n')
-axis(2,at=seq(0.0, 1.0, by = 0.25))
+  print(final_prob)
+  
 
 }
 
@@ -493,53 +381,324 @@ axis(2,at=seq(0.0, 1.0, by = 0.25))
 
 
 
-```{r logistic in sequence, to test with parameters, to be deleted}
 
-prob <- function(d_u_e,d_u_v,par_e,par_v){round(1 / (1 + exp(-par_e*(d_u_e) + (-par_v*(d_u_v)))),digits= 2)}
 
-for (d_u_e in seq (-1.0,1.0, by = 0.1)){
-  
-par_e <- 10
-par_v <- 10 - par_e
 
-# d_u_e <- -1
 
-  dis_0p   <- prob(d_u_e,0.0,par_e,par_v)
-dis_0.1p <- prob(d_u_e,0.1,par_e,par_v)
-dis_0.2p <- prob(d_u_e,0.2,par_e,par_v)
-dis_0.3p <- prob(d_u_e,0.3,par_e,par_v)
-dis_0.4p <- prob(d_u_e,0.4,par_e,par_v)
-dis_0.5p <- prob(d_u_e,0.5,par_e,par_v)
-dis_0.6p <- prob(d_u_e,0.6,par_e,par_v)
-dis_0.7p <- prob(d_u_e,0.7,par_e,par_v)
-dis_0.8p <- prob(d_u_e,0.8,par_e,par_v)
-dis_0.9p <- prob(d_u_e,0.9,par_e,par_v)
-dis_1p  <- prob(d_u_e,1.0,par_e,par_v)
-dis_0.1negp <- prob(d_u_e,-0.1,par_e,par_v)
-dis_0.2negp <- prob(d_u_e,-0.2,par_e,par_v)
-dis_0.3negp <- prob(d_u_e,-0.3,par_e,par_v)
-dis_0.4negp <- prob(d_u_e,-0.4,par_e,par_v)
-dis_0.5negp <- prob(d_u_e,-0.5,par_e,par_v)
-dis_0.6negp <- prob(d_u_e,-0.6,par_e,par_v)
-dis_0.7negp <- prob(d_u_e,-0.7,par_e,par_v)
-dis_0.8negp <- prob(d_u_e,-0.8,par_e,par_v)
-dis_0.9negp <- prob(d_u_e,-0.9,par_e,par_v)
-dis_1negp   <- prob(d_u_e,-1.0,par_e,par_v)
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r ethnic utility individual-run,fig.width=4,fig.height= 3, fig.align="center", fig.pos="H", include=TRUE, echo=FALSE}
+
+
+# f2 <- function(p,M,x,n,S)
+
+i_e = 0.2
+S = 0
+M = 1
+n = 6
+
+f0m <- f_eth(i_e,M,0,n,S)
+f1m <- f_eth(i_e,M,1,n,S)
+f2m <- f_eth(i_e,M,2,n,S)
+f3m <- f_eth(i_e,M,3,n,S)
+f4m <- f_eth(i_e,M,4,n,S)
+f5m <- f_eth(i_e,M,5,n,S)
+f6m <- f_eth(i_e,M,6,n,S)
+f7m <- f_eth(i_e,M,7,n,S)
+f8m <- f_eth(i_e,M,8,n,S)
+
+# num_sim_col <- seq(0, 8, by = 1)
+Utility_E <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
+# name_E <- paste0("Desired proportion i = ",i_e,"; M = ",M,"; S = ",S)
+ 
+# plot(num_sim_col,Utility_E, xlab = "Similar ethnics neighborhood j", ylab = "Ethnic Utility",  main = "Ethnic Utility for neighborhood j of agent i",  sub = name_E)
+
+#report_E <- paste0("M = ",M,"; S = ",S,"; Desired proportion i = ",i_e,"; Similar ethnics neighborhood j = ", seq(0, 8, by = 1), "; Utility ij = ", Utility_E)
+
+
+M. <- rep(M,9)
+S. <- rep(S,9)
+prop_des <- rep(i_e,9)
+num_tot <- rep(n,9)
+num_sim <- seq(0, 8, by = 1)
+
+report_E <- na.omit(data.frame(M.,S.,prop_des,num_tot,num_sim,Utility_E))
+
+title_cond <- paste0("Desired proportion = ", i_e,"; ", "S = ", S,"; " ,"M = ", M)
+
+plot_report_E <- ggplot(report_E,aes(num_sim,Utility_E))
+
+suppressWarnings(suppressMessages(
+plot_report_E + geom_point() + theme_bw() + labs(x = "Number similar agents in j",y = "Ethnic Utility j") + ggtitle(label = title_cond) + theme(plot.title = element_text(hjust = 0.5)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25)) + scale_x_continuous(limits =  c(0,n), breaks = seq(0,n,by = 1))
+))
+
+
+knitr::kable(report_E,align="c") # much better printed visualization
+
+```
+
+
+```{r value individual run,fig.width=5,fig.height= 3, fig.align="center", fig.pos="H", include=TRUE, echo=FALSE }
+
+e_w <- 0.4
+i_v <- 0.2
+S  <- 1
+M <- 0 #S regulates the left side of the slope, M the right side
+
+
+fv0d2 <- f_val(e_w,0,M,i_v,S)
+fv1d2 <- f_val(e_w,0.1,M,i_v,S)
+fv2d2 <- f_val(e_w,0.2,M,i_v,S)
+fv3d2 <- f_val(e_w,0.3,M,i_v,S)
+fv4d2 <- f_val(e_w,0.4,M,i_v,S)
+fv5d2 <- f_val(e_w,0.5,M,i_v,S)
+fv6d2 <- f_val(e_w,0.6,M,i_v,S)
+fv7d2 <- f_val(e_w,0.7,M,i_v,S)
+fv8d2 <- f_val(e_w,0.8,M,i_v,S)
+fv9d2 <- f_val(e_w,0.9,M,i_v,S)
+fv10d2 <- f_val(e_w,1.0,M,i_v,S)
+
+
+# name_V <- paste0("Ethnic weight i = ", e_w,"; desired distance i = ",i_v,"; M = ",M,"; S = ",S)
+
+mean_ew_ng <- seq(0.0, 1.0, by = 0.1)
+ew_agent <- rep(e_w,11)
+Utility_V <- c(fv0d2,fv1d2,fv2d2,fv3d2,fv4d2,fv5d2,fv6d2,fv7d2,fv8d2,fv9d2,fv10d2)
+Mv <- rep(M,11)
+Sv <- rep(S,11)
+des_dist <- rep(i_v,11)
+
+report_V <- na.omit(data.frame(Mv,Sv,des_dist,ew_agent,mean_ew_ng,Utility_V))
+
+title_cond_V <- paste0("Ethnic weight i = ", e_w,"; desired distance i = ",i_v,"\n\r","M = ",M,"S = ",S)
+
+plot_report_V <- ggplot(report_V,aes(mean_ew_ng,Utility_V))
+
+suppressWarnings(suppressMessages(
+plot_report_V + geom_point() + theme_bw() + labs(x = "Mean ethnic weight j",y = "Value Utility j") + ggtitle(label = title_cond_V) + theme(plot.title = element_text(hjust = 0.5)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25)) + scale_x_continuous(limits =  c(0,1), breaks = seq(0,1,by = 0.1))
+))
+
+
+
+
+
+
+
+# plot(value_mean_neighborhood,Utility_V, xlab = "Mean ethnic weight neighborhood j", ylab = "Value Utility neighborhood j",  main = "Value Utility for neighborhood j of agent i",  sub = name_V)
+
+# report_v <- paste0(name_V,"; Mean ethnic weight j = ", seq(0.0, 1.0, by = 0.1), "; Utility ij = ", Utility_V)
+
+knitr::kable(report_V,align="c") # much better printed visualization
+
+# print(final_v)
+# print(final_repV)
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r ANNEX - ethnic_multiple_run, moore neighborhood, include=TRUE, echo=FALSE}
+
+
+# f2 <- function(p,M,x,n,S)
+
+#i_e = 0.5
+M = 0
+S = 1
+n = 8
+
+for (i_e in seq (0.0,1.0, by = 0.1)){
   
-  value_difference <- seq(-1.0,1.0, by = 0.1)
-  prob_relocation <- seq(0.0, 1.0,  by = 0.1)
-  
-  prob_choicep <- c(dis_1negp,dis_0.9negp,dis_0.8negp,dis_0.7negp,dis_0.6negp,dis_0.5negp,dis_0.4negp,dis_0.3negp,dis_0.2negp,dis_0.1negp,dis_0p,dis_0.1p,dis_0.2p,dis_0.3p,dis_0.4p,dis_0.5p,dis_0.6p,dis_0.7p,dis_0.8p,dis_0.9p,dis_1p)
-  
-  name_diff <- paste0("Note: "," Ethnic parameter = ", par_e," ;"," Value parameter = ", par_v, 
-                      "\r\n Utility Difference -1 = MIN Utility Alternative, 1 = MAX Utility Alternative")
-  
-  name_diff_title <-paste0("Probability to move to alternative","\r\n Difference Ethnic Utility (Alternative - Current) = ", d_u_e)
-  
-plot(value_difference,prob_choicep, xlab = "x-axis: Difference Value Utility (Alternative - Current) \r\n",ylab = "probability", main = name_diff_title, sub = name_diff,ylim = c(0,1), yaxt = 'n')
-axis(2,at=seq(0.0, 1.0, by = 0.25))
+f0m <- f_eth(i_e,M,0,n,S)
+f1m <- f_eth(i_e,M,1,n,S)
+f2m <- f_eth(i_e,M,2,n,S)
+f3m <- f_eth(i_e,M,3,n,S)
+f4m <- f_eth(i_e,M,4,n,S)
+f5m <- f_eth(i_e,M,5,n,S)
+f6m <- f_eth(i_e,M,6,n,S)
+f7m <- f_eth(i_e,M,7,n,S)
+f8m <- f_eth(i_e,M,8,n,S)
+
+#num_sim_col <- seq(0, n, by = 1)
+Utility_E <- c(f0m,f1m,f2m,f3m,f4m,f5m,f6m,f7m,f8m)
+#name_E <- paste0("Desired proportion i = ",i_e,"; M = ",M,"; S = ",S)
+
+#plot(num_sim_col,Utility_Es, xlab = "Similar ethnics neighborhood j", ylab = "Ethnic Utility", ylim = c(0,1),xlim = c(0,n),  main = "Ethnic Utility for neighborhood j of agent i",  sub = name_E)
+
+#report_Es <- paste0("M = ",M,"; S = ",S,"; Desired proportion i = ",i_e,"; Similars in j= ", seq(0, n, by = 1), "; Utility ij = ", Utility_Es)
+
+#print(report_Es)
+
+
+M. <- rep(M,9)
+S. <- rep(S,9)
+prop_des <- rep(i_e,9)
+num_tot <- rep(n,9)
+num_sim <- seq(0, 8, by = 1)
+
+report_E <- na.omit(data.frame(M.,S.,prop_des,num_tot,num_sim,Utility_E))
+
+title_cond <- paste0("Desired proportion = ", i_e,"; ", "S = ", S,"; " ,"M = ", M)
+
+plot_report_E <- ggplot(report_E,aes(num_sim,Utility_E))
+
+final_E <- suppressWarnings(suppressMessages(
+plot_report_E + geom_point() + theme_bw() + labs(x = "Number similar agents in j",y = "Ethnic Utility j") + ggtitle(label = title_cond) + theme(plot.title = element_text(hjust = 0.5)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25)) + scale_x_continuous(limits =  c(0,n), breaks = seq(0,n,by = 1)) 
+))
+
+
+final_repE <- knitr::kable(report_E,align="c") # much better printed visualization
+
+print(final_E)
+print(final_repE)
 
 }
+```
+
+Value utility, based on agents' desired distance (i_v) between the agent's ethnic_weight (e_w) and neighborhood's average ethnic_weight (calculated out of agents residing there)
+Calculate ethnic weight average of neighborhoods with n agents > 0.
+
+
+ **check:** Explain how S and M vary for the constant function, the comment seems lost
+
+```{r ANNEX- value_similarity, echo=FALSE }
+
+i_v <- 0.1
+S  <- 1
+M <- 0 #different values  of M do change results, even for M < 1
+
+for (e_w in seq (0.0,1.0, by = 0.1)){
+
+fv0d2 <- f_val(e_w,0,M,i_v,S)
+fv1d2 <- f_val(e_w,0.1,M,i_v,S)
+fv2d2 <- f_val(e_w,0.2,M,i_v,S)
+fv3d2 <- f_val(e_w,0.3,M,i_v,S)
+fv4d2 <- f_val(e_w,0.4,M,i_v,S)
+fv5d2 <- f_val(e_w,0.5,M,i_v,S)
+fv6d2 <- f_val(e_w,0.6,M,i_v,S)
+fv7d2 <- f_val(e_w,0.7,M,i_v,S)
+fv8d2 <- f_val(e_w,0.8,M,i_v,S)
+fv9d2 <- f_val(e_w,0.9,M,i_v,S)
+fv10d2 <- f_val(e_w,1.0,M,i_v,S)
+
+
+# name_V <- paste0("Ethnic weight i = ", e_w,"; desired distance i = ",i_v,"; M = ",M,"; S = ",S)
+
+mean_ew_ng <- seq(0.0, 1.0, by = 0.1)
+ew_agent <- rep(e_w,11)
+Utility_V <- c(fv0d2,fv1d2,fv2d2,fv3d2,fv4d2,fv5d2,fv6d2,fv7d2,fv8d2,fv9d2,fv10d2)
+Mv <- rep(M,11)
+Sv <- rep(S,11)
+des_dist <- rep(i_v,11)
+
+report_V <- na.omit(data.frame(Mv,Sv,des_dist,ew_agent,mean_ew_ng,Utility_V))
+
+title_cond_V <- paste0("Ethnic weight i = ", e_w,"; desired distance i = ",i_v,"; M = ",M,"; S = ",S)
+
+plot_report_V <- ggplot(report_V,aes(mean_ew_ng,Utility_V))
+
+final_v <- suppressWarnings(suppressMessages(
+plot_report_V + geom_point() + theme_bw() + labs(x = "Mean ethnic weight j",y = "Value Utility j") + ggtitle(label = title_cond_V) + theme(plot.title = element_text(hjust = 0.5)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25)) + scale_x_continuous(limits =  c(0,1), breaks = seq(0,1,by = 0.1))
+))
+
+
+
+
+
+
+
+# plot(value_mean_neighborhood,Utility_V, xlab = "Mean ethnic weight neighborhood j", ylab = "Value Utility neighborhood j",  main = "Value Utility for neighborhood j of agent i",  sub = name_V)
+
+# report_v <- paste0(name_V,"; Mean ethnic weight j = ", seq(0.0, 1.0, by = 0.1), "; Utility ij = ", Utility_V)
+
+final_repV <- knitr::kable(report_V,align="c") # much better printed visualization
+
+print(final_v)
+print(final_repV)
+
+}
+
+```
+
+Once calculated the ethnic utility and value utility, apply prob above (logistic function) in the decision rule of the agent, with prob(to_new) >= random-float 0-1
+
+
+
+
+
+
+
+
+```{r logistic in sequence, to test with parameters, to be deleted}
+# 
+# prob <- function(d_u_e,d_u_v,par_e,par_v){round(1 / (1 + exp(-par_e*(d_u_e) + (-par_v*(d_u_v)))),digits= 2)}
+# 
+# for (d_u_e in seq (-1.0,1.0, by = 0.1)){
+#   
+# par_e <- 10
+# par_v <- 10 - par_e
+# 
+# # d_u_e <- -1
+# 
+#   dis_0p   <- prob(d_u_e,0.0,par_e,par_v)
+# dis_0.1p <- prob(d_u_e,0.1,par_e,par_v)
+# dis_0.2p <- prob(d_u_e,0.2,par_e,par_v)
+# dis_0.3p <- prob(d_u_e,0.3,par_e,par_v)
+# dis_0.4p <- prob(d_u_e,0.4,par_e,par_v)
+# dis_0.5p <- prob(d_u_e,0.5,par_e,par_v)
+# dis_0.6p <- prob(d_u_e,0.6,par_e,par_v)
+# dis_0.7p <- prob(d_u_e,0.7,par_e,par_v)
+# dis_0.8p <- prob(d_u_e,0.8,par_e,par_v)
+# dis_0.9p <- prob(d_u_e,0.9,par_e,par_v)
+# dis_1p  <- prob(d_u_e,1.0,par_e,par_v)
+# dis_0.1negp <- prob(d_u_e,-0.1,par_e,par_v)
+# dis_0.2negp <- prob(d_u_e,-0.2,par_e,par_v)
+# dis_0.3negp <- prob(d_u_e,-0.3,par_e,par_v)
+# dis_0.4negp <- prob(d_u_e,-0.4,par_e,par_v)
+# dis_0.5negp <- prob(d_u_e,-0.5,par_e,par_v)
+# dis_0.6negp <- prob(d_u_e,-0.6,par_e,par_v)
+# dis_0.7negp <- prob(d_u_e,-0.7,par_e,par_v)
+# dis_0.8negp <- prob(d_u_e,-0.8,par_e,par_v)
+# dis_0.9negp <- prob(d_u_e,-0.9,par_e,par_v)
+# dis_1negp   <- prob(d_u_e,-1.0,par_e,par_v)
+#   
+#   value_difference <- seq(-1.0,1.0, by = 0.1)
+#   prob_relocation <- seq(0.0, 1.0,  by = 0.1)
+#   
+#   prob_choicep <- c(dis_1negp,dis_0.9negp,dis_0.8negp,dis_0.7negp,dis_0.6negp,dis_0.5negp,dis_0.4negp,dis_0.3negp,dis_0.2negp,dis_0.1negp,dis_0p,dis_0.1p,dis_0.2p,dis_0.3p,dis_0.4p,dis_0.5p,dis_0.6p,dis_0.7p,dis_0.8p,dis_0.9p,dis_1p)
+#   
+#   name_diff <- paste0("Note: "," Ethnic parameter = ", par_e," ;"," Value parameter = ", par_v, 
+#                       "\r\n Utility Difference -1 = MIN Utility Alternative, 1 = MAX Utility Alternative")
+#   
+#   name_diff_title <-paste0("Probability to move to alternative","\r\n Difference Ethnic Utility (Alternative - Current) = ", d_u_e)
+#   
+# plot(value_difference,prob_choicep, xlab = "x-axis: Difference Value Utility (Alternative - Current) \r\n",ylab = "probability", main = name_diff_title, sub = name_diff,ylim = c(0,1), yaxt = 'n')
+# axis(2,at=seq(0.0, 1.0, by = 0.25))
+
+#}
 
 
 ```
