@@ -32,6 +32,12 @@ library(ggpubr)
 library(dplyr)
 library(grid)
 library(ggrepel)
+library(magicfor)
+library(dplyr)
+library(plot3D)
+library(rgl)
+library(plotly)
+
 # Here functions that are used.
 
 # Calculation ethnic utility (for each option)
@@ -87,7 +93,7 @@ f_val <- function(e_w,ew_ng,M,i_v,S){
 
 # Probability (random utility with logistic regression) to relocate
 
-prob <- function(d_u_e,d_u_v,e_w,par_v){round(1 / (1 + exp(-(e_w*10)*(d_u_e) + (-(v_w*10)*(d_u_v)))),digits= 2)}
+prob <- function(d_u_e,d_u_v,e_w,v_w){round(1 / (1 + exp(-(e_w*k)*(d_u_e) + (-(v_w*k)*(d_u_v)))),digits= 2)}
 
 # install.packages("tinytex", repos = "https://cloud.r-project.org" ) if debug needed?
 
@@ -319,6 +325,132 @@ The ethnic weight follows the beta distribution, *maybe* report Blitzstein 4 bet
 
 Specify n > x <- U:NA in formula
 
+```{r heatmap-log,  fig.width=5,fig.height=4,fig.cap="Probability to choose alternative location",fig.align="center", include=TRUE, echo=FALSE}
+
+# to add: -1 for MIN. Utility Alternative, +1 for MAX Alternative Utility
+
+magic_for(print,silent = TRUE)
+
+for (i in seq (-1.0,1.0, by = 0.1)){
+  eth_diff <- rep(i,21)
+  print(eth_diff)
+}
+
+d_u_e <-  magic_result_as_vector()
+d_u_v <- rep(seq(-1,1,by = 0.1),21) 
+e_w <- 0
+v_w <- 1-e_w
+k <- 10
+
+df <- data.frame(d_u_e,d_u_v,e_w,v_w)
+
+title_cond_fin <- paste0("Ethnic weight = ",e_w*k,"; ","Value weight = ",v_w*k)
+ass <- mutate(df, prap = prob(d_u_e, d_u_v,e_w,v_w))
+fina_rast <- ggplot(ass,aes(d_u_e,d_u_v))
+
+ plot_fina_rast <-  suppressWarnings(suppressMessages(
+    fina_rast + geom_raster(aes(fill = prap)) + theme_bw() + labs(x = "Diff. ethnic (alternative - current)",y = "Diff. value (alternative - current)") + labs(title = title_cond_fin, caption = "-1: Min Utility Alternative; 1: Max Utility Alternative") + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust=0.5),plot.caption = element_text(hjust=0.5)) 
+    + geom_vline(xintercept = 0, colour = "red", linetype = "dotted") + geom_hline(yintercept = 0, colour = "red", linetype = "dotted") + scale_fill_continuous(name = "Probability")
+  ))
+  
+
+ fx <- d_u_e
+ fy <- d_u_v
+ fz <- ass$prap
+ 
+ # persp(x = seq(-1, 1, by = 0.1),
+   #   y = seq(-1, 1, by = 0.1),
+   #   fz)
+ 
+  d <- plot3d(fx,fy,fz,col="blue")
+  rgl.postscript("d.eps",fmt="eps")
+ 
+ 
+ test_trida <- plot_ly(x=fx,y=fy,z=fz, type="scatter3d", mode="markers", color=fz) %>% layout(legend = list(x = 0.1, y = 0.9))
+ #p <- export(p = last_plot(),file = "plotly.png", selenium = NULL)
+ #fx
+ 
+# test_trid <- plot3d(df_3$a,df_3$b,df_3$C)
+ 
+# plotly_IMAGE(test_trida, width = 500, height = 500, format = "png", scale = 2, out_file = "test.png")
+ 
+#is.data.frame(ass)
+#  print(plot_fina_rast)
+ 
+print(plot_fina_rast)
+
+# knitr::include_graphics("gg.png" )
+ 
+# plot3d(fx,fy,fz, col = "blue",xlab = "eth",ylab="val",zlab="prob", type = "s",size = 2)
+ 
+```
+
+
+```{r heat2,  fig.width=5,fig.height=4,fig.cap="Probability to choose alternative location",fig.align="center", include=TRUE, echo=FALSE}
+
+# to add: -1 for MIN. Utility Alternative, +1 for MAX Alternative Utility
+
+magic_for(print,silent = TRUE)
+
+for (i in seq (-1.0,1.0, by = 0.1)){
+  eth_diff <- rep(i,21)
+  print(eth_diff)
+}
+
+
+d_u_e <-  magic_result_as_vector()
+d_u_v <- rep(seq(-1,1,by = 0.1),21) 
+e_w <- 0
+v_w <- 1-e_w
+k <- 10
+
+df <- data.frame(d_u_e,d_u_v,e_w,v_w)
+
+title_cond_fin <- paste0("Ethnic weight = ",e_w*k,"; ","Value weight = ",v_w*k)
+ass <- mutate(df, prap = prob(d_u_e, d_u_v,e_w,v_w))
+fina_rast <- ggplot(ass,aes(d_u_e,d_u_v))
+
+ plot_fina_rast <-  suppressWarnings(suppressMessages(
+    fina_rast + geom_raster(aes(fill = prap)) + theme_bw() + labs(x = "Diff. ethnic (alternative - current)",y = "Diff. value (alternative - current)") + labs(title = title_cond_fin, caption = "-1: Min Utility Alternative; 1: Max Utility Alternative") + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust=0.5),plot.caption = element_text(hjust=0.5)) 
+    + geom_vline(xintercept = 0, colour = "red", linetype = "dotted") + geom_hline(yintercept = 0, colour = "red", linetype = "dotted") + scale_fill_continuous(name = "Probability")
+  ))
+  
+
+ fx <- d_u_e
+ fy <- d_u_v
+ fz <- ass$prap
+ 
+ # persp(x = seq(-1, 1, by = 0.1),
+   #   y = seq(-1, 1, by = 0.1),
+   #   fz)
+ 
+#  d <- plot3d(fx,fy,fz,col="blue")
+#  rgl.postscript("d.eps",fmt="eps")
+ 
+ 
+ test_trida <- plot_ly(x=fx,y=fy,z=fz, type="scatter3d", mode="markers", color=fz) 
+ #p <- export(p = last_plot(),file = "plotly.png", selenium = NULL)
+ #fx
+ 
+# test_trid <- plot3d(df_3$a,df_3$b,df_3$C)
+ 
+# plotly_IMAGE(test_trida, width = 500, height = 500, format = "png", scale = 2, out_file = "test.png")
+ 
+#is.data.frame(ass)
+#  print(plot_fina_rast)
+
+print(test_trida)
+print(plot_fina_rast)
+
+# knitr::include_graphics("gg.png" )
+ 
+# plot3d(fx,fy,fz, col = "blue",xlab = "eth",ylab="val",zlab="prob", type = "s",size = 2)
+ 
+```
+
+
+
+
 
 ```{r logistic,  fig.width=4,fig.height=3, fig.align="center", include=TRUE, echo=FALSE}
 
@@ -326,11 +458,22 @@ Specify n > x <- U:NA in formula
 
 for (d_u_e in seq (-1.0,1.0, by = 0.1)){
   
-e_w <- 0.4
-v_w <- 1-e_w
+e_w <- 0.6
+v_w <- 1 - e_w
+k <- 10
 
 # d_u_e <- -1
 
+dis_1neg   <- prob(d_u_e,-1.0,e_w,v_w)
+dis_0.9neg <- prob(d_u_e,-0.9,e_w,v_w)
+dis_0.8neg <- prob(d_u_e,-0.8,e_w,v_w)
+dis_0.7neg <- prob(d_u_e,-0.7,e_w,v_w)
+dis_0.6neg <- prob(d_u_e,-0.6,e_w,v_w)
+dis_0.5neg <- prob(d_u_e,-0.5,e_w,v_w)
+dis_0.4neg <- prob(d_u_e,-0.4,e_w,v_w)
+dis_0.3neg <- prob(d_u_e,-0.3,e_w,v_w)
+dis_0.2neg <- prob(d_u_e,-0.2,e_w,v_w)
+dis_0.1neg <- prob(d_u_e,-0.1,e_w,v_w)
 dis_0   <- prob(d_u_e,0.0,e_w,v_w)
 dis_0.1 <- prob(d_u_e,0.1,e_w,v_w)
 dis_0.2 <- prob(d_u_e,0.2,e_w,v_w)
@@ -342,16 +485,7 @@ dis_0.7 <- prob(d_u_e,0.7,e_w,v_w)
 dis_0.8 <- prob(d_u_e,0.8,e_w,v_w)
 dis_0.9 <- prob(d_u_e,0.9,e_w,v_w)
 dis_1   <- prob(d_u_e,1.0,e_w,v_w)
-dis_0.1neg <- prob(d_u_e,-0.1,e_w,v_w)
-dis_0.2neg <- prob(d_u_e,-0.2,e_w,v_w)
-dis_0.3neg <- prob(d_u_e,-0.3,e_w,v_w)
-dis_0.4neg <- prob(d_u_e,-0.4,e_w,v_w)
-dis_0.5neg <- prob(d_u_e,-0.5,e_w,v_w)
-dis_0.6neg <- prob(d_u_e,-0.6,e_w,v_w)
-dis_0.7neg <- prob(d_u_e,-0.7,e_w,v_w)
-dis_0.8neg <- prob(d_u_e,-0.8,e_w,v_w)
-dis_0.9neg <- prob(d_u_e,-0.9,e_w,v_w)
-dis_1neg   <- prob(d_u_e,-1.0,e_w,v_w)
+
   
   value_difference <- seq(-1.0,1.0, by = 0.1)
 #  prob_relocation <- seq(0.0, 1.0,  by = 0.1)
