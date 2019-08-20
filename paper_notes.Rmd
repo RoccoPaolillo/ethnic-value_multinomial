@@ -7,6 +7,7 @@ output:
 title: "Paper notes"
 author: Rocco Paolillo
 bibliography: "references.bib"
+always_allow_html: yes
 # target: BIGSSS Research Day by September 15th, presented  on October 25th. 6000 words: around 12 pages.
 # csl: apa.csl # by default: Chicago style
 header-includes:
@@ -33,10 +34,17 @@ library(dplyr)
 library(grid)
 library(ggrepel)
 library(magicfor)
-library(dplyr)
+# library(dplyr)
 library(plot3D)
 library(rgl)
 library(plotly)
+library(tidyr)
+library(plyr)
+library(rgl)
+library(graphics)
+library(cowplot)
+library(magick) 
+
 
 # Here functions that are used.
 
@@ -325,7 +333,133 @@ The ethnic weight follows the beta distribution, *maybe* report Blitzstein 4 bet
 
 Specify n > x <- U:NA in formula
 
-```{r heatmap-log,  fig.width=5,fig.height=4,fig.cap="Probability to choose alternative location",fig.align="center", include=TRUE, echo=FALSE}
+```{r heatmap-log,  fig.width=5,fig.height=4,fig.cap="Probability to choose alternative location",fig.align="center", include=FALSE, echo=FALSE}
+
+# # to add: -1 for MIN. Utility Alternative, +1 for MAX Alternative Utility
+# 
+# magic_for(print,silent = TRUE)
+# 
+# for (i in seq (-1.0,1.0, by = 0.1)){
+#   eth_diff <- rep(i,21)
+#   print(eth_diff)
+# }
+# 
+# d_u_e <-  magic_result_as_vector()
+# d_u_v <- rep(seq(-1,1,by = 0.1),21) 
+# e_w <- 0
+# v_w <- 1-e_w
+# k <- 10
+# 
+# df <- data.frame(d_u_e,d_u_v,e_w,v_w)
+# 
+# title_cond_fin <- paste0("Ethnic weight = ",e_w*k,"; ","Value weight = ",v_w*k)
+# ass <- mutate(df, prap = prob(d_u_e, d_u_v,e_w,v_w))
+# fina_rast <- ggplot(ass,aes(d_u_e,d_u_v))
+# 
+#  plot_fina_rast <-  suppressWarnings(suppressMessages(
+#     fina_rast + geom_raster(aes(fill = prap)) + theme_bw() + labs(x = "Diff. ethnic (alternative - current)",y = "Diff. value (alternative - current)") + labs(title = title_cond_fin, caption = "-1: Min Utility Alternative; 1: Max Utility Alternative") + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust=0.5),plot.caption = element_text(hjust=0.5)) 
+#     + geom_vline(xintercept = 0, colour = "red", linetype = "dotted") + geom_hline(yintercept = 0, colour = "red", linetype = "dotted") + scale_fill_continuous(name = "Probability")
+#   ))
+#   
+# 
+#  fx <- d_u_e
+#  fy <- d_u_v
+#  fz <- ass$prap
+#  
+#  # persp(x = seq(-1, 1, by = 0.1),
+#    #   y = seq(-1, 1, by = 0.1),
+#    #   fz)
+#  
+#   d <- plot3d(fx,fy,fz,col="blue")
+#   rgl.postscript("d.eps",fmt="eps")
+#  
+#  
+#  test_trida <- plot_ly(x=fx,y=fy,z=fz, type="scatter3d", mode="markers", color=fz) %>% layout(legend = list(x = 0.1, y = 0.9))
+#  #p <- export(p = last_plot(),file = "plotly.png", selenium = NULL)
+#  #fx
+#  
+# # test_trid <- plot3d(df_3$a,df_3$b,df_3$C)
+#  
+# # plotly_IMAGE(test_trida, width = 500, height = 500, format = "png", scale = 2, out_file = "test.png")
+#  
+# #is.data.frame(ass)
+# #  print(plot_fina_rast)
+#  
+# print(plot_fina_rast)
+# 
+# # knitr::include_graphics("gg.png" )
+ 
+# plot3d(fx,fy,fz, col = "blue",xlab = "eth",ylab="val",zlab="prob", type = "s",size = 2)
+ 
+```
+
+
+```{r heat2,  fig.width=5,fig.height=4,fig.cap="Probability to choose alternative location",fig.align="center", include=FALSE, echo=FALSE}
+
+# # to add: -1 for MIN. Utility Alternative, +1 for MAX Alternative Utility
+# 
+# magic_for(print,silent = TRUE)
+# 
+# for (i in seq (-1.0,1.0, by = 0.1)){
+#   eth_diff <- rep(i,21)
+#   print(eth_diff)
+# }
+# 
+# 
+# d_u_e <-  magic_result_as_vector()
+# d_u_v <- rep(seq(-1,1,by = 0.1),21)
+# 
+# k <- 10
+# 
+# e_w <- 0
+# v_w <- 1-e_w
+# df <- data.frame(d_u_e,d_u_v,e_w,v_w)
+# 
+# title_cond_fin <- paste0("Ethnic weight = ",e_w*k,"; ","Value weight = ",v_w*k)
+# fin_prob <- mutate(df, proba = prob(d_u_e, d_u_v,e_w,v_w))
+# fina_rast <- ggplot(fin_prob,aes(d_u_e,d_u_v))
+# 
+#  plot_fina_rast <-  suppressWarnings(suppressMessages(
+#     fina_rast + geom_raster(aes(fill = proba)) + theme_bw() + labs(x = "Diff. ethnic (alternative - current)",y = "Diff. value (alternative - current)") + labs(title = title_cond_fin, caption = "-1: Min Utility Alternative; 1: Max Utility Alternative") + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust=0.5),plot.caption = element_text(hjust=0.5)) 
+#     + geom_vline(xintercept = 0, colour = "red", linetype = "dotted") + geom_hline(yintercept = 0, colour = "red", linetype = "dotted") + scale_fill_continuous(name = "Probability")
+#   ))
+#   
+# 
+#  fx <- d_u_e
+#  fy <- d_u_v
+#  fz <- ass$prap
+#  
+#  # persp(x = seq(-1, 1, by = 0.1),
+#    #   y = seq(-1, 1, by = 0.1),
+#    #   fz)
+#  
+# #  d <- plot3d(fx,fy,fz,col="blue")
+# #  rgl.postscript("d.eps",fmt="eps")
+#  
+#  
+#  test_trida <- plot_ly(x=fx,y=fy,z=fz, type="scatter3d", mode="markers", color=fz) 
+#  #p <- export(p = last_plot(),file = "plotly.png", selenium = NULL)
+#  #fx
+#  
+# # test_trid <- plot3d(df_3$a,df_3$b,df_3$C)
+#  
+# # plotly_IMAGE(test_trida, width = 500, height = 500, format = "png", scale = 2, out_file = "test.png")
+#  
+# #is.data.frame(ass)
+# #  print(plot_fina_rast)
+# 
+# print(test_trida)
+# print(plot_fina_rast)
+# 
+# df
+
+# knitr::include_graphics("gg.png" )
+ 
+# plot3d(fx,fy,fz, col = "blue",xlab = "eth",ylab="val",zlab="prob", type = "s",size = 2)
+ 
+```
+
+```{r testaa,  fig.width=12,fig.height=12,fig.cap="Probability to choose alternative location",fig.align="center", include=TRUE, echo=FALSE}
 
 # to add: -1 for MIN. Utility Alternative, +1 for MAX Alternative Utility
 
@@ -336,121 +470,132 @@ for (i in seq (-1.0,1.0, by = 0.1)){
   print(eth_diff)
 }
 
+
 d_u_e <-  magic_result_as_vector()
-d_u_v <- rep(seq(-1,1,by = 0.1),21) 
-e_w <- 0
-v_w <- 1-e_w
+d_u_v <- rep(seq(-1,1,by = 0.1),21)
+
 k <- 10
 
-df <- data.frame(d_u_e,d_u_v,e_w,v_w)
+#e_w <- 0
+#v_w <- 1-e_w
 
-title_cond_fin <- paste0("Ethnic weight = ",e_w*k,"; ","Value weight = ",v_w*k)
-ass <- mutate(df, prap = prob(d_u_e, d_u_v,e_w,v_w))
-fina_rast <- ggplot(ass,aes(d_u_e,d_u_v))
+
+prob_comb <- function(a){
+title_cond_fin <- paste0("Ethnic weight = ",a$e_w*k,"; ","Value weight = ",a$v_w*k)
+# fin_prob <- mutate(a, proba = prob(d_u_e, d_u_v,e_w,v_w))
+fina_rast <- ggplot(a,aes(d_u_e,d_u_v))
 
  plot_fina_rast <-  suppressWarnings(suppressMessages(
-    fina_rast + geom_raster(aes(fill = prap)) + theme_bw() + labs(x = "Diff. ethnic (alternative - current)",y = "Diff. value (alternative - current)") + labs(title = title_cond_fin, caption = "-1: Min Utility Alternative; 1: Max Utility Alternative") + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust=0.5),plot.caption = element_text(hjust=0.5)) 
-    + geom_vline(xintercept = 0, colour = "red", linetype = "dotted") + geom_hline(yintercept = 0, colour = "red", linetype = "dotted") + scale_fill_continuous(name = "Probability")
+    fina_rast + geom_raster(aes(fill = proba)) + theme_bw() + labs(x = "Diff. ethnic (alternative - current)",y = "Diff. value (alternative - current)") + labs(title = title_cond_fin, caption = "-1: Min Utility Alternative; 1: Max Utility Alternative") + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust=0.5),plot.caption = element_text(hjust=0.5)) 
+    + geom_vline(xintercept = 0, colour = "red", linetype = "dotted") + geom_hline(yintercept = 0, colour = "red", linetype = "dotted") + scale_fill_continuous(name = "Probability",limits=c(0,1), breaks=seq(0,1,0.25))
   ))
+ # print(plot_fina_rast)
+ 
+ # fx <- d_u_e
+# fy <- d_u_v
+#  fz <- df_0$prob
   
-
- fx <- d_u_e
- fy <- d_u_v
- fz <- ass$prap
- 
- # persp(x = seq(-1, 1, by = 0.1),
-   #   y = seq(-1, 1, by = 0.1),
-   #   fz)
- 
-  d <- plot3d(fx,fy,fz,col="blue")
-  rgl.postscript("d.eps",fmt="eps")
- 
- 
- test_trida <- plot_ly(x=fx,y=fy,z=fz, type="scatter3d", mode="markers", color=fz) %>% layout(legend = list(x = 0.1, y = 0.9))
- #p <- export(p = last_plot(),file = "plotly.png", selenium = NULL)
- #fx
- 
-# test_trid <- plot3d(df_3$a,df_3$b,df_3$C)
- 
-# plotly_IMAGE(test_trida, width = 500, height = 500, format = "png", scale = 2, out_file = "test.png")
- 
-#is.data.frame(ass)
-#  print(plot_fina_rast)
- 
-print(plot_fina_rast)
-
-# knitr::include_graphics("gg.png" )
- 
-# plot3d(fx,fy,fz, col = "blue",xlab = "eth",ylab="val",zlab="prob", type = "s",size = 2)
- 
-```
-
-
-```{r heat2,  fig.width=5,fig.height=4,fig.cap="Probability to choose alternative location",fig.align="center", include=TRUE, echo=FALSE}
-
-# to add: -1 for MIN. Utility Alternative, +1 for MAX Alternative Utility
-
-magic_for(print,silent = TRUE)
-
-for (i in seq (-1.0,1.0, by = 0.1)){
-  eth_diff <- rep(i,21)
-  print(eth_diff)
+# test_trida <- plot_ly(x=fx,y=fy,z=fz, type="scatter3d", mode="markers", color=fz) 
 }
 
+df_0 <- mutate(data.frame(d_u_e,d_u_v,e_w=0,v_w=0), proba = prob(d_u_e, d_u_v,e_w,v_w))
+df_05 <- mutate(data.frame(d_u_e,d_u_v,e_w=0.5,v_w=0.5),proba = prob(d_u_e, d_u_v,e_w,v_w))
+df_maxe <- mutate(data.frame(d_u_e,d_u_v,e_w=1,v_w=0),proba = prob(d_u_e, d_u_v,e_w,v_w))
+df_maxv <- mutate(data.frame(d_u_e,d_u_v,e_w=0,v_w=1),proba = prob(d_u_e, d_u_v,e_w,v_w))
+df_r <- mutate(data.frame(d_u_e,d_u_v,e_w=0.1,v_w=0.1),proba = prob(d_u_e, d_u_v,e_w,v_w))
+df_1 <- mutate(data.frame(d_u_e,d_u_v,e_w=10,v_w=10),proba = prob(d_u_e, d_u_v,e_w,v_w))
 
-d_u_e <-  magic_result_as_vector()
-d_u_v <- rep(seq(-1,1,by = 0.1),21) 
-e_w <- 0
-v_w <- 1-e_w
-k <- 10
+# df_05
 
-df <- data.frame(d_u_e,d_u_v,e_w,v_w)
+plot_0 <- prob_comb(df_0)
+plot_05 <- prob_comb(df_05)
+plot_maxe <- prob_comb(df_maxe)
+plot_maxv <- prob_comb(df_maxv)
+plot_r <- prob_comb(df_r)
+plot_1 <- prob_comb(df_1)
 
-title_cond_fin <- paste0("Ethnic weight = ",e_w*k,"; ","Value weight = ",v_w*k)
-ass <- mutate(df, prap = prob(d_u_e, d_u_v,e_w,v_w))
-fina_rast <- ggplot(ass,aes(d_u_e,d_u_v))
+grid.arrange( plot_0,plot_05,plot_maxe,plot_maxv,plot_r,  plot_1,nrow=3,ncol=2)
 
- plot_fina_rast <-  suppressWarnings(suppressMessages(
-    fina_rast + geom_raster(aes(fill = prap)) + theme_bw() + labs(x = "Diff. ethnic (alternative - current)",y = "Diff. value (alternative - current)") + labs(title = title_cond_fin, caption = "-1: Min Utility Alternative; 1: Max Utility Alternative") + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust=0.5),plot.caption = element_text(hjust=0.5)) 
-    + geom_vline(xintercept = 0, colour = "red", linetype = "dotted") + geom_hline(yintercept = 0, colour = "red", linetype = "dotted") + scale_fill_continuous(name = "Probability")
-  ))
-  
-
- fx <- d_u_e
- fy <- d_u_v
- fz <- ass$prap
- 
- # persp(x = seq(-1, 1, by = 0.1),
-   #   y = seq(-1, 1, by = 0.1),
-   #   fz)
- 
-#  d <- plot3d(fx,fy,fz,col="blue")
-#  rgl.postscript("d.eps",fmt="eps")
- 
- 
- test_trida <- plot_ly(x=fx,y=fy,z=fz, type="scatter3d", mode="markers", color=fz) 
- #p <- export(p = last_plot(),file = "plotly.png", selenium = NULL)
- #fx
- 
-# test_trid <- plot3d(df_3$a,df_3$b,df_3$C)
- 
-# plotly_IMAGE(test_trida, width = 500, height = 500, format = "png", scale = 2, out_file = "test.png")
- 
-#is.data.frame(ass)
-#  print(plot_fina_rast)
-
-print(test_trida)
-print(plot_fina_rast)
-
-# knitr::include_graphics("gg.png" )
- 
-# plot3d(fx,fy,fz, col = "blue",xlab = "eth",ylab="val",zlab="prob", type = "s",size = 2)
- 
 ```
 
 
 
+```{r test3D,  fig.width=18,fig.height=18,fig.cap="Probability to choose alternative location 3D",fig.align="center", include=TRUE, echo=FALSE}
 
+ prob_3d <- function(b){
+ fx <- d_u_e
+  fy <- d_u_v
+  fz <- b$prob
+  
+  tit <- paste0("Ethnic weight = ",b$e_w*k,"; ","Value weight = ",b$v_w*k, "\n\r -1:MIN Alternative, 1:MAX Alternative")
+ 
+   test_trida <- plot_ly(x=fx,y=fy,z=fz, type="scatter3d", color=fz, mode="markers")  %>% 
+    layout(
+         #  title =  "Prob. relocate to alternative", font=list(size = 10),
+     scene = list(
+       xaxis = list(title = "x = Diff. Ethnic Ut."),
+       yaxis = list(title = "y = Diff. Value Ut."),
+       zaxis = list(title = "z = Probability")
+     ), annotations = (list(x = 0.5, y = 0.8, text = tit ,
+                           showarrow = F, font=list(size=18) #,
+     #  xref='paper', yref='paper',
+      # xanchor='right', yanchor='auto', xshift=0, yshift=0,
+   #  font=list(size=15, color="red")
+     ))
+  # , legend = list(color = fz)
+   ) %>% hide_colorbar() 
+
+ test_trida 
+
+ }
+
+# 
+# 
+#  plot3d_0 <- prob_3d(df_0)
+#  plot3d_5 <- prob_3d(df_05)
+#  plot3d_maxe <- prob_3d(df_maxe)
+#  plot3d_maxv <- prob_3d(df_maxv)
+#  plot3d_1 <- prob_3d(df_1)
+#  plot3d_r <- prob_3d(df_r)
+
+                  # prob_3d(df_0)
+                  # prob_3d(df_05)
+                  # prob_3d(df_maxe)
+                  # prob_3d(df_maxv)
+                  # prob_3d(df_1)
+                  # prob_3d(df_r)
+  # 
+  # plot3d_0
+  # plot3d_5
+  # plot3d_maxe
+  # plot3d_maxv
+  # plot3d_1
+  # plot3d_r
+
+p_0 <- image_read("3d_0_0.png") %>% image_trim()
+p_5 <- image_read("3d_5_5.png") %>% image_trim()
+p_10_0 <- image_read("3d_10_0.png") %>% image_trim()
+p_0_10 <- image_read("3d_0_10.png") %>% image_trim()
+p_100 <- image_read("3d_100_100.png") %>% image_trim()
+p_1 <- image_read("3d_1_1.png") %>% image_trim()
+
+de <- ggdraw() + draw_image("3d_0_0.png")
+fe <- ggdraw() + draw_image("3d_5_5.png")
+te <- ggdraw() + draw_image("3d_10_0.png")
+ne <- ggdraw() + draw_image("3d_0_10.png")
+se <- ggdraw() + draw_image("3d_100_100.png")
+ze <- ggdraw() + draw_image("3d_1_1.png")
+# 
+grid.arrange(de,fe,te,ne,se,ze,ncol=2,nrow=3)
+
+# knitr::include_graphics("3d_0_0.png")
+# knitr::include_graphics("3d_5_5.png")
+# knitr::include_graphics("3d_10_0.png")
+# knitr::include_graphics("3d_0_10.png")
+# knitr::include_graphics("3d_100_100.png")
+# knitr::include_graphics("3d_1_1.png")
+
+```
 
 ```{r logistic,  fig.width=4,fig.height=3, fig.align="center", include=TRUE, echo=FALSE}
 
@@ -458,8 +603,8 @@ print(plot_fina_rast)
 
 for (d_u_e in seq (-1.0,1.0, by = 0.1)){
   
-e_w <- 0.6
-v_w <- 1 - e_w
+e_w <- 100
+v_w <- 100
 k <- 10
 
 # d_u_e <- -1
@@ -503,33 +648,13 @@ dis_1   <- prob(d_u_e,1.0,e_w,v_w)
     plot_report_prob + geom_point() + theme_bw() + labs(x = "DIFF VAL",y = "Probability") + ggtitle(label = title_cond_prob) + theme(plot.title = element_text(hjust = 0.5)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25)) + scale_x_continuous(limits =  c(-1,1), breaks = seq(-1,1,by = 0.2)) + geom_vline(xintercept = 0, colour = "red", linetype = "dotted") + geom_hline(yintercept = 0.5, colour = "red", linetype = "dotted") 
   ))
   
-  print(final_prob)
+  plot(final_prob)
   
 
 }
 
 
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ```{r ethnic utility individual-run,fig.width=4,fig.height= 3, fig.align="center", fig.pos="H", include=TRUE, echo=FALSE}
