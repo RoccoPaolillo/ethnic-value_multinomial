@@ -20,7 +20,7 @@ header-includes:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.lp="fig:")
 
-install.packages("tinytex", repos = "https://cloud.r-project.org" )
+# install.packages("tinytex", repos = "https://cloud.r-project.org" )
 
 
 
@@ -101,7 +101,7 @@ f_val <- function(e_w,ew_ng,M,i_v,S){
 
 # Probability (random utility with logistic regression) to relocate
 
-prob <- function(d_u_e,d_u_v,e_w,v_w){round(1 / (1 + exp(-(e_w*k)*(d_u_e) + (-(v_w*k)*(d_u_v)))),digits= 2)}
+prob <- function(d_u_e,d_u_v,e_w,v_w){round(1 / (1 + exp((-(e_w*k)*(d_u_e)) + (-(v_w*k)*(d_u_v)))),digits= 2)}
 
 # install.packages("tinytex", repos = "https://cloud.r-project.org" ) if debug needed?
 
@@ -459,7 +459,27 @@ Specify n > x <- U:NA in formula
  
 ```
 
-```{r testaa,  fig.width=12,fig.height=12,fig.cap="Probability to choose alternative location",fig.align="center", include=TRUE, echo=FALSE}
+
+
+$$
+P_j=\frac{1}{1 + \exp((-ew\cdot k\times \Delta_{U_e})+(-vw\cdot k \times \Delta_{U_v}))}
+% P_{xj}=\frac{1}{1 + \exp((-ew\cdot k\times \Delta(U_e^x,U_e^j))+(-vw\cdot k \times \Delta(U_v^x,U_v^j))}
+$$
+
+Where:\par
+- $P_j$: Probability to relocate to alternative neighborhood \textit{j} leaving the current neighborhood
+- $ew$:  Ethnic weight of agent \textit{i}
+- $\Delta_{U_e}$: Ethnic Utility Difference (alternative - current)
+- $vw$: Value weight \textit{i}
+- $\Delta_{U_e}$: Value Utility Difference (alternative - current)
+- $k$: constant
+
+The idea of $k$ constant is to include the parameter of determinism in the random utility formula, i.e. from 0: the probabiity to choose the alternative is totally random due to random term $\epsilon$, to infinity, the best option is taken with probability equal to 1. To reduce the number of parameters, and being constitent with the conceptual model, I derive the parameter for ethnic utility from the ethnic weight $ew$ and the parameter for value utility from the value weight $vw$ in the agent-based  model. Remember that $ew$ ranges $[0,1]$ according to beta distribution, and $vw$ is calculated as $1-ew$. The parameter is calculated as $k\cdot ew$ and $k \cdot vw$, meaning that with $k=10$, the parameter for ethnic utility will range from 0 to 10, $k=100$, range from 0 to 100, $k = 0$: all agents will have parameter equal 0. It will be one slider in the agent-based model.\par
+The aim of the logistic function above is to implement the random  utility for a binary choice for the agent between the current location $x$ and alternative location $j$, with $P_{xj}=0$ meaning the agent stays on the current location, $P_{xj}=1$ the agent moves to the alternative location $j$.\par
+Below I report some graphs on $P_{xj}$ where the logistic funtion above is implemented for each combination of ethnic utility difference $\Delta_{U_e}$ and value utility difference $\Delta_{U_v}$. These are the possible values expected from the agent-based model: assuming that both the ethnic and value utility for each location ranges from 0 to 1, the difference (alternative - current) ranges from -1 (alternative = 0, current = 1), to 1 (alternative =1, current = 0), with 0 meaning equal utility sizes. This creates 11 levels  for each utility, $\times$ 2 number of utility = 441 conditions. The aim of the graphs was to relate the probability as function of 2 dimensions, so I use the heatmaps in fig.\ref{fig:heatmaps}. They have the same content of the 3D plots in fig.\ref{fig:prob3D} which I think serve better the scope: in the R code you can interact with the graph and see actual probability for each point, but need to do it from the RStudio interface.\par
+Each graph reports the parameter ethnic weight $ew \cdot k$ and parameter value weight $vw \cdot k$. In all conditions $k = 10$, which I saw shows most realistic scenarios, i.e. lower probability for lower ethnic/utility difference. To check if the random utility for binary choice is correctly implemented, $P_{xj}=0.50$ with $ew \cdot k = 0$ and $vw \cdot k = 0$, meaning the choice between current and alternative location is totally random. In the last condition $ew \cdot k = 100$ and $vw \cdot k = 100$, $P_{xj}=0$ for all conditions where current location is higher in both types of utility (below the diagonal), shifts to $P_{xj}=1$ for all conditions with both utilities higher in the alternative location (above the diagonal), and $P_{xj}=0.5$ on the diagonal where the alternatives have same utility with difference equal 0. So the choice is totally dependent on the characteristic of the neighborhood, with the best option being taken. I think it can confirm the random utility framework for two options. 
+
+```{r heatmaps,  fig.width=12,fig.height=12,fig.cap="Probability to choose alternative location",fig.align="center", include=TRUE, echo=FALSE}
 
 # to add: -1 for MIN. Utility Alternative, +1 for MAX Alternative Utility
 
@@ -520,7 +540,7 @@ grid.arrange( plot_0,plot_05,plot_maxe,plot_maxv,plot_r,  plot_1,nrow=3,ncol=2)
 
 
 
-```{r test3D,  fig.width=18,fig.height=18,fig.cap="Probability to choose alternative location 3D",fig.align="center", include=TRUE, echo=FALSE}
+```{r prob3D,  fig.width=18,fig.height=18,fig.cap="Probability to choose alternative location 3D",fig.align="center", include=TRUE, echo=FALSE}
 
  prob_3d <- function(b){
  fx <- d_u_e
@@ -536,7 +556,7 @@ grid.arrange( plot_0,plot_05,plot_maxe,plot_maxv,plot_r,  plot_1,nrow=3,ncol=2)
        xaxis = list(title = "x = Diff. Ethnic Ut."),
        yaxis = list(title = "y = Diff. Value Ut."),
        zaxis = list(title = "z = Probability")
-     ), annotations = (list(x = 0.5, y = 0.8, text = tit ,
+     ), annotations = (list(x = 0.5, y = 1, text = tit ,
                            showarrow = F, font=list(size=18) #,
      #  xref='paper', yref='paper',
       # xanchor='right', yanchor='auto', xshift=0, yshift=0,
@@ -565,19 +585,14 @@ grid.arrange( plot_0,plot_05,plot_maxe,plot_maxv,plot_r,  plot_1,nrow=3,ncol=2)
                   # prob_3d(df_1)
                   # prob_3d(df_r)
   # 
-  # plot3d_0
-  # plot3d_5
-  # plot3d_maxe
-  # plot3d_maxv
-  # plot3d_1
-  # plot3d_r
+  
 
-p_0 <- image_read("3d_0_0.png") %>% image_trim()
-p_5 <- image_read("3d_5_5.png") %>% image_trim()
-p_10_0 <- image_read("3d_10_0.png") %>% image_trim()
-p_0_10 <- image_read("3d_0_10.png") %>% image_trim()
-p_100 <- image_read("3d_100_100.png") %>% image_trim()
-p_1 <- image_read("3d_1_1.png") %>% image_trim()
+# p_0 <- image_read("3d_0_0.png") %>% image_trim()
+# p_5 <- image_read("3d_5_5.png") %>% image_trim()
+# p_10_0 <- image_read("3d_10_0.png") %>% image_trim()
+# p_0_10 <- image_read("3d_0_10.png") %>% image_trim()
+# p_100 <- image_read("3d_100_100.png") %>% image_trim()
+# p_1 <- image_read("3d_1_1.png") %>% image_trim()
 
 de <- ggdraw() + draw_image("3d_0_0.png")
 fe <- ggdraw() + draw_image("3d_5_5.png")
@@ -586,7 +601,7 @@ ne <- ggdraw() + draw_image("3d_0_10.png")
 se <- ggdraw() + draw_image("3d_100_100.png")
 ze <- ggdraw() + draw_image("3d_1_1.png")
 # 
-grid.arrange(de,fe,te,ne,se,ze,ncol=2,nrow=3)
+grid.arrange(de,fe,te,ne,ze,se,ncol=2,nrow=3)
 
 # knitr::include_graphics("3d_0_0.png")
 # knitr::include_graphics("3d_5_5.png")
