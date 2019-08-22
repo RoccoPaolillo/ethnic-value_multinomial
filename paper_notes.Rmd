@@ -73,7 +73,8 @@ f_val <- function(e_w,ew_ng,M,i_v,S){
   round(U,digits = 3)
   }
  
-# ethnic utility difference and value utility difference
+
+# Ethnic utility difference and value utility difference
 
 magic_for(print,silent = TRUE)
 
@@ -87,11 +88,13 @@ d_u_v <- rep(seq(-1,1,by = 0.1),21)
 
 dfprob <- data.frame(d_u_e,d_u_v,e_w=0,v_w=0,k=0)
 
-dfprob
+
 # Probability to move to alternative (random utility with logistic regression) 
 
 prob <- function(d_u_e,d_u_v,e_w,v_w,k){round(1 / (1 + exp((-(e_w*k)*(d_u_e)) + (-(v_w*k)*(d_u_v)))),digits= 2)}
 
+
+# For the 3D plots
 
 prob_3d <- function(b){
   fx <- d_u_e
@@ -113,7 +116,6 @@ prob_3d <- function(b){
  tridi_prob 
 
  }
-
 
 # install.packages("tinytex", repos = "https://cloud.r-project.org" ), try if debug needed
 
@@ -393,7 +395,9 @@ prob_3d(df_r)
 #Plotly seems more adapted for html, but works here
 ```
 
+# ANNEX {-}
 
+## Ethnic Utility Calculation
 
 ```{r ethnic utility individual-run,fig.width=4,fig.height= 3, fig.align="center", fig.pos="H", include=TRUE, echo=FALSE}
 # ETHNIC UTILITY:
@@ -442,6 +446,7 @@ knitr::kable(report_E,align="c")
 
 ```
 
+## Value Utility Calculation {-}
 
 ```{r value individual run,fig.width=5, fig.height= 3, fig.align="center", fig.pos="H", include=TRUE, echo=FALSE }
 # VALUE UTILITY:
@@ -491,18 +496,22 @@ knitr::kable(report_V,align = "c")
 
 ```
 
-```{r logistic, fig.width=5,fig.height=4,fig.align='left',include=TRUE, echo=FALSE}
+## Logistic Function calculation {-}
 
-magic_for()
+```{r logistic, fig.width=5,fig.height=3,fig.align='left',include=TRUE, echo=FALSE}
 
-e_w <- 0.5
-v_w <- 0.5
-k <- 10
-
-for (d_u_e in seq (-1.0,1.0, by = 0.1)){
-  
+# PROBABILITY to relocate to alternative
+# Choose the parameters for ethnic weight (e_w), value weight (v_w) and the cstant k. As default v_w is complementar to e_w (1-e_w, as will be in the abm), you can change this.
+# The parameter for importance of relative utility is equal to e_w*k for ethnic utility and v_w*k for value utility. The highest the parameter for that dimension, the less random is the choice and the more depending on the option with highest relative utility
+# Each vignette is one level of ethnic utility difference (-1 to 1), the x-axis the value-difference (-1 to 1), on y-axis the probability to relocate.
 
 
+e_w <- 0.5              
+v_w <- 1-e_w
+k <- 10                                   
+
+for (d_u_e in seq (-1.0,1.0, by = 0.1)){    # Runs the same function for each level of ethnic utility difference
+                                            # d_u_e, the increasing number is the value utility difference
 dis_1neg   <- prob(d_u_e,-1.0,e_w,v_w,k)
 dis_0.9neg <- prob(d_u_e,-0.9,e_w,v_w,k)
 dis_0.8neg <- prob(d_u_e,-0.8,e_w,v_w,k)
@@ -526,81 +535,26 @@ dis_0.9 <- prob(d_u_e,0.9,e_w,v_w,k)
 dis_1   <- prob(d_u_e,1.0,e_w,v_w,k)
 
   
-  value_difference <- seq(-1.0,1.0, by = 0.1)
+value_difference <- seq(-1.0,1.0, by = 0.1)       # here to setup the plot and change info for each vignette
   
-  prob_choice <- c(dis_1neg,dis_0.9neg,dis_0.8neg,dis_0.7neg,dis_0.6neg,dis_0.5neg,dis_0.4neg,dis_0.3neg,dis_0.2neg,dis_0.1neg,dis_0,dis_0.1,dis_0.2,dis_0.3,dis_0.4,dis_0.5,dis_0.6,dis_0.7,dis_0.8,dis_0.9,dis_1)
+prob_choice <- c(dis_1neg,dis_0.9neg,dis_0.8neg,dis_0.7neg,dis_0.6neg,dis_0.5neg,dis_0.4neg,dis_0.3neg,dis_0.2neg,dis_0.1neg,dis_0,dis_0.1,dis_0.2,dis_0.3,dis_0.4,dis_0.5,dis_0.6,dis_0.7,dis_0.8,dis_0.9,dis_1)
  
  
-  title_cond_prob <- paste0("Diff. Ethnic Utility (alternative - current): ",d_u_e)
-  title_caption <-  paste0("Ethnic weight = ",e_w*10," ; ","Value weight = ",v_w*10
-                           ,"\n\r","-1: Min Utility Alternative; 1: Max Utility Alternative"
-                           )
+title_cond_prob <- paste0("Diff. Ethnic Utility (alternative - current): ",d_u_e)
+title_caption <-  paste0("Ethnic weight = ",e_w*10," ; ","Value weight = ",v_w*10,"\n\r","-1: Min Utility Alternative; 1: Max Utility Alternative")
    
-  report_prob <- na.omit(data.frame(value_difference,prob_choice))
+report_prob <- na.omit(data.frame(value_difference,prob_choice))
   
-  plot_report_prob <- ggplot(report_prob,aes(value_difference,prob_choice))
+plot_report_prob <- ggplot(report_prob,aes(value_difference,prob_choice))
   
- final_prob <-  suppressWarnings(suppressMessages(
-    plot_report_prob + geom_point() + theme_bw() + labs(x = "Diff. Value Utility (alternative - current)",y = "Probability") +
-      labs(title=title_cond_prob, caption = title_caption)
-      
-      + theme(plot.title = element_text(hjust = 0.5),plot.caption = element_text(hjust=0.5)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25)) + scale_x_continuous(limits =  c(-1,1), breaks = seq(-1,1,by = 0.2)) + geom_vline(xintercept = 0, colour = "red", linetype = "dotted") + geom_hline(yintercept = 0.5, colour = "red", linetype = "dotted") 
-  ))
+final_prob <-  suppressWarnings(suppressMessages(plot_report_prob + geom_point() + theme_bw() + labs(x = "Diff. Value Utility (alternative - current)",y = "Probability") + labs(title=title_cond_prob, caption = title_caption) + theme(plot.title = element_text(hjust = 0.5),plot.caption = element_text(hjust=0.5)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25)) + scale_x_continuous(limits =  c(-1,1), breaks = seq(-1,1,by = 0.2)) + geom_vline(xintercept = 0, colour = "red", linetype = "dotted") + geom_hline(yintercept = 0.5, colour = "red", linetype = "dotted")))
   
-  plot(final_prob)
-  
+plot(final_prob)
 
-  
 }
-
 
 ```
 
-```{r test, fig.width=5,fig.height=4,fig.align='left',include=TRUE, echo=FALSE}
-
-e_w_v <- 0.5
-v_w_v <- 1-e_w_v
-k_v <- 10
-  
-dfprob_log <- mutate(dfprob,e_w=e_w_v,v_w=v_w_v,k=k_v, probalog = prob(d_u_e, d_u_v,e_w,v_w,k))
-
-
-
-#  report_prob <- na.omit(dfprob_log(d_u_v,probalog))
-
-
-logi <- function(lo){
-plot_report_prob <- ggplot(dfprob_log[which(d_u_e == lo),],aes(d_u_v,probalog))
-
-
-
-  title_cond_prob <- paste0("Diff. Ethnic Utility (alternative - current): ",lo)
-  title_caption <-  paste0("Ethnic weight = ",e_w_v*k_v," ; ","Value weight = ",v_w_v*k_v
-                           ,"\n\r","-1: Min Utility Alternative; 1: Max Utility Alternative"
-                           )
-
-
- final_prob <-  suppressWarnings(suppressMessages(
-    plot_report_prob + geom_point() + theme_bw() + labs(x = "Diff. Value Utility (alternative - current)",y = "Probability") +
-      labs(title=title_cond_prob, caption = title_caption)
-
-      + theme(plot.title = element_text(hjust = 0.5),plot.caption = element_text(hjust=0.5)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25)) + scale_x_continuous(limits =  c(-1,1), breaks = seq(-1,1,by = 0.2)) + geom_vline(xintercept = 0, colour = "red", linetype = "dotted") + geom_hline(yintercept = 0.5, colour = "red", linetype = "dotted")
-  ))
-
- final_prob
- 
-}
-
-logi(-1)
-logi(-0.9)
-
-
-
-
-}
-
-
-```
 
 
 # References
