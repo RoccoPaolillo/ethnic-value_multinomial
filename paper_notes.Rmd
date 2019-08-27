@@ -5,9 +5,13 @@ output:
  #   keep_tex: false
     fig_caption: yes
 title: "Paper notes"
+subtitle: "Target: BIGSSS Research Day"
 author: Rocco Paolillo
+date: "`r  as.Date(Sys.time(), '%d %m %Y')`" 
+language: en-GB
 bibliography: "references.bib"
 always_allow_html: yes
+
 # target: BIGSSS Research Day by September 15th, presented  on October 25th. 6000 words: around 12 pages.
 # csl: apa.csl # by default: Chicago style
 header-includes:
@@ -122,21 +126,35 @@ prob_3d <- function(b){
 ```
 
 
-The basic idea is to introduce a beta distribution for $\beta$ in the utility definition of neighborhood $j$ for agent $i$ :
+
+
+
+In the agent-based model, an agent chooses between current location and one alternative location according to the ethnic utility and value utility attributed to neighborhoods. The aim is to fit the random utility framework for a discrete choice model and advance on the ACS paper [@paolillo2018]. I liked  @bruch2009preferences's description disentangling between utility, probability and how they relate in the empirical data / agent-based models relation.
+
+Probability that an agent will choose the alternative relies on the difference between the utility of the two neighborhood options:
+
+$$
+P_{alterntive}=U_{alternative} -  U_{current}
+$$
+Where: \par
+- $P_{alternative}=1$ means moving to alternative, implying its utility is higher than the current one
+- $P_{alternative}=0$ means staying on the current location, implying its utility is higher than alternative
+
+Definition of utility for a neighborhood, and its implication for the probability to relocate, fits the random utility framework: 
 
 $$
 U^i_{(ej,yj)}   = \beta_xe_j + \beta_yv_j + \epsilon_j
 $$
 
-With $\beta_x$ the importance of ethnic composition $x_j$ of neighborhood $j$ and $\beta_y$ its value composition $y_i$.
+With $\beta_x$ being the importance of ethnic composition $e_j$ of neighborhood $j$, $\beta_y$ the importance of its value composition $v_j$, and $\epsilon_j$ the random term. The random term refers to other characteristics of neighborhoods or of decision makers that can influence the utility and probability of choice, but that are totally unknown. $\beta$ regulates the systematic component of utility, and $\epsilon$ the random component of utility [@bruch2009preferences]. Random component is assumed to be independent and identically distributed (i.i.d.) among options, while the systematic component of utility depends on the formalized functional form and how it interacts with $\beta$ values. The higher is the parameter $\beta \in[0,\infty)$, the lower is the effect of random term and the more utility and probability of choice is based on the observed characteristics of interest of the option (here ethnic and value composition) and how they relate to the functional form implemented.
 
-To avoid confusion between parameter beta and beta distribution used in the simulation, $\beta_x$ is called ethnic weight (ew in R code), $\beta_y$ is called value weight (v_w in R code).
+In this implementation of the model, $beta_x$ follows a beta distribution. To avoid confusion between terms of parameter beta and beta distribution used in the simulation, $\beta_x$ is called ethnic weight $ew$ (e_w in R code), $\beta_y$ is called value weight $vw$ (v_w in R code), with $v_w = 1-e_w$.
 
-We want to compare different type of functions, in particular to compare the single-peaked function as modeled by [@zhang2011, graphic p. 174] with the Schelling's original threshold we also  used in the ACS paper, and a mixed one where utility increases until the ideal point as in Zhang, and remains constant at max. 1 when the ethnic composition exceeds the ideal point. The last function comes from the idea that it can be a realistic scenario in people's relocation choice. 
+Following @zhang2011, and also @bruch2006, we want to implement and compare the consequences of adopting different functional forms in the definition of utility as individual behavior of agents. In particular, we want to compare a range of functional forms of individual behavior spanning from the single-peaked function as in @zhang2011[ graphic p. 174] to the threshold function as in the original Schelling's model and that we used in the ACS paper [@paolillo2018]. The idea was a third function as a combination between linear growing as in @zhang2011 until the ideal point (proportion of similars) is reached, and then constant for higher proportions that include the ideal point as it would be in Schelling.
 
-To have all of the functions coming from the same computation and reduce as much, I modified @zhang2011's formula, assuming max Utility = 1 and introducing 2 parameters to the formula, as in the simulation:\par
-- $S[0,1]$, regulating the increasing left slope
-- $M[0,1]$, regulating the decreasing right slope (as in Zhang)
+Since the task was to reduce number of parameters as much and reproduce the functions we need, I modified @zhang2011's formula, assuming max Utility = 1 and introducing S parameter that combined with M generates the functions we need:\par
+- $S[0,1]$, regulates the increasing left slope 
+- $M[0,1]$, regulates the decreasing right slope (same in Zhang)
 
 # Ethnic Utility {-}
 
@@ -157,17 +175,22 @@ Where: \par
 - $n$: total number of agents in the neighborhood
 - $i_e$: desired ethnic composition
 
-Below example of the three functions, reporting how $S$ and $M$ are set to calculate them. The example refer to desired compostion $50\%$ ($i_e = 0.5$). It was calculated out of a 8 agents neighborhood (with 4 agents of same ethnicity representing the $50 \%$)
+Fig.\ref{fig:ethnicf} reports the example of the three functions, and how $S$ and $M$ are set to calculate them. The example refers to desired compostion $50\%$ ($i_e = 0.5$). It was calculated out of a 8 agents neighborhood (with 4 agents of same ethnicity representing the $50 \%$), I changed the units on x-axis to percentage.
 
+*IDEA/DOUBT*: A fourth function we could include is for S=0 and M=0. In a computational framework,the aim of the paper is to explore and formalize the consequences of different functional forms, which represent different behaviors of how people attribute utility to a neighborhood, whatever might be the reason for this. Following this I think there would be no need to exclude one scenario out of the set and would be more sound to compare the four exteme cases. As in fig. \ref{fig:ethnicf}:\par
+- S=1,M=0, the symmetric single-peaked function with ideal point: people have a preference they value maximally, and devalue equally options that are below or above such preference
+- S=1,M=1, people increasingly value options below their ideal point as long as they get closer to it, and are equally happy for those  options that include and guarantee the ideal point
+- S=0,M=1, the original threshold Schelling: people have a threshold preference, devalue and refuse (Utility = 0) options below it and are equally happy for those above it
+- S=0,M=0 (to add): people devalue and refuse any option below their ideal point (Utility = 0), and decreasingly devalue those options that exceed their ideal point
 
-```{r ethnic graph function, fig.width=6,fig.height= 8, fig.align="center",  include=TRUE, echo=FALSE}
-
-i_e = 0.5
-M = 0
+```{r ethnicf, fig.width=6,fig.height= 8, fig.align="center", fig.pos="H",include=TRUE, echo=FALSE, fig.cap = "Ethnic Utility Function"}
+     
+i_e = 0.5                   # definition of parameters for each function: i_e desired ethnic concentration
+M = 0                       # M: right-side slope, S: left-side slope, n = total number of agents in neighborhood
 S = 1
 n = 8
 
-f0s <- f_eth(i_e,M,0,n,S)
+f0s <- f_eth(i_e,M,0,n,S)     # computation for each neighborhood, the increasing number is number of  similars
 f1s <- f_eth(i_e,M,1,n,S)
 f2s <- f_eth(i_e,M,2,n,S)
 f3s <- f_eth(i_e,M,3,n,S)
@@ -208,7 +231,9 @@ f6t <- f_eth(i_e,M,6,n,S)
 f7t <- f_eth(i_e,M,7,n,S)
 f8t <- f_eth(i_e,M,8,n,S)
 
-Utility_S <- c(f0s,f1s,f2s,f3s,f4s,f5s,f6s,f7s,f8s)
+# here below to make up for dataframe and plots
+
+Utility_S <- c(f0s,f1s,f2s,f3s,f4s,f5s,f6s,f7s,f8s)                     
 Utility_C <- c(f0c,f1c,f2c,f3c,f4c,f5c,f6c,f7c,f8c)
 Utility_T <- c(f0t,f1t,f2t,f3t,f4t,f5t,f6t,f7t,f8t)
 
@@ -231,31 +256,41 @@ constant_plot <- constant_graph + geom_point() + theme_bw() + labs(x = "percenta
 threshold_plot <- threshold_graph + geom_point() + theme_bw() + labs(x = "percentage similars",y = "Ethnic Utility j") + ggtitle("Schelling Threshold (S=0,M=1)",subtitle = subt_cont_e) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25))
 
 suppressWarnings(
-grid.arrange(symmetric_plot, constant_plot,threshold_plot, bottom = "Comparison of the three functions for ethnic utility of a neighborhood j")
+grid.arrange(symmetric_plot, constant_plot,threshold_plot)
 )
 
 ```
 
+In the ANNEX here you can see the function slope and values of ethnic utility given some parameteres. In the R-code you can set the parameters and test, e.g. comparing with NetLogo
+
+
 # Value Utility {-}
+
+The idea we discussed with Jan about value utility was to use the ethnic weight $ew$ of each agent and how distant it is from the average of ethnic weights of other agents in the potential neighborhood. To do so, I include the parameter $i_v \in [0,1]$, meaning the absolute desired distance between the agent's ethnic weight and the average of ethnic weights in its neighborhood. Values range from 0: only similars in the neighborhood are desired, to 1: any possible extrem distance is accepted. Here the ideal point becomes an interval, with average points outside of the ideal interval being equally distant. The function for ethnic utility as above with left increasing slope and right decreasing slope would not work. I elaborated another function using the same parameters S and M:\par
+- $S[0,1]$, regulates the extreme of the slope closer to the ideal point 
+- $M[0,1]$, regulates the extreme of the slope further the ideal point
+
+Fig.\ref{fig:valuef} reports the 2 possible functions:\par
+- S=1,M=0. Symmetric single peaked. Has a similar shape as ethnic utility, but due to different computation
+- S=0, independent from the value of M: Schelling's Threshold function
+
 
 $$
 U^i_v=
 \begin{cases}
-1, & \text{if} \ e_w \leq i_v, \\
+1, & \text{if} \ \mid{\overline{ew}_j - ew_i}\mid \leq i_v, \\
 \\
 \left(M + \frac{(1 - \mid{\overline{ew}_j - ew_i}\mid) \times (1 - M)}{1 - i_v}\right) \times S, & otherwise
 \end{cases}
 $$
 
 Where: \par
-- $U^i_v$: Ethnic utility of agent i
+- $U^i_v$: Value utility of agent i
 - $\overline{ew}_j$: average ethnic weight in neighborhood \textit{j}
 - $ew_i$: ethnic weight of agent \textit{i}
-- $i_e$: desired ethnic composition
+- $i_v$: desired value distance of agent \textit{i}
 
-*DOUBT*: for the value composition, have a distribution of opinions/beliefs for agents within ethnic groups, the value weight would be still  1 - e_w, and a parameter of how similar others are considered based on how they distantiate from the own opinion. This would be a comparison to Schelling's definition of similarity based on twofold, exhaustive and exclusive category (i.e. ethnicity), but rather on an cross-categorical, individual and constructed definition of similarity/desirability, and how important it is.
-
-```{r value graph function, fig.width=6,fig.height=5, fig.align="center", include=TRUE, echo=FALSE}
+```{r valuef, fig.width=6,fig.height=5, fig.align="center",fig.pos="H", include=TRUE, echo=FALSE, fig.cap="Comparison of the two function for the value utility of a neighborhood j"}
 
 e_w <- 0.2
 e_w_ng <- seq(0.0,1.0, by = 0.1)
@@ -307,14 +342,69 @@ subt_cont_v <- paste0("Ethnic weight i = ",e_w,"; ","Desired distance = ",i_v)
 
 symm_val_plot <- symm_val_graph + geom_point() + theme_bw() + labs(x = "Mean ethnic weight neighborhood j",y = "Value utility j") + ggtitle(label = "Symmetric Single Peaked (S=1,M=0) ",subtitle = subt_cont_v) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))  + scale_x_continuous(breaks = seq(0.0,1.0,by = 0.1)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25))
 
-thres_val_plot <- thres_val_graph + geom_point() + theme_bw() + labs(x = "Mean ethnic weight neighborhood j",y = "Value utility j") + ggtitle(label = "Threshold Schelling (S=0,M=0) ",subtitle = subt_cont_v) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))  + scale_x_continuous(breaks = seq(0.0,1.0,by = 0.1)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25))
+thres_val_plot <- thres_val_graph + geom_point() + theme_bw() + labs(x = "Mean ethnic weight neighborhood j",y = "Value utility j") + ggtitle(label = "Threshold Schelling (S=0) ",subtitle = subt_cont_v) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))  + scale_x_continuous(breaks = seq(0.0,1.0,by = 0.1)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25))
 
 suppressWarnings(
-grid.arrange(symm_val_plot, thres_val_plot, bottom = "Comparison of the two functions for value utility of a neighborhood j.")
+grid.arrange(symm_val_plot, thres_val_plot)
 )
 
 
 ```
+
+In the ANNEX here you can see the function slope and computation of value utility given some parameteres. In the R-code you can set the parameters and test.
+
+*DOUBT/IDEA*: I have doubts with this definition of value utility (distance between agent and average ethnic weights of neighborhood), conceptually and for the computation. I will come back after implementing as above. 
+As an extension of Schelling's model, I would focus on how similarity can be defined at the individual level between people as the distance between values/opinions, opposite to Schelling's condition of a "twofold, exhaustive and recognizable distinction" [@schelling1969, p. 488]. Defined the different types of similarity, the mechanism of threshold preferences and cascades would be the same, exploring how the value segregation and ethnic segregation interplay. This was the point of the ACS paper, I think it would better fit the ethnic boundary making's framework [@wimmer2013] and @esser2010's point along with the value homophily we mentioned in the ACS [@mcpherson2001], and my dissertation project. In this terms, in the ACS there were 2 levels of values (tolerants vs intolerants) and related preferences (value-oriented vs ethnicity-oriented), with the ideal distance of value-oriented tolerants equal to 0 (similars are only other tolerants). Here we expand this and extend the residential preferences. For the number of parameters and simplicity, the desired distance $i_v$ already must be included (it would only shift to distance between individual agents); to add there would be one continuous distribution of the values across the population (stylized parameter for norms, political orientations etc. in a population across the ethnic groups). The same functional form as for ethnic utility would then be used, making it more simple and any effect related to average computation/functional form avoided, focusing on the proportion as in Schelling. A simplest way is to use the distance between ethnic weights of agents as "values". I also have some doubts here both because they should be parameters of the choice and not definition of a person [@manski1977structure], plus literature and choices of the model. To not overwhelm and create confusion now I will come to it later when more clear.
+
+
+
+
+
+
+# Probability to relocate to alternative {-}
+
+Calculated the value utility and ethnic utility, the agent chooses between current location and the alternative location. The probability is calcualted using the logistic function. We decided to limit the number of options to 2, both for computational reasons and because there is not need to do otherwise. This is the condition for the logit model of discrete choice with two conditions [@liao1994interpreting], which calculates the probability to select an option with the logistic function $P_j=\frac{1}{1 + \exp(-\lambda\times \Delta_{(U_j,U_l)})}$ 
+
+
+
+
+
+
+Using the logistic function applies the discrete choice for a logit model [@liao1994interpreting], where the probability is calculated for the event to select a probability or not. In terms of residential move as in the model, $P=1$ means to select the choice, $P=0$ means to not select, and consequently to stay with the current option.
+
+
+event to calculate the 
+
+
+
+
+This fits the discete choice model for logit model [@liao1994interpreting], which calculates the probability of an event to occur or not.
+
+
+take on to happen outcome of a probability to occur or not. Given two options, P=1 means choosing the option, P=0 necessary to choose the other alternative. 
+
+
+
+under the this justifies using the
+one differentiation between discrete choice models is:\par
+- Logit model: used for 2 options using the logitisc function. Since the probability calculated estimates the chance to choose one option with $P=1$, it can be used for 2 options where $P=0$ means 
+
+
+
+used for two options, the probability calculated with logistic function $P_j=\frac{1}{1 + \exp(-\lambda\times \Delta_{(U_j,U_l)})}$ refers to the event that one option is chosen choose one option with $P_j=1$ 
+
+
+- Conditional logit model for multinomial distribution: used for more than two options. The probability $P_j=\frac{\exp(U_{(xjyj)})}{\sum_{l}exp((U_{xl,yl}))}$ from @mcfadden1973conditional calculates how one option will be selected out of the set of discrete choices
+
+As I summarized via e.mail, for two options a multinomial choice model can be considered substantially a binary logit model, in our case since the. The two computations of probability above both assume that the random term $\epsilon$ is idependently and identically distributed among options, and the systematic difference
+
+
+the assumptions of random utility model on systematic variation in utility and independent and identical distribution of the random term 
+
+
+. This link synthetizes: [logit_binary_choice, point C](https://en.wikipedia.org/wiki/Discrete_choice#A._Logit_with_attributes_of_the_person_but_no_attributes_of_the_alternatives)
+
+Here is the logistic function implemented in the model for the choice between current location and alternative location:
 
 $$
 P_j=\frac{1}{1 + \exp((-ew\cdot k\times \Delta_{U_e})+(-vw\cdot k \times \Delta_{U_v}))}
@@ -328,10 +418,19 @@ Where:\par
 - $\Delta_{U_e}$: Value Utility Difference (alternative - current)
 - $k$: constant
 
-The idea of $k$ constant is to include the parameter of determinism in the random utility formula, i.e. from 0: the probabiity to choose the alternative is totally random due to random term $\epsilon$, to infinity, the best option is taken with probability equal to 1. To reduce the number of parameters, and being constitent with the conceptual model, I derive the parameter for ethnic utility from the ethnic weight $ew$ and the parameter for value utility from the value weight $vw$ in the agent-based  model. Remember that $ew$ ranges $[0,1]$ according to beta distribution, and $vw$ is calculated as $1-ew$. The parameter is calculated as $k\cdot ew$ and $k \cdot vw$, meaning that with $k=10$, the parameter for ethnic utility will range from 0 to 10, $k=100$, range from 0 to 100, $k = 0$: all agents will have parameter equal 0. It will be one slider in the agent-based model.\par
-The aim of the logistic function above is to implement the random  utility for a binary choice for the agent between the current location $x$ and alternative location $j$, with $P_{xj}=0$ meaning the agent stays on the current location, $P_{xj}=1$ the agent moves to the alternative location $j$.\par
-Below I report some graphs on $P_{xj}$ where the logistic funtion above is implemented for each combination of ethnic utility difference $\Delta_{U_e}$ and value utility difference $\Delta_{U_v}$. These are the possible values expected from the agent-based model: assuming that both the ethnic and value utility for each location ranges from 0 to 1, the difference (alternative - current) ranges from -1 (alternative = 0, current = 1), to 1 (alternative =1, current = 0), with 0 meaning equal utility sizes. This creates 11 levels  for each utility, $\times$ 2 number of utility = 441 conditions. The aim of the graphs was to relate the probability as function of 2 dimensions, so I use the heatmaps in fig.\ref{fig:heatmaps}. They have the same content of the 3D plots in fig.\ref{fig:prob3D} which I think serve better the scope: in the R code you can interact with the graph and see actual probability for each point, but need to do it from the RStudio interface (chunk "interact3d").\par
-Each graph reports the parameter ethnic weight $ew \cdot k$ and parameter value weight $vw \cdot k$. In all conditions $k = 10$, which I saw shows most realistic scenarios, i.e. lower probability for lower ethnic/utility difference. To check if the random utility for binary choice is correctly implemented, $P_{xj}=0.50$ with $ew \cdot k = 0$ and $vw \cdot k = 0$, meaning the choice between current and alternative location is totally random. In the last condition $ew \cdot k = 100$ and $vw \cdot k = 100$, $P_{xj}=0$ for all conditions where current location is higher in both types of utility (below the diagonal), shifts to $P_{xj}=1$ for all conditions with both utilities higher in the alternative location (above the diagonal), and $P_{xj}=0.5$ on the diagonal where the alternatives have same utility with difference equal 0. So the choice is totally dependent on the characteristic of the neighborhood, with the best option being taken. I think it can confirm the random utility framework for two options. 
+$P_j$ thus ranges from 0 = the agent remains in its current location, to 1 = the agent moves to the alternative location.
+
+
+
+which uses the conditioanl logit to calculate the probability to choose $\textit{j}$ ($P_j=\frac{\exp(U_{(xjyj)})}{\sum_{l}exp((U_{xl,yl}))}$). As I wrote and as I understand so far, for two options the calculation of probability according to the multinomial choice formulation and the logistic function for binary choice can be considered equivalent as they both will assure the $i.i.d$ distribution of the random term, which is the priority of random utility models.\\
+
+
+
+$k$ times ethnic weight $ew$ and $k$ times $vw$ substitute the parameters in random  utility for how important the ethnic composition and value composition are in the logistic function ($\lambda$ in $P_j=\frac{1}{1 + \exp(-\lambda\times \Delta_{U_e})+(-\lambda \times \Delta_{U_v}))}$ and $\beta_xe_j$ $\beta_yv_j$ in  $\textit{j}$ ($P_j=\frac{\exp(U_{(xjyj)})}{\sum_{l}exp((U_{xl,yl}))}$. My idea is that ethnic weight and value weight range from 0 to 1, whose value is too low causing random choices, by multiplying by a constant the ratio in the distribution point stay the same.\par
+Below I report some graphs where I implement the logistic function as above tuning $k \cdot ew$ and $k \cdot vw$, checking if it would reproduce what expected from random utility models, I think it does. For parameters equal to 0, the probability to choose the alternative is $50%$ in all conditions. The best option is taken when parameters are increased, always $50%$ when the actual difference is 0. I tested some conditions considering the 2 types of utility (some would be not possible in the simulation if we keep $vw=1-ew$, but here was to see how it worked).\par
+On the x-axis is ethnic utility difference, on the y-axis the value utility difference. Each ranges from -1 (alternative = 0, current = 1), to 1 (alternative = 1, current = 0), with 0 = no difference between the options. I made up them out of possible conditions. For each condition (21x21= 441), the probability function is calculated using the logisticdunction above. Heatmaps in fig. \ref{fig:heatmaps}
+
+In the ANNEX of pdf is the sigmoid function for the logistic function, too long. Each vignette is one level of ethnic utility difference, the x-axis is the whole value utility difference range. You can manipulate $ew$, $vw$ and $k$ in the R code.
 
 ```{r heatmaps,  fig.width=12,fig.height=12,fig.cap="Probability to choose alternative location",fig.align="center", include=TRUE, echo=FALSE}
 
@@ -399,13 +498,13 @@ prob_3d(df_r)
 
 ## Ethnic Utility Calculation
 
-```{r ethnic utility individual-run,fig.width=4,fig.height= 3, fig.align="center", fig.pos="H", include=TRUE, echo=FALSE}
+```{r ethnic utility individual-run,fig.width=4,fig.height= 3, fig.align="center", include=TRUE, echo=FALSE}
 # ETHNIC UTILITY:
 # Choose parameters for desired ethnic similar proportion (i_e, float number), left-slope utility curve (S),right-slope utility curve (M),total number of agents in the neighborhood (n), then run (green arrow top-right).
 # The calculations are done for a max=8 neighbors (assuming we keep 8-patches Moore neighbor in NetLogo). Utility can be calculated with n > 8, but table row and x-axis graph will stop at 8.
 
 i_e = 0.5   # parameters to manipulate
-S = 0     # Symmetric single-peaked function: S=1,M=0
+S = 1     # Symmetric single-peaked function: S=1,M=0
 M = 0     # Linear + Constant function = S=1,M=1
 n = 8     # Schelling Threshold function = S=0,M=1
 
@@ -448,19 +547,19 @@ knitr::kable(report_E,align="c")
 
 ## Value Utility Calculation {-}
 
-```{r value individual run,fig.width=5, fig.height= 3, fig.align="center", fig.pos="H", include=TRUE, echo=FALSE }
+```{r value individual run,fig.width=5, fig.height= 3, fig.align="center", include=TRUE, echo=FALSE }
 # VALUE UTILITY:
 # Choose parameters for ethnic weight of agent i (e_w), desired value distance (i_v), left-slope utility curve (S),right-slope utility curve (M).
-# The calculations are done for each ethnic weight mean of the neighborhood, from 0 to 1. The extreme case is desired value distance 1, meaning all mean ethnic weight of the neighborhood are included. Values of i_v > 1 would not affect results, but nonsense 
+# Calculations are done for each ethnic weight mean of the neighborhood, from 0 to 1. The extreme case is desired value distance 1, meaning all mean ethnic weight of the neighborhood are included. Values of i_v > 1 would not affect results, but nonsense 
 
 
 e_w <- 0.4    # parameters to manipulate
-i_v <- 0
-S  <- 0
-M <- 0 
+i_v <- 0.2    # Symmetric = S:1,M:0/Threshold = S:0
+S  <- 1
+M <-  0
 
-fv0d2 <- f_val(e_w,0,M,i_v,S)      # value utility for each option, the increasing number is the ethnic weight of neighborhood j
-fv1d2 <- f_val(e_w,0.1,M,i_v,S)
+fv0d2 <- f_val(e_w,0,M,i_v,S)             # value utility for each option, 
+fv1d2 <- f_val(e_w,0.1,M,i_v,S)           # increasing number is average ethnic weight of neighborhood j
 fv2d2 <- f_val(e_w,0.2,M,i_v,S)
 fv3d2 <- f_val(e_w,0.3,M,i_v,S)
 fv4d2 <- f_val(e_w,0.4,M,i_v,S)
@@ -476,11 +575,11 @@ Utility_V <- c(fv0d2,fv1d2,fv2d2,fv3d2,fv4d2,fv5d2,fv6d2,fv7d2,fv8d2,fv9d2,fv10d
 
 mean_ew_ng <- seq(0.0, 1.0, by = 0.1)
 ew_agent <- rep(e_w,11)
-Mv <- rep(M,11)
-Sv <- rep(S,11)
+# Mv <- rep(M,11)
+# Sv <- rep(S,11)
 des_dist <- rep(i_v,11)
 
-report_V <- na.omit(data.frame(Mv,Sv,des_dist,ew_agent,mean_ew_ng,Utility_V))
+report_V <- na.omit(data.frame(M,S,des_dist,ew_agent,mean_ew_ng,Utility_V))
 
 title_cond_V <- paste0("Ethnic weight i = ", e_w,"; desired distance i = ",i_v,"\n\r","M =", M,"; ", "S = ",S)
 
@@ -554,7 +653,9 @@ plot(final_prob)
 }
 
 ```
-
+<!-- 
+Notes on the value utility
+While in Schelling the integration/segregation continuum is on the twofold dimension of ethnicity, here would be on the likelihood to have someone with opinions too far from the own in the neighborhood or not, as in the geographical polarization literature. If I am not wrong, I also think that if the average of neighorhood is used, then one agent highly distant would influence the choice, which I think might be not realistic. Even though there might be solutions for this, my doubt is on the corresponding assumption and theory behind. Connecting to the ACS paper, in the ACS paper there would be 2 levels of values (intolerant vs tolerant) with different homophily behavior (ethnicity-oriented vs value-oriented), and for the value homophily the ideal distance 0 (tolerant only accepts other tolerant). As for parameters to include, the ideal distance is as already envisaged here (it will be between agents and not agent-average of neighborhood). Additionally, a distribution of values among agents [0,1] shoud be included, or the same ethnic weights as first try to keep simple. -->
 
 
 # References
