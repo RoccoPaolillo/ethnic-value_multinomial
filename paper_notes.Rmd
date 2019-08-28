@@ -68,11 +68,11 @@ library(xtable)
 
 # Calculation value utility
 
-f_val <- function(e_w,ew_ng,M,i_v,S_v){
+f_val <- function(e_w,ew_ng,i_v,S_v){
   if (round(abs(e_w-ew_ng), digits=2) <= i_v) {
     U <- 1
     }else{
-      U <- (M + ((1-(round(abs(e_w-ew_ng), digits=2)))*(1-M))/(1-i_v)) * S_v
+      U <- ((1-(round(abs(e_w-ew_ng), digits=2)))/(1-i_v)) * S_v
       }
   round(U,digits = 3)
   }
@@ -283,7 +283,7 @@ U^i_v=
 \begin{cases}
 1, & \text{if} \ \mid{\overline{ew}_j - ew_i}\mid \leq i_v, \\
 \\
-\left(M + \frac{(1 - \mid{\overline{ew}_j - ew_i}\mid) \times (1 - M)}{1 - i_v}\right) \times S_v, & otherwise
+\left(\frac{(1 - \mid{\overline{ew}_j - ew_i}\mid) }{1 - i_v}\right) \times S_v, & otherwise
 \end{cases}
 $$
 
@@ -299,37 +299,36 @@ e_w <- 0.2
 e_w_ng <- seq(0.0,1.0, by = 0.1)
 i_v <- 0.1
 S_v <- 1
-M <- 1
 
-fvf0p  <- f_val(e_w,0,M,i_v,S_v)
-fvf1p  <- f_val(e_w,0.1,M,i_v,S_v)
-fvf2p   <- f_val(e_w,0.2,M,i_v,S_v)
-fvf3p   <- f_val(e_w,0.3,M,i_v,S_v)
-fvf4p   <- f_val(e_w,0.4,M,i_v,S_v)
-fvf5p   <- f_val(e_w,0.5,M,i_v,S_v)
-fvf6p   <- f_val(e_w,0.6,M,i_v,S_v)
-fvf7p   <- f_val(e_w,0.7,M,i_v,S_v)
-fvf8p   <- f_val(e_w,0.8,M,i_v,S_v)
-fvf9p  <- f_val(e_w,0.9,M,i_v,S_v)
-fvf10p  <- f_val(e_w,1.0,M,i_v,S_v)
+
+fvf0p  <- f_val(e_w,0,i_v,S_v)
+fvf1p  <- f_val(e_w,0.1,i_v,S_v)
+fvf2p   <- f_val(e_w,0.2,i_v,S_v)
+fvf3p   <- f_val(e_w,0.3,i_v,S_v)
+fvf4p   <- f_val(e_w,0.4,i_v,S_v)
+fvf5p   <- f_val(e_w,0.5,i_v,S_v)
+fvf6p   <- f_val(e_w,0.6,i_v,S_v)
+fvf7p   <- f_val(e_w,0.7,i_v,S_v)
+fvf8p   <- f_val(e_w,0.8,i_v,S_v)
+fvf9p  <- f_val(e_w,0.9,i_v,S_v)
+fvf10p  <- f_val(e_w,1.0,i_v,S_v)
 
 e_w <- 0.2
 e_w_ng <- seq(0.0,1.0, by = 0.1)
 i_v <- 0.1
 S_v <- 0
-M <- 0 
 
-fvf0t <- f_val(e_w,0,M,i_v,S_v)
-fvf1t  <- f_val(e_w,0.1,M,i_v,S_v)
-fvf2t   <- f_val(e_w,0.2,M,i_v,S_v)
-fvf3t   <- f_val(e_w,0.3,M,i_v,S_v)
-fvf4t   <- f_val(e_w,0.4,M,i_v,S_v)
-fvf5t   <- f_val(e_w,0.5,M,i_v,S_v)
-fvf6t  <- f_val(e_w,0.6,M,i_v,S_v)
-fvf7t   <- f_val(e_w,0.7,M,i_v,S_v)
-fvf8t   <- f_val(e_w,0.8,M,i_v,S_v)
-fvf9t  <- f_val(e_w,0.9,M,i_v,S_v)
-fvf10t  <- f_val(e_w,1.0,M,i_v,S_v)
+fvf0t <- f_val(e_w,0,i_v,S_v)
+fvf1t  <- f_val(e_w,0.1,i_v,S_v)
+fvf2t   <- f_val(e_w,0.2,i_v,S_v)
+fvf3t   <- f_val(e_w,0.3,i_v,S_v)
+fvf4t   <- f_val(e_w,0.4,i_v,S_v)
+fvf5t   <- f_val(e_w,0.5,i_v,S_v)
+fvf6t  <- f_val(e_w,0.6,i_v,S_v)
+fvf7t   <- f_val(e_w,0.7,i_v,S_v)
+fvf8t   <- f_val(e_w,0.8,i_v,S_v)
+fvf9t  <- f_val(e_w,0.9,i_v,S_v)
+fvf10t  <- f_val(e_w,1.0,i_v,S_v)
 
 x_graph_val <- seq(0.0,1.0, by = 0.1) #rep(seq(0.0,1.0, by = 0.1),2)
 uti_val_pf <- c(fvf0p,fvf1p,fvf2p,fvf3p,fvf4p,fvf5p,fvf6p,fvf7p,fvf8p,fvf9p,fvf10p)
@@ -343,7 +342,7 @@ thres_val_graph <- ggplot(threshold_val,aes(x_graph_val,uti_val_th))
 
 subt_cont_v <- paste0("Ethnic weight i = ",e_w,"; ","Desired distance = ",i_v)
 
-symm_val_plot <- symm_val_graph + geom_point() + theme_bw() + labs(x = "Mean ethnic weight neighborhood j",y = "Value utility j") + ggtitle(label = "Symmetric Single Peaked (S=1,M=0) ",subtitle = subt_cont_v) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))  + scale_x_continuous(breaks = seq(0.0,1.0,by = 0.1)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25))
+symm_val_plot <- symm_val_graph + geom_point() + theme_bw() + labs(x = "Mean ethnic weight neighborhood j",y = "Value utility j") + ggtitle(label = "Symmetric Single Peaked (S=1) ",subtitle = subt_cont_v) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))  + scale_x_continuous(breaks = seq(0.0,1.0,by = 0.1)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25))
 
 thres_val_plot <- thres_val_graph + geom_point() + theme_bw() + labs(x = "Mean ethnic weight neighborhood j",y = "Value utility j") + ggtitle(label = "Threshold Schelling (S=0) ",subtitle = subt_cont_v) + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))  + scale_x_continuous(breaks = seq(0.0,1.0,by = 0.1)) + scale_y_continuous(limits =  c(0.0,1.0), breaks = seq(0.0,1.0,by = 0.25))
 
