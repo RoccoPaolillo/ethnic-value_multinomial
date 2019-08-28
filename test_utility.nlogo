@@ -10,7 +10,8 @@ turtles-own [
   test-weight
   trial
   probability_move
-  probability_multi
+  parameter-eth
+  parameter-val
 ]
 
 to setup
@@ -22,8 +23,10 @@ to setup
       [set color blue ][set color orange]
       attribute-preferences
       ]
+
     ]
   ]
+    ask one-of turtles [set shape "circle" set size .6]
   reset-ticks
 end
 
@@ -36,18 +39,24 @@ to attribute-preferences                            ; the smaller alpha and beta
 end
 
 to go
+  ask patches [set pcolor white]
   update-turtles
+
 end
 
 to update-turtles
-  ask one-of turtles [
-   set shape "circle" set size .6
+  ask turtles with [shape = "circle" and size = .6] [
+   set parameter-eth (k * eth-weight)
+   set parameter-val (k * val-weight)
+
+
+
     let color-myself color
     let alternative one-of patches with [not any? turtles-here]
     let options (patch-set alternative patch-here)
     set trial random-float 1.00
-      ask patch-here [set pcolor yellow]
-      ask alternative [set pcolor green]
+    ask patch-here [set pcolor yellow]
+    ask alternative [set pcolor green]
 
 
     ask options [
@@ -62,19 +71,32 @@ to update-turtles
 
         ]
 
-    set probability_multi (exp(((eth-weight * k) * [uti-eth] of alternative) + ((val-weight * k) * [uti-val] of alternative)) /
-    (exp(((eth-weight * k) * [uti-eth] of alternative) + ((val-weight * k) * [uti-val] of alternative)) +  exp(((eth-weight * k) * [uti-eth] of patch-here) + ((val-weight * k) * [uti-val] of patch-here)))
+    if model = "logit-logistic" [
+
+      set probability_move (1 / (1 + exp((-(parameter-eth) * ([uti-eth] of alternative - [uti-eth] of patch-here)) +
+        (-(parameter-val) * ([uti-val] of alternative - [uti-val] of patch-here))   )   ))
+    ]
+
+    if model = "multinomial-conditional logit"[
+
+
+    set probability_move (exp((parameter-eth * [uti-eth] of alternative) + (parameter-val * [uti-val] of alternative)) /
+    (exp((parameter-eth * [uti-eth] of alternative) + (parameter-val * [uti-val] of alternative)) +  exp((parameter-eth * [uti-eth] of patch-here) + (parameter-val * [uti-val] of patch-here)))
     )
 
+    ]
 
+       if trial < probability_move [move-to alternative]
 
-    if trial < probability_multi [move-to alternative]
 
 
    ; set probability_move (1 / (1 + exp((-(eth-weight * k) * ([uti-eth] of alternative - [uti-eth] of patch-here)) +
   ;    (-(val-weight * k) * ([uti-val] of alternative - [uti-val] of patch-here))   )   ))
 
-  ;  if trial < probability_move [move-to alternative]
+  ;
+
+
+
 
 
 
@@ -82,9 +104,6 @@ to update-turtles
 
 
   ]
-
-
-
 
 
 
@@ -110,7 +129,7 @@ to-report utility-val [c]
 
   report ( ifelse-value c <= i_v
     [1]
-    [precision ((M + ((1 - precision c 2)  * (1 - M)) / (1 - i_v)) * S) 3 ]
+    [precision (((1 - precision c 2) / (1 - i_v)) * S_v) 3 ]
   )
 end
 @#$#@#$#@
@@ -150,7 +169,7 @@ density
 density
 0
 99
-69.0
+86.0
 1
 1
 NIL
@@ -180,7 +199,7 @@ alpha
 alpha
 0.0
 10
-10.0
+4.8
 0.1
 1
 NIL
@@ -195,7 +214,7 @@ beta
 beta
 0.01
 10
-0.01
+4.91
 0.01
 1
 NIL
@@ -263,7 +282,7 @@ i_e
 i_e
 0
 1
-0.1
+0.5
 0.1
 1
 NIL
@@ -278,7 +297,7 @@ i_v
 i_v
 0
 1
-0.3
+0.1
 0.1
 1
 NIL
@@ -293,7 +312,7 @@ M
 M
 0
 1
-0.0
+1.0
 0.1
 1
 NIL
@@ -308,7 +327,7 @@ S
 S
 0
 1
-1.0
+0.0
 0.1
 1
 NIL
@@ -370,10 +389,10 @@ count turtles with [eth-weight = 1] / count turtles
 11
 
 MONITOR
-820
-247
-941
-292
+893
+248
+1014
+293
 current-yellow-val
 [uti-val] of patches with [pcolor = yellow]
 3
@@ -381,9 +400,9 @@ current-yellow-val
 11
 
 MONITOR
-1091
+1283
 247
-1217
+1409
 292
 alternative_green-val
 [uti-val] of patches with [pcolor = green]
@@ -392,10 +411,10 @@ alternative_green-val
 11
 
 MONITOR
-659
-307
-825
-352
+661
+298
+827
+343
 eth-weight-actor
 [eth-weight] of turtles with [shape = \"circle\"]
 3
@@ -414,10 +433,10 @@ mean_yellow_actor
 11
 
 MONITOR
-948
-247
-1082
-292
+1056
+248
+1190
+293
 mean_green_actor
 [mean_neighborhood] of patches with [pcolor = green]
 17
@@ -436,15 +455,15 @@ diff_eth_alt-current
 11
 
 SLIDER
-28
-380
-200
-413
+16
+363
+188
+396
 k
 k
 0
 100
-5.0
+2.0
 1
 1
 NIL
@@ -494,14 +513,50 @@ diff_val_alt-current
 1
 11
 
+CHOOSER
+9
+457
+173
+502
+model
+model
+"logit-logistic" "multinomial-conditional logit"
+1
+
+SLIDER
+15
+411
+187
+444
+S_v
+S_v
+0
+1
+0.0
+0.1
+1
+NIL
+HORIZONTAL
+
 MONITOR
-1028
-419
-1202
-464
-probability_multi
-[probability_multi] of turtles with [shape = \"circle\"]
-17
+805
+248
+882
+293
+val_dist_alt
+abs (([mean_neighborhood] of one-of patches with [pcolor = green]) - ([eth-weight] of one-of turtles with [shape = \"circle\"]))
+2
+1
+11
+
+MONITOR
+1193
+247
+1278
+292
+val_dist_curr
+abs (([mean_neighborhood] of one-of patches with [pcolor = yellow]) - ([eth-weight] of one-of turtles with [shape = \"circle\"]))
+2
 1
 11
 
