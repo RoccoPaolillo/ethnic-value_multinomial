@@ -55,12 +55,11 @@ library(xtable)
   f_eth <- function(i_e,M,x,n,S){
    if (x > n){
      U <- NA}else{
-     if (x < (n*i_e)){
+     if (x <= (n*i_e)){
    U <- (x / (n*i_e)) * S
-      }else if (x > (n*i_e)){
+      }else {
          U <- M + ((1- (x/n))*(1-M))/(1-i_e) 
-        }else{
-     U <- 1}
+        }
         round(U,digits = 3)
       }
  }
@@ -68,11 +67,12 @@ library(xtable)
 
 # Calculation value utility
 
-f_val <- function(e_w,ew_ng,i_v,S_v){
+f_val <- function(e_w,ew_ng,i_v,S_v,Mv){
   if (round(abs(e_w-ew_ng), digits=2) <= i_v) {
     U <- 1
     }else{
-      U <- ((1-(round(abs(e_w-ew_ng), digits=2)))/(1-i_v)) * S_v
+      U <- (Mv + ((1-(round(abs(e_w-ew_ng), digits=2)))*(1-Mv))/(1-i_v)) * S_v
+        # (M + ((1-(round(abs(e_w-ew_ng), digits=2)))*(1-M))/(1-i_v)) * S
       }
   round(U,digits = 3)
   }
@@ -299,36 +299,36 @@ e_w <- 0.2
 e_w_ng <- seq(0.0,1.0, by = 0.1)
 i_v <- 0.1
 S_v <- 1
+Mv <- 0
 
-
-fvf0p  <- f_val(e_w,0,i_v,S_v)
-fvf1p  <- f_val(e_w,0.1,i_v,S_v)
-fvf2p   <- f_val(e_w,0.2,i_v,S_v)
-fvf3p   <- f_val(e_w,0.3,i_v,S_v)
-fvf4p   <- f_val(e_w,0.4,i_v,S_v)
-fvf5p   <- f_val(e_w,0.5,i_v,S_v)
-fvf6p   <- f_val(e_w,0.6,i_v,S_v)
-fvf7p   <- f_val(e_w,0.7,i_v,S_v)
-fvf8p   <- f_val(e_w,0.8,i_v,S_v)
-fvf9p  <- f_val(e_w,0.9,i_v,S_v)
-fvf10p  <- f_val(e_w,1.0,i_v,S_v)
+fvf0p  <- f_val(e_w,0,i_v,S_v,Mv)
+fvf1p  <- f_val(e_w,0.1,i_v,S_v,Mv)
+fvf2p   <- f_val(e_w,0.2,i_v,S_v,Mv)
+fvf3p   <- f_val(e_w,0.3,i_v,S_v,Mv)
+fvf4p   <- f_val(e_w,0.4,i_v,S_v,Mv)
+fvf5p   <- f_val(e_w,0.5,i_v,S_v,Mv)
+fvf6p   <- f_val(e_w,0.6,i_v,S_v,Mv)
+fvf7p   <- f_val(e_w,0.7,i_v,S_v,Mv)
+fvf8p   <- f_val(e_w,0.8,i_v,S_v,Mv)
+fvf9p  <- f_val(e_w,0.9,i_v,S_v,Mv)
+fvf10p  <- f_val(e_w,1.0,i_v,S_v,Mv)
 
 e_w <- 0.2
 e_w_ng <- seq(0.0,1.0, by = 0.1)
 i_v <- 0.1
 S_v <- 0
 
-fvf0t <- f_val(e_w,0,i_v,S_v)
-fvf1t  <- f_val(e_w,0.1,i_v,S_v)
-fvf2t   <- f_val(e_w,0.2,i_v,S_v)
-fvf3t   <- f_val(e_w,0.3,i_v,S_v)
-fvf4t   <- f_val(e_w,0.4,i_v,S_v)
-fvf5t   <- f_val(e_w,0.5,i_v,S_v)
-fvf6t  <- f_val(e_w,0.6,i_v,S_v)
-fvf7t   <- f_val(e_w,0.7,i_v,S_v)
-fvf8t   <- f_val(e_w,0.8,i_v,S_v)
-fvf9t  <- f_val(e_w,0.9,i_v,S_v)
-fvf10t  <- f_val(e_w,1.0,i_v,S_v)
+fvf0t <- f_val(e_w,0,i_v,S_v,Mv)
+fvf1t  <- f_val(e_w,0.1,i_v,S_v,Mv)
+fvf2t   <- f_val(e_w,0.2,i_v,S_v,Mv)
+fvf3t   <- f_val(e_w,0.3,i_v,S_v,Mv)
+fvf4t   <- f_val(e_w,0.4,i_v,S_v,Mv)
+fvf5t   <- f_val(e_w,0.5,i_v,S_v,Mv)
+fvf6t  <- f_val(e_w,0.6,i_v,S_v,Mv)
+fvf7t   <- f_val(e_w,0.7,i_v,S_v,Mv)
+fvf8t   <- f_val(e_w,0.8,i_v,S_v,Mv)
+fvf9t  <- f_val(e_w,0.9,i_v,S_v,Mv)
+fvf10t  <- f_val(e_w,1.0,i_v,S_v,Mv)
 
 x_graph_val <- seq(0.0,1.0, by = 0.1) #rep(seq(0.0,1.0, by = 0.1),2)
 uti_val_pf <- c(fvf0p,fvf1p,fvf2p,fvf3p,fvf4p,fvf5p,fvf6p,fvf7p,fvf8p,fvf9p,fvf10p)
@@ -504,6 +504,53 @@ prob_3d(df_r)
 
 # ANNEX {-}
 
+## Single Run
+```{r single-run,fig.width=4,fig.height= 3, fig.align="center", include=TRUE, echo=FALSE}
+
+e_w = 0.875
+  v_w = 1-e_w
+ew_ng_curr = 0.933
+ew_ng_alt = 0.906
+i_e = 0.5
+S = 1
+M = 0
+i_v = 0.1
+S_v = 0
+k = 2
+n_curr = 8
+  eth_curr = 5
+n_alt = 7
+  eth_alt = 4
+
+  
+param_eth <- k * e_w
+param_val <- k * v_w
+
+dist_curr <- abs(ew_ng_curr - e_w)
+  dist_alt <- abs(ew_ng_alt - e_w)
+
+conc_curr <- (eth_curr / n_curr)
+conc_alt <- (eth_alt / n_alt)
+
+uti_eth_curr <- f_eth(i_e,M,eth_curr,n_curr,S)
+uti_eth_alt <- f_eth(i_e,M,eth_alt,n_alt,S)
+
+uti_val_curr <- f_val(e_w,ew_ng_curr,i_v,S_v)
+uti_val_alt <- f_val(e_w,ew_ng_alt,i_v,S_v)
+
+diff_eth <- (uti_eth_alt - uti_eth_curr)
+  diff_val <- (uti_val_alt - uti_val_curr ) 
+
+prob_one_run <- prob(diff_eth,diff_val,e_w,v_w,k)
+
+report_one_run <- na.omit(data.frame(param_eth,param_val,i_e,i_v,S,M,dist_curr,dist_alt,conc_curr,conc_alt,uti_eth_curr,uti_eth_alt,uti_val_curr,uti_val_alt,prob_one_run))
+
+suppressWarnings(suppressMessages(
+knitr::kable(report_one_run,align="c")
+))
+
+```
+
 ## Ethnic Utility Calculation
 
 ```{r ethnic utility individual-run,fig.width=4,fig.height= 3, fig.align="center", include=TRUE, echo=FALSE}
@@ -511,7 +558,7 @@ prob_3d(df_r)
 # Choose parameters for desired ethnic similar proportion (i_e, float number), left-slope utility curve (S),right-slope utility curve (M),total number of agents in the neighborhood (n), then run (green arrow top-right).
 # The calculations are done for a max=8 neighbors (assuming we keep 8-patches Moore neighbor in NetLogo). Utility can be calculated with n > 8, but table row and x-axis graph will stop at 8.
 
-i_e = 0.6   # parameters to manipulate
+i_e = 0.3   # parameters to manipulate
 S = 1     # Symmetric single-peaked function: S=1,M=0
 M = 0     # Linear + Constant function = S=1,M=1
 n = 8     # Schelling Threshold function = S=0,M=1
@@ -562,21 +609,21 @@ knitr::kable(report_E,align="c")
 
 
 e_w <- 0.5    # parameters to manipulate
-i_v <- 0.2    # Symmetric = S:1,M:0/Threshold = S:0
-S_v  <- 0
-M <-  0
+i_v <- 0.0    # Symmetric = S:1,M:0/Threshold = S:0
+S_v  <- 1
+Mv <- 0
 
-fv0d2 <- f_val(e_w,0,M,i_v,S_v)             # value utility for each option, 
-fv1d2 <- f_val(e_w,0.1,M,i_v,S_v)           # increasing nuMber is average ethnic weight of neighborhood j
-fv2d2 <- f_val(e_w,0.2,M,i_v,S_v)
-fv3d2 <- f_val(e_w,0.3,M,i_v,S_v)
-fv4d2 <- f_val(e_w,0.4,M,i_v,S_v)
-fv5d2 <- f_val(e_w,0.5,M,i_v,S_v)
-fv6d2 <- f_val(e_w,0.6,M,i_v,S_v)
-fv7d2 <- f_val(e_w,0.7,M,i_v,S_v)
-fv8d2 <- f_val(e_w,0.8,M,i_v,S_v)
-fv9d2 <- f_val(e_w,0.9,M,i_v,S_v)
-fv10d2 <- f_val(e_w,1.0,M,i_v,S_v)
+fv0d2 <- f_val(e_w,0,i_v,S_v,Mv)             # value utility for each option, 
+fv1d2 <- f_val(e_w,0.1,i_v,S_v,Mv)           # increasing nuMber is average ethnic weight of neighborhood j
+fv2d2 <- f_val(e_w,0.2,i_v,S_v,Mv)
+fv3d2 <- f_val(e_w,0.3,i_v,S_v,Mv)
+fv4d2 <- f_val(e_w,0.4,i_v,S_v,Mv)
+fv5d2 <- f_val(e_w,0.5,i_v,S_v,Mv)
+fv6d2 <- f_val(e_w,0.6,i_v,S_v,Mv)
+fv7d2 <- f_val(e_w,0.7,i_v,S_v,Mv)
+fv8d2 <- f_val(e_w,0.8,i_v,S_v,Mv)
+fv9d2 <- f_val(e_w,0.9,i_v,S_v,Mv)
+fv10d2 <- f_val(e_w,1.0,i_v,S_v,Mv)
 
 
 Utility_V <- c(fv0d2,fv1d2,fv2d2,fv3d2,fv4d2,fv5d2,fv6d2,fv7d2,fv8d2,fv9d2,fv10d2)  # used to make up table and graph
@@ -587,9 +634,9 @@ ew_agent <- rep(e_w,11)
 # Sv <- rep(S,11)
 des_dist <- rep(i_v,11)
 
-report_V <- na.omit(data.frame(M,S_v,des_dist,ew_agent,mean_ew_ng,Utility_V))
+report_V <- na.omit(data.frame(Mv,S_v,des_dist,ew_agent,mean_ew_ng,Utility_V))
 
-title_cond_V <- paste0("Ethnic weight i = ", e_w,"; desired distance i = ",i_v,"\n\r","M =", M,"; ", "S = ",S_v)
+title_cond_V <- paste0("Ethnic weight i = ", e_w,"; desired distance i = ",i_v,"\n\r", "S = ",S_v)
 
 plot_report_V <- ggplot(report_V,aes(mean_ew_ng,Utility_V))
 
