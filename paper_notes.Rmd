@@ -55,9 +55,9 @@ library(xtable)
   f_eth <- function(i_e,M,x,n,S){
    if (x > n){
      U <- NA}else{
-     if (x < round(n*i_e,digits = 2)){
-   U <- (x / round((n*i_e),digits = 2)) * S
-      }else if (x > round((n*i_e),digits = 2)){
+     if (x < (n*i_e)){
+   U <- (x / (n*i_e)) * S
+      }else if (x > (n*i_e)){
          U <- M + ((1- (x/n))*(1-M))/(1-i_e) 
         }else{
      U <- 1}
@@ -68,11 +68,11 @@ library(xtable)
 
 # Calculation value utility
 
-f_val <- function(e_w,ew_ng,M,i_v,S){
+f_val <- function(e_w,ew_ng,M,i_v,S_v){
   if (round(abs(e_w-ew_ng), digits=2) <= i_v) {
     U <- 1
     }else{
-      U <- (M + ((1-(round(abs(e_w-ew_ng), digits=2)))*(1-M))/(1-i_v)) * S
+      U <- (M + ((1-(round(abs(e_w-ew_ng), digits=2)))*(1-M))/(1-i_v)) * S_v
       }
   round(U,digits = 3)
   }
@@ -95,8 +95,8 @@ dfprob <- data.frame(d_u_e,d_u_v,e_w=0,v_w=0,k=0)
 
 # Probability to move to alternative (random utility with logistic regression) 
 
-#prob <- function(d_u_e,d_u_v,e_w,v_w,k){round(1 / (1 + exp((-(e_w*k)*(d_u_e)) + (-(v_w*k)*(d_u_v)))),digits= 2)}
-prob <- function(d_u_e,d_u_v,e_w,v_w,k){1 / (1 + exp((-(e_w*k)*(d_u_e)) + (-(v_w*k)*(d_u_v))))}
+prob <- function(d_u_e,d_u_v,e_w,v_w,k){round(1 / (1 + exp((-(e_w*k)*(d_u_e)) + (-(v_w*k)*(d_u_v)))),digits= 2)}
+# prob <- function(d_u_e,d_u_v,e_w,v_w,k){1 / (1 + exp((-(e_w*k)*(d_u_e)) + (-(v_w*k)*(d_u_v))))}
 
 # prob <- function(d_u_e,d_u_v,e_w,v_w,k){round(1 / (1 + exp(-(e_w*k)*(d_u_e)) + -(v_w*k)*(d_u_v)),digits= 2)}
 
@@ -283,7 +283,7 @@ U^i_v=
 \begin{cases}
 1, & \text{if} \ \mid{\overline{ew}_j - ew_i}\mid \leq i_v, \\
 \\
-\left(M + \frac{(1 - \mid{\overline{ew}_j - ew_i}\mid) \times (1 - M)}{1 - i_v}\right) \times S, & otherwise
+\left(M + \frac{(1 - \mid{\overline{ew}_j - ew_i}\mid) \times (1 - M)}{1 - i_v}\right) \times S_v, & otherwise
 \end{cases}
 $$
 
@@ -298,38 +298,38 @@ Where: \par
 e_w <- 0.2
 e_w_ng <- seq(0.0,1.0, by = 0.1)
 i_v <- 0.1
-S <- 1
-M <- 0
+S_v <- 1
+M <- 1
 
-fvf0p  <- f_val(e_w,0,M,i_v,S)
-fvf1p  <- f_val(e_w,0.1,M,i_v,S)
-fvf2p   <- f_val(e_w,0.2,M,i_v,S)
-fvf3p   <- f_val(e_w,0.3,M,i_v,S)
-fvf4p   <- f_val(e_w,0.4,M,i_v,S)
-fvf5p   <- f_val(e_w,0.5,M,i_v,S)
-fvf6p   <- f_val(e_w,0.6,M,i_v,S)
-fvf7p   <- f_val(e_w,0.7,M,i_v,S)
-fvf8p   <- f_val(e_w,0.8,M,i_v,S)
-fvf9p  <- f_val(e_w,0.9,M,i_v,S)
-fvf10p  <- f_val(e_w,1.0,M,i_v,S)
+fvf0p  <- f_val(e_w,0,M,i_v,S_v)
+fvf1p  <- f_val(e_w,0.1,M,i_v,S_v)
+fvf2p   <- f_val(e_w,0.2,M,i_v,S_v)
+fvf3p   <- f_val(e_w,0.3,M,i_v,S_v)
+fvf4p   <- f_val(e_w,0.4,M,i_v,S_v)
+fvf5p   <- f_val(e_w,0.5,M,i_v,S_v)
+fvf6p   <- f_val(e_w,0.6,M,i_v,S_v)
+fvf7p   <- f_val(e_w,0.7,M,i_v,S_v)
+fvf8p   <- f_val(e_w,0.8,M,i_v,S_v)
+fvf9p  <- f_val(e_w,0.9,M,i_v,S_v)
+fvf10p  <- f_val(e_w,1.0,M,i_v,S_v)
 
 e_w <- 0.2
 e_w_ng <- seq(0.0,1.0, by = 0.1)
 i_v <- 0.1
-S <- 0
+S_v <- 0
 M <- 0 
 
-fvf0t <- f_val(e_w,0,M,i_v,S)
-fvf1t  <- f_val(e_w,0.1,M,i_v,S)
-fvf2t   <- f_val(e_w,0.2,M,i_v,S)
-fvf3t   <- f_val(e_w,0.3,M,i_v,S)
-fvf4t   <- f_val(e_w,0.4,M,i_v,S)
-fvf5t   <- f_val(e_w,0.5,M,i_v,S)
-fvf6t  <- f_val(e_w,0.6,M,i_v,S)
-fvf7t   <- f_val(e_w,0.7,M,i_v,S)
-fvf8t   <- f_val(e_w,0.8,M,i_v,S)
-fvf9t  <- f_val(e_w,0.9,M,i_v,S)
-fvf10t  <- f_val(e_w,1.0,M,i_v,S)
+fvf0t <- f_val(e_w,0,M,i_v,S_v)
+fvf1t  <- f_val(e_w,0.1,M,i_v,S_v)
+fvf2t   <- f_val(e_w,0.2,M,i_v,S_v)
+fvf3t   <- f_val(e_w,0.3,M,i_v,S_v)
+fvf4t   <- f_val(e_w,0.4,M,i_v,S_v)
+fvf5t   <- f_val(e_w,0.5,M,i_v,S_v)
+fvf6t  <- f_val(e_w,0.6,M,i_v,S_v)
+fvf7t   <- f_val(e_w,0.7,M,i_v,S_v)
+fvf8t   <- f_val(e_w,0.8,M,i_v,S_v)
+fvf9t  <- f_val(e_w,0.9,M,i_v,S_v)
+fvf10t  <- f_val(e_w,1.0,M,i_v,S_v)
 
 x_graph_val <- seq(0.0,1.0, by = 0.1) #rep(seq(0.0,1.0, by = 0.1),2)
 uti_val_pf <- c(fvf0p,fvf1p,fvf2p,fvf3p,fvf4p,fvf5p,fvf6p,fvf7p,fvf8p,fvf9p,fvf10p)
@@ -374,7 +374,7 @@ An alternative to the logit model is the multinomial choice model, which is a ge
 
 $P_j=\frac{\exp(U_j)}{\sum_{}exp((U_k))}$    
 
-$P_j=\frac{1}{1 + \exp((-\beta_e{(e_j-e_i)}) + (-\beta_v{(v_j-v_i)}) }$ 
+$P_j=\frac{1}{1 + \exp((-\beta_e{(e_j-e_i)}) + (-\beta_v{(v_j-v_i)})}$ 
 
 
 $P_j=\frac{\exp(U_{(xj,yj)})}{\sum_{l}exp((U_{xl,yl}))}$    
@@ -388,7 +388,7 @@ $P_i=\frac{1}{1 + \exp((\beta_ee_j + \beta_vv_j) - (\beta_ee_i + \beta_vv_i))}$
 
 
 
-$P_j=\frac{1}{1 + \exp((-\beta_e(ej-ei)) + (-\beta_v(vj-vi)))$
+$P_j=\frac{1}{1 + \exp((-\beta_e(ej-ei)) + (-\beta_v(vj-vi)))}$
 
 To my understanding, the two forms to calculate probability with logit model (logistic function) or multinomial choice (conditional logit), would be equivalent in representing a random utility model, as long as the number of options is limited to 2. This is the case of our model where the choice of the agent is between the current location and an alternative location. Both guarantee that the probability computed is between 0 and 1, that the maximization of utility drives the  agent to choose one option over the other. Both model a systematic component of utility and a  random component. Both assume that the random term $\epsilon$ is independent and equally distributed among options (i.i.d.). This link synthetizes: [logit_binary_choice, point C](https://en.wikipedia.org/wiki/Discrete_choice#A._Logit_with_attributes_of_the_person_but_no_attributes_of_the_alternatives)
 
@@ -512,7 +512,7 @@ prob_3d(df_r)
 # Choose parameters for desired ethnic similar proportion (i_e, float number), left-slope utility curve (S),right-slope utility curve (M),total number of agents in the neighborhood (n), then run (green arrow top-right).
 # The calculations are done for a max=8 neighbors (assuming we keep 8-patches Moore neighbor in NetLogo). Utility can be calculated with n > 8, but table row and x-axis graph will stop at 8.
 
-i_e = 0.5   # parameters to manipulate
+i_e = 0.6   # parameters to manipulate
 S = 1     # Symmetric single-peaked function: S=1,M=0
 M = 0     # Linear + Constant function = S=1,M=1
 n = 8     # Schelling Threshold function = S=0,M=1
@@ -562,22 +562,22 @@ knitr::kable(report_E,align="c")
 # Calculations are done for each ethnic weight mean of the neighborhood, from 0 to 1. The extreme case is desired value distance 1, meaning all mean ethnic weight of the neighborhood are included. Values of i_v > 1 would not affect results, but nonsense 
 
 
-e_w <- 0.4    # parameters to manipulate
+e_w <- 0.5    # parameters to manipulate
 i_v <- 0.2    # Symmetric = S:1,M:0/Threshold = S:0
-S  <- 1
+S_v  <- 0
 M <-  0
 
-fv0d2 <- f_val(e_w,0,M,i_v,S)             # value utility for each option, 
-fv1d2 <- f_val(e_w,0.1,M,i_v,S)           # increasing number is average ethnic weight of neighborhood j
-fv2d2 <- f_val(e_w,0.2,M,i_v,S)
-fv3d2 <- f_val(e_w,0.3,M,i_v,S)
-fv4d2 <- f_val(e_w,0.4,M,i_v,S)
-fv5d2 <- f_val(e_w,0.5,M,i_v,S)
-fv6d2 <- f_val(e_w,0.6,M,i_v,S)
-fv7d2 <- f_val(e_w,0.7,M,i_v,S)
-fv8d2 <- f_val(e_w,0.8,M,i_v,S)
-fv9d2 <- f_val(e_w,0.9,M,i_v,S)
-fv10d2 <- f_val(e_w,1.0,M,i_v,S)
+fv0d2 <- f_val(e_w,0,M,i_v,S_v)             # value utility for each option, 
+fv1d2 <- f_val(e_w,0.1,M,i_v,S_v)           # increasing nuMber is average ethnic weight of neighborhood j
+fv2d2 <- f_val(e_w,0.2,M,i_v,S_v)
+fv3d2 <- f_val(e_w,0.3,M,i_v,S_v)
+fv4d2 <- f_val(e_w,0.4,M,i_v,S_v)
+fv5d2 <- f_val(e_w,0.5,M,i_v,S_v)
+fv6d2 <- f_val(e_w,0.6,M,i_v,S_v)
+fv7d2 <- f_val(e_w,0.7,M,i_v,S_v)
+fv8d2 <- f_val(e_w,0.8,M,i_v,S_v)
+fv9d2 <- f_val(e_w,0.9,M,i_v,S_v)
+fv10d2 <- f_val(e_w,1.0,M,i_v,S_v)
 
 
 Utility_V <- c(fv0d2,fv1d2,fv2d2,fv3d2,fv4d2,fv5d2,fv6d2,fv7d2,fv8d2,fv9d2,fv10d2)  # used to make up table and graph
@@ -588,9 +588,9 @@ ew_agent <- rep(e_w,11)
 # Sv <- rep(S,11)
 des_dist <- rep(i_v,11)
 
-report_V <- na.omit(data.frame(M,S,des_dist,ew_agent,mean_ew_ng,Utility_V))
+report_V <- na.omit(data.frame(M,S_v,des_dist,ew_agent,mean_ew_ng,Utility_V))
 
-title_cond_V <- paste0("Ethnic weight i = ", e_w,"; desired distance i = ",i_v,"\n\r","M =", M,"; ", "S = ",S)
+title_cond_V <- paste0("Ethnic weight i = ", e_w,"; desired distance i = ",i_v,"\n\r","M =", M,"; ", "S = ",S_v)
 
 plot_report_V <- ggplot(report_V,aes(mean_ew_ng,Utility_V))
 
