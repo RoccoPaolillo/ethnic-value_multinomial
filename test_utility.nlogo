@@ -1,12 +1,16 @@
 patches-own [
   uti-eth
   uti-val
+  mean_neighborhood
 ]
 
 turtles-own [
   eth-weight
   val-weight
   test-weight
+  trial
+  probability_move
+  probability_multi
 ]
 
 to setup
@@ -25,7 +29,8 @@ end
 
 to attribute-preferences                            ; the smaller alpha and beta, the more flattened the distribution (random-number)
   let x random-gamma alpha 1
-  set eth-weight (x / (x + random-gamma beta 1))
+  let y random-gamma beta 1
+  set eth-weight (x / (x + y))
   set val-weight (1 - eth-weight)
   set test-weight (eth-weight + val-weight)
 end
@@ -40,6 +45,7 @@ to update-turtles
     let color-myself color
     let alternative one-of patches with [not any? turtles-here]
     let options (patch-set alternative patch-here)
+    set trial random-float 1.00
       ask patch-here [set pcolor yellow]
       ask alternative [set pcolor green]
 
@@ -47,7 +53,31 @@ to update-turtles
     ask options [
       let xe count (turtles-on neighbors) with [color = color-myself ]
       let n count (turtles-on neighbors)
-      set uti-eth utility-eth xe n]
+      set uti-eth utility-eth xe n
+
+      ifelse any? turtles-on neighbors [
+        set mean_neighborhood (mean [eth-weight] of turtles-on neighbors)
+        set uti-val utility-val abs (mean_neighborhood - [eth-weight] of myself)
+      ][set uti-val 0]
+
+        ]
+
+    set probability_multi (exp(((eth-weight * k) * [uti-eth] of alternative) + ((val-weight * k) * [uti-val] of alternative)) /
+    (exp(((eth-weight * k) * [uti-eth] of alternative) + ((val-weight * k) * [uti-val] of alternative)) +  exp(((eth-weight * k) * [uti-eth] of patch-here) + ((val-weight * k) * [uti-val] of patch-here)))
+    )
+
+
+
+    if trial < probability_multi [move-to alternative]
+
+
+   ; set probability_move (1 / (1 + exp((-(eth-weight * k) * ([uti-eth] of alternative - [uti-eth] of patch-here)) +
+  ;    (-(val-weight * k) * ([uti-val] of alternative - [uti-val] of patch-here))   )   ))
+
+  ;  if trial < probability_move [move-to alternative]
+
+
+
 
 
 
@@ -57,38 +87,38 @@ to update-turtles
 
 
 
+
+
 end
 
-to-report utility-eth [xe n]
-
-; report ( ifelse-value (n = 0) [ifelse-value (i_e = 0) [1][0]]
- ;   [ifelse-value (xe < (n * i_e))  [ precision ((xe / precision (n * i_e) 2) * S) 2]
-  ;      [  M + ((1 -  (xe / n)) * (1 - M)) / (1 - i_e) ]
-   ; ]
-; )
+to-report utility-eth [a b]
 
 
-  report ( ifelse-value (n = 0) [ifelse-value (i_e = 0) [1][0]]
-[ifelse-value (xe = (n * i_e)) [1]
-  [ifelse-value (xe < (n * i_e))
- [ precision
-          ((xe / precision (n * i_e) 2) * S) 3
+  report ( ifelse-value (b = 0) [ifelse-value (i_e = 0) [1][0]]
+[ifelse-value (a = (b * i_e)) [1]
+  [ifelse-value (a < (b * i_e))
+ [ precision ((a / (b * i_e) ) * S) 3
         ]
-[ precision ( M + ((1 -  (xe / n)) * (1 - M)) / (1 - i_e)) 3 ]
+[ precision ( M + ((1 -  (a / b)) * (1 - M)) / (1 - i_e)) 3 ]
  ]
 ]
 )
 
+end
 
+to-report utility-val [c]
 
-
+  report ( ifelse-value c <= i_v
+    [1]
+    [precision ((M + ((1 - precision c 2)  * (1 - M)) / (1 - i_v)) * S) 3 ]
+  )
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-402
-10
-839
-448
+217
+27
+654
+465
 -1
 -1
 13.0
@@ -120,17 +150,17 @@ density
 density
 0
 99
-82.0
+69.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-191
-11
-363
-44
+16
+239
+188
+272
 fraction_blue
 fraction_blue
 50
@@ -148,10 +178,10 @@ SLIDER
 93
 alpha
 alpha
-0.01
-100
-21.26
-0.01
+0.0
+10
+10.0
+0.1
 1
 NIL
 HORIZONTAL
@@ -164,18 +194,18 @@ SLIDER
 beta
 beta
 0.01
-100
-24.85
+10
+0.01
 0.01
 1
 NIL
 HORIZONTAL
 
 BUTTON
-547
-461
-610
-494
+362
+478
+425
+511
 setup
 setup
 NIL
@@ -189,10 +219,10 @@ NIL
 1
 
 PLOT
-918
-29
-1177
-179
+665
+28
+924
+178
 weight
 NIL
 NIL
@@ -208,10 +238,10 @@ PENS
 "val-weight" 1.0 1 -16777216 true "" "set-histogram-num-bars 100\nhistogram [val-weight] of turtles"
 
 BUTTON
-619
-461
-682
-494
+434
+478
+497
+511
 go
 go
 NIL
@@ -233,7 +263,7 @@ i_e
 i_e
 0
 1
-1.0
+0.1
 0.1
 1
 NIL
@@ -244,21 +274,21 @@ SLIDER
 197
 183
 230
-opinion_distance
-opinion_distance
+i_v
+i_v
 0
 1
-1.0
+0.3
 0.1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-36
-251
-208
-284
+18
+313
+190
+346
 M
 M
 0
@@ -270,10 +300,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-37
-287
-209
-320
+16
+279
+188
+312
 S
 S
 0
@@ -285,24 +315,193 @@ NIL
 HORIZONTAL
 
 MONITOR
-1038
-200
-1140
-245
-alternative_green
+1092
+188
+1216
+233
+alternative_green-eth
 [uti-eth] of patches with [pcolor = green]
 3
 1
 11
 
 MONITOR
-939
-200
-1032
-245
-current-yellow
+953
+187
+1073
+232
+current-yellow-eth
 [uti-eth] of patches with [pcolor = yellow]
 3
+1
+11
+
+MONITOR
+659
+185
+748
+230
+eth-weight
+mean [eth-weight] of turtles
+3
+1
+11
+
+MONITOR
+752
+184
+840
+229
+val-weight
+mean [val-weight] of turtles
+3
+1
+11
+
+MONITOR
+848
+185
+925
+230
+prop_e_w1
+count turtles with [eth-weight = 1] / count turtles
+3
+1
+11
+
+MONITOR
+820
+247
+941
+292
+current-yellow-val
+[uti-val] of patches with [pcolor = yellow]
+3
+1
+11
+
+MONITOR
+1091
+247
+1217
+292
+alternative_green-val
+[uti-val] of patches with [pcolor = green]
+3
+1
+11
+
+MONITOR
+659
+307
+825
+352
+eth-weight-actor
+[eth-weight] of turtles with [shape = \"circle\"]
+3
+1
+11
+
+MONITOR
+658
+246
+794
+291
+mean_yellow_actor
+[mean_neighborhood] of patches with [pcolor = yellow]
+2
+1
+11
+
+MONITOR
+948
+247
+1082
+292
+mean_green_actor
+[mean_neighborhood] of patches with [pcolor = green]
+17
+1
+11
+
+MONITOR
+660
+366
+783
+411
+diff_eth_alt-current
+[uti-eth] of one-of patches with [pcolor = green] - [uti-eth] of one-of patches with [pcolor = yellow]
+3
+1
+11
+
+SLIDER
+28
+380
+200
+413
+k
+k
+0
+100
+5.0
+1
+1
+NIL
+HORIZONTAL
+
+MONITOR
+842
+420
+1009
+465
+probability_move
+[probability_move] of turtles with [shape = \"circle\"]
+17
+1
+11
+
+MONITOR
+662
+420
+830
+465
+trial
+[trial] of turtles with [shape = \"circle\"]
+17
+1
+11
+
+MONITOR
+841
+307
+986
+352
+val-weight-actor
+[val-weight] of turtles with [shape = \"circle\"]
+17
+1
+11
+
+MONITOR
+799
+364
+919
+409
+diff_val_alt-current
+[uti-val] of one-of patches with [pcolor = green] - [uti-val] of one-of patches with [pcolor = green]
+3
+1
+11
+
+MONITOR
+1028
+419
+1202
+464
+probability_multi
+[probability_multi] of turtles with [shape = \"circle\"]
+17
 1
 11
 
