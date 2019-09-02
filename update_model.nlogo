@@ -1,10 +1,10 @@
-globals [diff_e   percent-similar-eth mean-dist-neigh ]
+globals [ percent-similar-eth mean-dist-neigh ]
 
 patches-own [
   uti-eth
   uti-val
-  mean_neighborhood
-  probability_to
+;  mean_neighborhood
+;  probability_to
 
 ]
 
@@ -18,12 +18,15 @@ turtles-own [
  parameter-eth
   parameter-val
 similar-ethnics
-  diff_eth
+ diff_eth
  diff_val
   total-neighbors
 proba
-  utility-myself
-  dist-neigh
+  ethnic-utility
+  value-utility
+  diff_e
+  diff_u
+  dist-mean-neigh
 ]
 
 to setup
@@ -34,22 +37,27 @@ to setup
       set shape "square"
       ifelse random 100 < fraction_blue
       [set ethnicity "local"
-
-
-        set color  scale-color blue eth-weight 2 -0.2
+        set color  scale-color blue eth-weight 2 0
       ][
         set ethnicity "minority"
-        set color scale-color orange eth-weight 2 -0.2
+        set color scale-color orange eth-weight 2 0
       ]
-
       ]
-
     ]
   ]
-  ;  ask one-of turtles [set shape "circle" set size .6]
  update-turtles
+ update-globals
   reset-ticks
 end
+
+to go
+  update-turtles
+  move-turtles
+  update-globals
+tick
+end
+
+
 
 to attribute-preferences                            ; the smaller alpha and beta, the more flattened the distribution (random-number)
   let x random-gamma alpha 1
@@ -57,28 +65,17 @@ to attribute-preferences                            ; the smaller alpha and beta
   set eth-weight (x / (x + y))
   if discrete-weight [set eth-weight precision eth-weight 1]
   set val-weight (1 - eth-weight)
-
-
   set test-weight (eth-weight + val-weight)
 end
 
-to go
-  update-turtles
-  update-reports
-  update-globals
-  ; move-turtles
-tick
-end
-
-to update-turtles
-  ask turtles [
+to move-turtles
+  ask  turtles [
 
    let ethnicity-myself ethnicity
    let alternative one-of patches with [not any? turtles-here]
     let options (patch-set alternative patch-here)
-    set parameter-eth (k * eth-weight)
-    set parameter-val (k * val-weight)
-;    let p 0
+
+
 
     ask options [
 
@@ -86,11 +83,12 @@ to update-turtles
       let xe count (turtles-on neighbors) with [ethnicity = ethnicity-myself]
       let n count (turtles-on neighbors)
 
+
       set uti-eth utility-eth xe n
 
      ifelse any? turtles-on neighbors [
-      set mean_neighborhood (mean [eth-weight] of turtles-on neighbors)
-        set uti-val utility-val (abs (mean_neighborhood - [eth-weight] of myself))
+        let dist-eth-neigh  (abs(mean [eth-weight] of turtles-on neighbors)  - [eth-weight] of myself)
+        set uti-val utility-val dist-eth-neigh
        ][set uti-val 0]
         ]
 
@@ -101,9 +99,6 @@ to update-turtles
 
     if random-float 1 < proba [move-to alternative]
 
-    set utility-myself [uti-eth] of patch-here
-    set diff_e diff_eth
-  ;  set proba p
   ]
 
 
@@ -130,12 +125,18 @@ to-report utility-val [c]
   )
 end
 
-to update-reports
+to update-turtles
 
   ask turtles[
+    set parameter-eth round (k * eth-weight)
+    set parameter-val round (k * val-weight)
   set similar-ethnics (count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself])
   set total-neighbors (count turtles-on neighbors)
-  if any? turtles-on neighbors [set dist-neigh (abs ((mean [eth-weight] of turtles-on neighbors) - eth-weight))]
+    if any? turtles-on neighbors [set dist-mean-neigh (abs ((mean [eth-weight] of turtles-on neighbors) - eth-weight))]
+   set ethnic-utility [uti-eth] of patch-here
+    set value-utility  [uti-eth]  of patch-here
+    set diff_e diff_eth
+    set diff_u diff_val
   ]
 end
 
@@ -144,14 +145,8 @@ to update-globals
   let tot-ethnics sum [ similar-ethnics ] of turtles
   let tot-neighbors sum [ total-neighbors ] of turtles
   set percent-similar-eth (tot-ethnics / tot-neighbors) * 100
-  set mean-dist-neigh mean [dist-neigh] of turtles
+  set mean-dist-neigh mean [dist-mean-neigh] of turtles
 end
-
-
-
-
-
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 217
@@ -181,25 +176,25 @@ ticks
 30.0
 
 SLIDER
-9
+14
 10
-181
+186
 43
 density
 density
 0
 99
-85.0
+95.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-16
-239
-188
-272
+20
+57
+192
+90
 fraction_blue
 fraction_blue
 50
@@ -212,14 +207,14 @@ HORIZONTAL
 
 SLIDER
 14
-60
-189
-93
+113
+184
+146
 alpha
 alpha
 0.1
 10
-10.0
+5.2
 0.1
 1
 NIL
@@ -227,14 +222,14 @@ HORIZONTAL
 
 SLIDER
 13
-98
+151
 185
-131
+184
 beta
 beta
 0.01
 10
-0.01
+5.16
 0.01
 1
 NIL
@@ -262,7 +257,7 @@ PLOT
 28
 924
 178
-weight
+weight-choice-population
 NIL
 NIL
 0.0
@@ -277,10 +272,10 @@ PENS
 "val-weight" 1.0 1 -16777216 true "" "set-histogram-num-bars 100\nhistogram [val-weight] of turtles"
 
 SLIDER
-16
-156
-183
-189
+14
+193
+181
+226
 i_e
 i_e
 0
@@ -292,15 +287,15 @@ NIL
 HORIZONTAL
 
 SLIDER
-15
-197
-183
-230
+23
+433
+191
+466
 i_v
 i_v
 0
 1
-0.0
+0.2
 0.1
 1
 NIL
@@ -315,7 +310,7 @@ M
 M
 0
 1
-0.0
+0.5
 0.1
 1
 NIL
@@ -330,138 +325,50 @@ S
 S
 0
 1
-0.0
+1.0
 0.1
 1
 NIL
 HORIZONTAL
 
 MONITOR
-1163
-397
-1287
-442
-alternative_green-eth
-[uti-eth] of patches with [pcolor = green]
-3
-1
-11
-
-MONITOR
-1015
-182
-1135
-227
-%_sim_eth
+945
+181
+1065
+226
+%_sim_ethnic
 percent-similar-eth
 3
 1
 11
 
 MONITOR
-659
-185
-748
-230
-ethic-weight
+678
+233
+787
+278
+parameter-ethnic
 mean [parameter-eth] of turtles
 3
 1
 11
 
 MONITOR
-758
-185
-850
-230
-parameter-val
-mean [val-weight] of turtles
-3
-1
-11
-
-MONITOR
-871
-187
-948
+790
 232
-prop_e_09
-count turtles with [eth-weight > 0.9] / count turtles
-3
-1
-11
-
-MONITOR
-893
-248
-1014
-293
-current-yellow-val
-[uti-val] of patches with [pcolor = yellow]
-3
-1
-11
-
-MONITOR
-1283
-247
-1409
-292
-alternative_green-val
-[uti-val] of patches with [pcolor = green]
-3
-1
-11
-
-MONITOR
-661
-298
-827
-343
-eth-weight-actor
-[eth-weight] of turtles with [shape = \"circle\"]
-3
-1
-11
-
-MONITOR
-658
-246
-794
-291
-mean_yellow_actor
-[mean_neighborhood] of patches with [pcolor = yellow]
-2
-1
-11
-
-MONITOR
-1040
-248
-1174
-293
-mean_green_actor
-[mean_neighborhood] of patches with [pcolor = green]
-17
-1
-11
-
-MONITOR
-660
-366
-783
-411
-diff_eth_alt-current
-[uti-eth] of one-of patches with [pcolor = green] - [uti-eth] of one-of patches with [pcolor = yellow]
+895
+277
+parameter-value
+mean [parameter-val] of turtles
 3
 1
 11
 
 SLIDER
-14
-407
-186
-440
+695
+286
+867
+319
 k
 k
 0
@@ -472,64 +379,20 @@ k
 NIL
 HORIZONTAL
 
-MONITOR
-841
-307
-986
-352
-val-weight-actor
-[val-weight] of turtles with [shape = \"circle\"]
-17
-1
-11
-
-MONITOR
-799
-364
-919
-409
-diff_val_alt-current
-[uti-val] of one-of patches with [pcolor = green] - [uti-val] of one-of patches with [pcolor = green]
-3
-1
-11
-
 SLIDER
-15
-361
-187
-394
+22
+469
+190
+502
 S_v
 S_v
 0
 1
-0.0
+1.0
 0.1
 1
 NIL
 HORIZONTAL
-
-MONITOR
-805
-248
-882
-293
-val_dist_alt
-abs (([mean_neighborhood] of one-of patches with [pcolor = green]) - ([eth-weight] of one-of turtles with [shape = \"circle\"]))
-2
-1
-11
-
-MONITOR
-1193
-247
-1278
-292
-val_dist_curr
-abs (([mean_neighborhood] of one-of patches with [pcolor = yellow]) - ([eth-weight] of one-of turtles with [shape = \"circle\"]))
-2
-1
-11
 
 BUTTON
 440
@@ -549,10 +412,10 @@ NIL
 1
 
 SWITCH
-1021
-324
-1162
-357
+813
+496
+954
+529
 discrete-weight
 discrete-weight
 1
@@ -580,9 +443,9 @@ PENS
 PLOT
 1248
 32
-1482
+1488
 176
-value-distance
+ethnic-weight-distance
 NIL
 NIL
 0.0
@@ -594,6 +457,39 @@ true
 "" ""
 PENS
 "mean dist" 1.0 0 -16777216 true "" "plot mean-dist-neigh"
+
+MONITOR
+695
+183
+768
+228
+eth-weight
+mean [eth-weight] of turtles
+3
+1
+11
+
+MONITOR
+799
+181
+884
+226
+value-weight
+mean [val-weight] of turtles
+3
+1
+11
+
+MONITOR
+1250
+183
+1362
+228
+eth_weight_neigh
+mean-dist-neigh
+3
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
