@@ -499,7 +499,7 @@ Orange agents: minority
 
 Agents hold preferences for the ethnic composition of the neighborhood and the distance with ethnic preferences within the neighborhood as value composition.
 
-The probability of relocation between current option and alternative option within random utility is modeled as binary logit model with logistic function 1/1+exp((-beta_e*(diff_Ue)) + (-beta_v*(diff_Uv))) instead of conditional logit and roulette wheel (exp(beta*U_e + beta*U_v))/sum(exp(beta*U_e + beta*U_v)) for each option as in the old ethnic_value_multinomial.
+The probability of relocation between current option and alternative option within random utility is modeled as binary logit model with logistic function 1/1+exp((-beta_e*(diff_Ue)) + (-beta_v*(diff_Uv))) instead of conditional logit and roulette wheel (exp(beta*U_e + beta*U_v))/sum(exp(beta*U_e + beta*U_v)) for each option as in the old ethnic_value_multinomial. In test_utility they are compared.
 
 Parameter for importance of ethnic utility = eth-weight * k
 Parameter for importance of value utility = val-weight * k
