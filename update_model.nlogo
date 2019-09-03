@@ -499,6 +499,16 @@ Orange agents: minority
 
 Agents hold preferences for the ethnic composition of the neighborhood and the distance with ethnic preferences within the neighborhood as value composition.
 
+The probability of relocation between current option and alternative option within random utility is modeled as binary logit model with logistic function 1/1+exp((-beta_e*(diff_Ue)) + (-beta_v*(diff_Uv))) instead of conditional logit and roulette wheel (exp(beta*U_e + beta*U_v))/sum(exp(beta*U_e + beta*U_v)) for each option as in the old ethnic_value_multinomial.
+
+Parameter for importance of ethnic utility = eth-weight * k
+Parameter for importance of value utility = val-weight * k
+
+eth-weight [0,1] from beta distribution / val-weight = 1 - eth-weight
+eth-weight and val-weight vary among agents according to beta distribution
+k = 0: totally random choice; k=inf the best option according to utility is taken.
+The distribution among agents of final ethnic parameter and value parameter will be the same.
+
 ## HOW IT WORKS
 
 Ethnic composition: a proportion as in Schelling
@@ -519,25 +529,11 @@ Value composition: the distance between the ethnic weight of individual agent an
 	- S_v=1: Decreasing function
 - k: a constant to calculate the final parameter for ethnic composition and value composition spanning 0-1 (k * ethnic-weight; k * value-weight)
 (see paper_notes.pdf for examples)
-## THINGS TO NOTICE
-
-(suggested things for the user to notice while running the model)
-
-## THINGS TO TRY
-
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
 
 ## EXTENDING THE MODEL
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+I have doubts on the definition of value utitlity. Was trying in testing_sim_opinions: distribution of "values" among agents derived from another beta distribution; value similarity of agents if the abs difference between one agent and others in the neighborhood falls within opinion distance range, and used the proportion of similars so defined to assess the value utility of neighborhood as done for ethnic utility.
 
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
 
 ## CREDITS AND REFERENCES
 
