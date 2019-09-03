@@ -218,7 +218,7 @@ fraction_blue
 fraction_blue
 50
 100
-50.0
+80.0
 1
 1
 NIL
@@ -233,7 +233,7 @@ alpha
 alpha
 0.1
 10
-4.3
+8.9
 0.1
 1
 NIL
@@ -248,7 +248,7 @@ beta
 beta
 0.01
 10
-8.73
+1.03
 0.01
 1
 NIL
@@ -314,7 +314,7 @@ i_v
 i_v
 0
 1
-0.9
+0.7
 0.1
 1
 NIL
@@ -519,7 +519,7 @@ opinion_distance
 opinion_distance
 0
 1
-0.01
+0.24
 0.01
 1
 NIL
@@ -534,7 +534,7 @@ alpha_v
 alpha_v
 0.1
 10
-1.1
+1.0
 0.1
 1
 NIL

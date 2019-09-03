@@ -229,7 +229,7 @@ beta
 beta
 0.01
 10
-0.01
+4.27
 0.01
 1
 NIL
@@ -295,7 +295,7 @@ i_v
 i_v
 0
 1
-0.4
+0.9
 0.1
 1
 NIL
@@ -373,7 +373,7 @@ k
 k
 0
 100
-100.0
+61.0
 1
 1
 NIL
@@ -388,7 +388,7 @@ S_v
 S_v
 0
 1
-1.0
+0.0
 0.1
 1
 NIL
@@ -494,16 +494,31 @@ mean-dist-neigh
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+Blue agents: locals
+Orange agents: minority
+
+Agents hold preferences for the ethnic composition of the neighborhood and the distance with ethnic preferences within the neighborhood as value composition.
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+Ethnic composition: a proportion as in Schelling
+Value composition: the distance between the ethnic weight of individual agent and the average ethnic weight of the neighborhood. Agents compare the difference in utility (ethnic + value) of current location and one alternative location. The determinism of the choice is based on ethnic weights and value weights of the agents derived by beta distribution.
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
-
+- Density: density of population
+- Fraction_blue: ratio blue/orange
+- alpha and beta: distribution of ethnic weights from beta distribution from 0 to 1. Value weights are calculated as 1-ethnic weight
+- i_e: ideal proportion of similars of the own ethnic group agents desire in ideal neighgborhood
+- i_v: ideal distance the agent desired  between the own ethnic weight and the average ethnic weight of a potential neighborhood
+-S adn M: to simulate the functional form for ethnic utility (S: steepness left ideal point [0,1] lineary increasing, M steepness right ideal point [0,1] linearly decreasing):
+	- S=0,M=1: Schelling's trheshold function
+	- S=1,M=0: Symmetic single-peaked function
+- S_v: regulates the steepness (decreasing function) of value utility:
+	- S_v=0: Schelling's threshold function
+	- S_v=1: Decreasing function
+- k: a constant to calculate the final parameter for ethnic composition and value composition spanning 0-1 (k * ethnic-weight; k * value-weight)
+(see paper_notes.pdf for examples)
 ## THINGS TO NOTICE
 
 (suggested things for the user to notice while running the model)
