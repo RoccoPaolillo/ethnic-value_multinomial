@@ -1,32 +1,44 @@
+globals[probability_move]
+
 patches-own [
   uti-eth
   uti-val
   mean_neighborhood
+  picked
 ]
 
 turtles-own [
+  ethnicity
   eth-weight
   val-weight
   test-weight
   trial
-  probability_move
+
   parameter-eth
   parameter-val
+
 ]
 
 to setup
   clear-all
   ask patches [set pcolor white
     if random 100 < density [sprout 1 [
+      attribute-preferences
       set shape "square"
       ifelse random 100 < fraction_blue
-      [set color blue ][set color orange]
-      attribute-preferences
+      [set ethnicity "local"
+
+
+        set color scale-color blue eth-weight 1.5 0][
+        set ethnicity "minority"
+        set color scale-color orange eth-weight 1.5 0]
+
       ]
 
     ]
   ]
     ask one-of turtles [set shape "circle" set size .6]
+
   reset-ticks
 end
 
@@ -41,26 +53,32 @@ end
 to go
   ask patches [set pcolor white]
   update-turtles
-
 end
 
 to update-turtles
-  ask turtles with [shape = "circle" and size = .6] [
+  ask turtles  [
+
+
    set parameter-eth (k * eth-weight)
    set parameter-val (k * val-weight)
 
 
 
-    let color-myself color
+    let ethnicity-myself ethnicity
     let alternative one-of patches with [not any? turtles-here]
     let options (patch-set alternative patch-here)
     set trial random-float 1.00
-    ask patch-here [set pcolor yellow]
-    ask alternative [set pcolor green]
+
+   ; ask patch-here [set pcolor yellow]
+ ;   ask alternative [set pcolor green]
+
+
 
 
     ask options [
-      let xe count (turtles-on neighbors) with [color = color-myself ]
+      set picked 1
+
+      let xe count (turtles-on neighbors) with [ethnicity = ethnicity-myself ]
       let n count (turtles-on neighbors)
       set uti-eth utility-eth xe n
 
@@ -87,20 +105,6 @@ to update-turtles
     ]
 
        if trial < probability_move [move-to alternative]
-
-
-
-   ; set probability_move (1 / (1 + exp((-(eth-weight * k) * ([uti-eth] of alternative - [uti-eth] of patch-here)) +
-  ;    (-(val-weight * k) * ([uti-val] of alternative - [uti-val] of patch-here))   )   ))
-
-  ;
-
-
-
-
-
-
-
 
 
   ]
@@ -199,7 +203,7 @@ alpha
 alpha
 0.0
 10
-4.8
+10.0
 0.1
 1
 NIL
@@ -214,7 +218,7 @@ beta
 beta
 0.01
 10
-4.91
+7.2
 0.01
 1
 NIL
@@ -256,23 +260,6 @@ PENS
 "eth-weight" 1.0 1 -2674135 true "" "set-histogram-num-bars 100\nhistogram [eth-weight] of turtles"
 "val-weight" 1.0 1 -16777216 true "" "set-histogram-num-bars 100\nhistogram [val-weight] of turtles"
 
-BUTTON
-434
-478
-497
-511
-go
-go
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 SLIDER
 16
 156
@@ -282,7 +269,7 @@ i_e
 i_e
 0
 1
-0.5
+0.7
 0.1
 1
 NIL
@@ -297,7 +284,7 @@ i_v
 i_v
 0
 1
-0.1
+0.5
 0.1
 1
 NIL
@@ -312,7 +299,7 @@ M
 M
 0
 1
-1.0
+0.0
 0.1
 1
 NIL
@@ -327,7 +314,7 @@ S
 S
 0
 1
-0.0
+1.0
 0.1
 1
 NIL
@@ -433,9 +420,9 @@ mean_yellow_actor
 11
 
 MONITOR
-1056
+1040
 248
-1190
+1174
 293
 mean_green_actor
 [mean_neighborhood] of patches with [pcolor = green]
@@ -455,15 +442,15 @@ diff_eth_alt-current
 11
 
 SLIDER
-16
-363
-188
-396
+12
+406
+184
+439
 k
 k
 0
 100
-2.0
+100.0
 1
 1
 NIL
@@ -525,14 +512,14 @@ model
 
 SLIDER
 15
-411
+361
 187
-444
+394
 S_v
 S_v
 0
 1
-0.0
+1.0
 0.1
 1
 NIL
@@ -559,6 +546,23 @@ abs (([mean_neighborhood] of one-of patches with [pcolor = yellow]) - ([eth-weig
 2
 1
 11
+
+BUTTON
+440
+475
+503
+508
+NIL
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?

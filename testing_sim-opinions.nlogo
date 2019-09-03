@@ -79,8 +79,8 @@ to move-turtles
   ask  turtles [
 
    let ethnicity-myself ethnicity
-    let similar-value turtles with [abs (value - [value] of myself) <= opinion_distance]
-    let value-myself value
+   ; let similar-value turtles with [abs(value - value_my) <= opinion_distance]
+    let value_my value
    let alternative one-of patches with [not any? turtles-here]
     let options (patch-set alternative patch-here)
 
@@ -90,7 +90,7 @@ to move-turtles
 
 
       let xe count (turtles-on neighbors) with [ethnicity = ethnicity-myself]
-      let xv count (turtles-on neighbors) with [abs (value - value-myself) <= opinion_distance]
+      let xv count (turtles-on neighbors) with [abs(value - value_my) <= opinion_distance]
       let n count (turtles-on neighbors)
 
 
@@ -128,13 +128,13 @@ report ( ifelse-value (b = 0) [ifelse-value (i_e = 0) [1][0]]
 )
 end
 
-to-report utility-val [c d]
+to-report utility-val [c b]
 
-report ( ifelse-value (d = 0) [ifelse-value (i_v = 0) [1][0]]
-    [ifelse-value (c = (d * i_v)) [1]
-      [ifelse-value (c < (d * i_v))
-        [ precision ((c / (d * i_v) ) * S) 3
-        ][ precision ( M + ((1 -  (c / d)) * (1 - M)) / (1 - i_v)) 3 ]
+report ( ifelse-value (b = 0) [ifelse-value (i_v = 0) [1][0]]
+    [ifelse-value (c = (b * i_v)) [1]
+      [ifelse-value (c < (b * i_v))
+        [ precision ((c / (b * i_v) ) * S) 3
+        ][ precision ( Mv + ((1 -  (c / b)) * (1 - M)) / (1 - i_v)) 3 ]
       ]
     ]
 )
@@ -143,13 +143,15 @@ end
 to update-turtles
 
   ask turtles[
+    let value-neigh (turtle-set self turtles-on neighbors)
 
     set parameter-eth round (k * eth-weight)
     set parameter-val round (k * val-weight)
   set similar-ethnics (count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself])
   set total-neighbors (count turtles-on neighbors)
-   set dist-mean-neigh ((value - [value] of min-one-of (turtles in-radius 1.5) [value]) /
-    ( [value] of max-one-of (turtles in-radius 1.5) [value] -  [value] of min-one-of (turtles in-radius 1.5) [value]))
+    ifelse any? turtles-on neighbors
+    [set dist-mean-neigh  ((value - [value] of min-one-of value-neigh [value]) / ( [value] of max-one-of value-neigh [value] - [value] of min-one-of value-neigh [value]))]
+    [set dist-mean-neigh 0]
    set ethnic-utility [uti-eth] of patch-here
     set value-utility  [uti-val]  of patch-here
     set diff_e diff_eth
@@ -231,7 +233,7 @@ alpha
 alpha
 0.1
 10
-6.0
+4.3
 0.1
 1
 NIL
@@ -246,7 +248,7 @@ beta
 beta
 0.01
 10
-2.81
+8.73
 0.01
 1
 NIL
@@ -297,7 +299,7 @@ i_e
 i_e
 0
 1
-0.3
+0.4
 0.1
 1
 NIL
@@ -312,7 +314,7 @@ i_v
 i_v
 0
 1
-0.6
+0.9
 0.1
 1
 NIL
@@ -327,7 +329,7 @@ M
 M
 0
 1
-1.0
+0.5
 0.1
 1
 NIL
@@ -342,7 +344,7 @@ S
 S
 0
 1
-0.0
+1.0
 0.1
 1
 NIL
@@ -390,7 +392,7 @@ k
 k
 0
 100
-100.0
+56.0
 1
 1
 NIL
@@ -401,11 +403,11 @@ SLIDER
 547
 652
 580
-S_v
-S_v
+Mv
+Mv
 0
 1
-1.0
+0.5
 0.1
 1
 NIL
@@ -517,7 +519,7 @@ opinion_distance
 opinion_distance
 0
 1
-0.22
+0.01
 0.01
 1
 NIL
@@ -532,7 +534,7 @@ alpha_v
 alpha_v
 0.1
 10
-8.0
+1.1
 0.1
 1
 NIL
@@ -547,7 +549,7 @@ beta_v
 beta_v
 0.1
 10
-3.8
+1.0
 0.1
 1
 NIL
@@ -570,6 +572,38 @@ true
 "" ""
 PENS
 "value" 1.0 1 -5825686 true "" "set-histogram-num-bars 100\nhistogram [value] of turtles"
+
+BUTTON
+1204
+314
+1267
+347
+test
+ask turtle 0 [\nlet value_my value\nask turtles with [abs(value - value_my) <= opinion_distance]\n[set color green]\n]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+714
+456
+886
+489
+Sv
+Sv
+0
+1
+1.0
+0.1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
