@@ -3,7 +3,6 @@ globals [ percent-similar-eth mean-dist-neigh ]
 patches-own [
   uti-eth
   uti-val
-
 ]
 
 turtles-own [
@@ -21,8 +20,9 @@ proba
   ethnic-utility
   value-utility
   diff_e
-  diff_u
+  diff_v
   dist-mean-neigh
+
 ]
 
 to setup
@@ -33,11 +33,12 @@ to setup
       set shape "square"
       ifelse random 100 < fraction_blue                 ; ratio locals (blue) / minority (orange). Used variable "ethnicity" for ethnic concentration and avoid problems with visualization
       [set ethnicity "local"
-        set color  scale-color blue eth-weight 2 -2      ; shades given by ethnic weight (the darker, the more ethnic weight influences the choice)
+        set color  scale-color blue eth-weight 2 0      ; shades given by ethnic weight (the darker, the more ethnic weight influences the choice)
       ][
         set ethnicity "minority"
-        set color scale-color orange eth-weight 2 -2
+        set color scale-color orange eth-weight 2 0
       ]
+
       ]
     ]
   ]
@@ -79,12 +80,14 @@ to move-turtles                                                    ; choice for 
 
       set uti-eth utility-eth xe n           ; ethnic utility is calculated (proportion of similar ethnics, see below report for function)
 
+
       ifelse any? turtles-on neighbors [
         let dist-eth-neigh  (abs(mean [eth-weight] of turtles-on neighbors)  - [eth-weight] of myself)           ; value utility is calculated (distance, see below report for function)
         set uti-val utility-val dist-eth-neigh                                                                   ; forced to attribute value utility = 0 to avoid bug where no agent is in the neighborhood
        ][set uti-val 0]                                                                                          ; to calculate average etc.
 
     ]
+
 
     set diff_eth ([uti-eth] of alternative - [uti-eth] of patch-here)                     ; difference ethnic utility between current location and alternative position
     set diff_val ([uti-val] of alternative - [uti-val] of patch-here)                     ; difference value utility between current location and alternative position
@@ -118,9 +121,12 @@ to-report utility-val [c]                                                      ;
                                                                                ; neighborhood. It replicates as threshold function or decreasing utility
   report ( ifelse-value c <= i_v                                               ; utility is 1 if the absolute difference falls into the desired interval: lower of equal the ideal distance i_v
     [1]                                                                        ; S_v = 0: threshold function: distance higher than i_v have utility 0
-    [precision (((1 - precision c 2) / (1 - i_v)) * S_v) 3 ]                   ; S_v = 1: decreasing value utility for distance neighborhood-agent far from the ideal distance i_d
+    [ (((1 -  c ) / (1 - i_v)) * S_v)  ]                   ; S_v = 1: decreasing value utility for distance neighborhood-agent far from the ideal distance i_d
   )                                                                            ; (see the R-code for checking function and results)
 end
+
+
+; [precision (((1 - precision c 2) / (1 - i_v)) * S_v) 3 ]
 
 to update-turtles                           ; updates of preferences of turtles
 
@@ -134,9 +140,9 @@ to update-turtles                           ; updates of preferences of turtles
     set total-neighbors (count turtles-on neighbors)
     if any? turtles-on neighbors [set dist-mean-neigh (abs ((mean [eth-weight] of turtles-on neighbors) - eth-weight))]
     set ethnic-utility [uti-eth] of patch-here
-    set value-utility  [uti-eth]  of patch-here
+    set value-utility  [uti-val]  of patch-here
     set diff_e diff_eth
-    set diff_u diff_val
+    set diff_v diff_val
   ]
 end
 
@@ -149,13 +155,13 @@ to update-globals
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-222
+214
 12
-659
-450
+718
+517
 -1
 -1
-13.0
+9.73
 1
 10
 1
@@ -165,10 +171,10 @@ GRAPHICS-WINDOW
 1
 1
 1
--16
-16
--16
-16
+-25
+25
+-25
+25
 0
 0
 1
@@ -176,10 +182,10 @@ ticks
 30.0
 
 SLIDER
-17
-58
-189
-91
+15
+33
+187
+66
 density
 density
 0
@@ -191,55 +197,55 @@ NIL
 HORIZONTAL
 
 SLIDER
-16
-97
-189
-130
+14
+72
+187
+105
 fraction_blue
 fraction_blue
 50
 100
-77.0
+50.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-20
-243
-190
-276
+14
+168
+184
+201
 alpha
 alpha
 0.1
 10
-0.1
+2.5
 0.1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-19
-279
-191
-312
+13
+204
+185
+237
 beta
 beta
 0.1
 10
-10.0
+1.4
 0.1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-350
-460
-413
-493
+370
+528
+433
+561
 setup
 setup
 NIL
@@ -253,10 +259,10 @@ NIL
 1
 
 PLOT
-708
-106
-967
-256
+736
+26
+995
+176
 weight-choice-population
 NIL
 NIL
@@ -272,57 +278,42 @@ PENS
 "val-weight" 1.0 1 -16777216 true "" "set-histogram-num-bars 100\nhistogram [val-weight] of turtles"
 
 SLIDER
-1286
-201
-1460
-234
+13
+328
+187
+361
 i_e
 i_e
 0
 1
-0.6
+0.8
 0.1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1287
-395
-1455
-428
+16
+512
+184
+545
 i_v
 i_v
 0
 1
-0.9
+0.3
 0.1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1287
-289
-1459
-322
+12
+432
+184
+465
 M
 M
-0
-1
-0.5
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-1287
-253
-1459
-286
-S
-S
 0
 1
 1.0
@@ -331,11 +322,26 @@ S
 NIL
 HORIZONTAL
 
+SLIDER
+14
+381
+186
+414
+S
+S
+0
+1
+0.0
+0.1
+1
+NIL
+HORIZONTAL
+
 MONITOR
-676
-495
-796
-540
+738
+521
+858
+566
 %_sim_ethnic
 percent-similar-eth
 3
@@ -343,10 +349,10 @@ percent-similar-eth
 11
 
 MONITOR
-1101
-110
-1225
-155
+1110
+25
+1243
+70
 mean-parameter-ethnic
 mean [parameter-eth] of turtles
 3
@@ -354,10 +360,10 @@ mean [parameter-eth] of turtles
 11
 
 MONITOR
-1102
-164
-1228
-209
+1111
+76
+1245
+121
 mean-parameter-value
 mean [parameter-val] of turtles
 3
@@ -365,10 +371,10 @@ mean [parameter-val] of turtles
 11
 
 SLIDER
-715
-275
-887
-308
+13
+245
+185
+278
 k
 k
 0
@@ -380,25 +386,25 @@ NIL
 HORIZONTAL
 
 SLIDER
-1286
-431
-1454
-464
+18
+571
+186
+604
 S_v
 S_v
 0
 1
-0.0
+1.0
 0.1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-425
-461
-488
-494
+445
+529
+508
+562
 NIL
 go
 T
@@ -412,10 +418,10 @@ NIL
 1
 
 SWITCH
-110
-560
-251
-593
+564
+541
+705
+574
 discrete-weight
 discrete-weight
 1
@@ -423,10 +429,10 @@ discrete-weight
 -1000
 
 PLOT
-675
-345
-937
-489
+737
+371
+999
+515
 similar-ethnics
 NIL
 NIL
@@ -441,10 +447,10 @@ PENS
 "%_sim_eth" 1.0 0 -2674135 true "" "plot percent-similar-eth"
 
 PLOT
-945
-344
-1202
-488
+1007
+370
+1264
+514
 ethnic-weight-distance
 NIL
 NIL
@@ -459,10 +465,10 @@ PENS
 "mean dist" 1.0 0 -16777216 true "" "plot mean-dist-neigh"
 
 MONITOR
-976
-105
-1077
-150
+1004
+25
+1105
+70
 mean-eth-weight
 mean [eth-weight] of turtles
 3
@@ -470,10 +476,10 @@ mean [eth-weight] of turtles
 11
 
 MONITOR
-975
-165
-1078
-210
+1006
+77
+1109
+122
 mean-value-weight
 mean [val-weight] of turtles
 3
@@ -481,10 +487,10 @@ mean [val-weight] of turtles
 11
 
 MONITOR
-947
-493
-1059
-538
+1009
+519
+1121
+564
 eth_weight_neigh
 mean-dist-neigh
 3
@@ -492,30 +498,183 @@ mean-dist-neigh
 11
 
 TEXTBOX
-39
-27
-165
-45
+37
+10
+163
+28
 population parameters
 11
 0.0
 1
 
-BUTTON
-1204
-22
-1325
-55
-instruction_beta
-clear-all\nimport-drawing \"final_beta.png\"
-NIL
+MONITOR
+1003
+132
+1084
+177
+prop_eth>val
+count turtles with [eth-weight > val-weight] / count turtles
+2
 1
-T
-OBSERVER
+11
+
+MONITOR
+1168
+130
+1245
+175
+prop_val>eth
+count turtles with [val-weight > eth-weight] / count turtles
+2
+1
+11
+
+MONITOR
+1087
+131
+1165
+176
+prop_eth=val
+count turtles with [eth-weight = val-weight] / count turtles
+2
+1
+11
+
+MONITOR
+1255
+26
+1348
+71
+sd_eth-weight
+standard-deviation [eth-weight] of turtles
+2
+1
+11
+
+PLOT
+735
+233
+990
+362
+utility-current
 NIL
 NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"ethnic" 1.0 0 -2674135 true "" "plot mean [ethnic-utility] of turtles"
+"value" 1.0 0 -16777216 true "" "plot mean [value-utility] of turtles"
+
+PLOT
+1006
+233
+1259
+360
+alternative - current
 NIL
 NIL
+0.0
+10.0
+-1.0
+1.0
+true
+true
+"" ""
+PENS
+"ethnic" 1.0 0 -2674135 true "" "plot mean [diff_e] of turtles"
+"value" 1.0 0 -16777216 true "" "plot mean [diff_v] of turtles"
+
+PLOT
+1270
+234
+1507
+362
+prob_move_alternative
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"mean" 1.0 0 -16777216 true "" "plot mean [proba] of turtles"
+
+TEXTBOX
+17
+119
+200
+162
+beta-distribution ethnic weights\nMultiply by k for final value/ethnic parameter
+11
+0.0
+1
+
+TEXTBOX
+43
+288
+144
+306
+Ethnic preference
+11
+0.0
+1
+
+TEXTBOX
+42
+304
+166
+322
+desired concentration
+11
+0.0
+1
+
+TEXTBOX
+47
+365
+149
+383
+slope below i_e
+11
+0.0
+1
+
+TEXTBOX
+36
+414
+123
+432
+slope above i_e
+11
+0.0
+1
+
+TEXTBOX
+54
+479
+150
+507
+Value preference\ndesired distance
+11
+0.0
+1
+
+TEXTBOX
+46
+551
+138
+569
+peaked function
+11
+0.0
 1
 
 @#$#@#$#@
@@ -543,7 +702,11 @@ The distribution among agents of final ethnic parameter and value parameter will
 
 Ethnic composition: a proportion as in Schelling.
 Value composition: the distance between the ethnic weight of individual agent and the average ethnic weight of the neighborhood.
-At each step, turtles compare the current position (patch) and one alternative position (an empty patch). For both of them ethnic utility and value utility is calculated. The probability is calculated for each agent to relocate to the alternative location according to the logistic function. The determinism of the choice is based on ethnic weights and value weights of the agents derived by beta distribution (times constant K)
+At each step, turtles compare the current position (patch) and one alternative position (an empty patch). For both of them ethnic utility and value utility is calculated. The probability is calculated for each agent to relocate to the alternative location according to the logistic function. 
+P = 0: the agent stays in his current node
+P = 1: the agent moves to the alternative node
+
+The determinism of the choice is based on ethnic weights and value weights of the agents derived by beta distribution (times constant K)
 
 ## HOW TO USE IT
 
@@ -552,7 +715,7 @@ At each step, turtles compare the current position (patch) and one alternative p
 - alpha and beta: distribution of ethnic weights from beta distribution from 0 to 1. Value weights are calculated as 1-ethnic weight
 - i_e: ideal proportion of similars of the own ethnic group agents desire in a neighgborhood
 - i_v: ideal distance the agent desired  between the own ethnic weight and the average ethnic weight of a neighborhood
--S adn M: to model the functional form for ethnic utility (S: steepness left ideal point [0,1] lineary increasing, M steepness right ideal point [0,1] linearly decreasing):
+- S and M: to model the functional form for ethnic utility (S: steepness left ideal point [0,1] lineary increasing, M steepness right ideal point [0,1] linearly decreasing):
 	- S=0,M=1: Schelling's trheshold function
 	- S=1,M=0: Symmetic single-peaked function
 - S_v: regulates the steepness (decreasing function) of value utility:
@@ -566,9 +729,9 @@ with k = 10 -> parameter weight = 2, parameter value = 8,
 with k = 100 -> parameter weight = 20, parameter value = 80
 
 -Beta distribution:
-	- max ethnic weight/min value weight: alpha > beta (or alpha=beta=0.01)
-	- bell curve: alpha and beta same value
-	- min ethnic weight/max value weight: beta > alpha
+	- ethnic-weight close to 1, value-weight close to 0, low heterogeneity: alpha = 10, beta = 0.1
+	- bell curve around ethnic-weight 0.50, value-weight 0.50
+	- ethnic-weight close to 0, value-weight close to 1, low heterogeneity: alpha = 0.1, beta = 10
 
 ## THINGS TO NOTICE
 
@@ -576,8 +739,21 @@ with k = 100 -> parameter weight = 20, parameter value = 80
 Final parameter in relocation choice and random utility model:
 	- Importance of ethnic composition: k * ethnic weight
 	- Importance of value composition: k * value weight
+
+
+- utility-current: mean ethnic and value utility of the current neighborhood of the agent
+- current-alternative: mean ethnic and value difference between current patch and one alternative patch
+- prob_move_alternative: mean probability to move to alternative patch
+
 - Similar-ethnics: global ethnic segregation as in Schelling (% similars in current neighborhood)
 - Ethnic-weight-distribution: population mean of the distance [ethnic weight of agent - average ethnic weight of current neighborhood]
+
+Random utility model and weight of the relocation decision:
+- k=0: choice totally random, the probability to relocate to alternative is 0.50, not matter the degree of utility
+- increase  k = the probability depends on the best option, check with the plot for utility of current node and difference between alternative and current node
+- difference alternative - current= 1: alternative is better, -1 alternative has the lowest utility
+
+Stable patterns should rise when prob_move_alternative approximates to 0.
 
 ## EXTENDING THE MODEL
 

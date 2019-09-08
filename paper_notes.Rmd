@@ -368,52 +368,11 @@ As an extension of Schelling's model, I would focus on how similarity can be def
 
 Calculated the value utility and ethnic utility, the agent chooses between current location and the alternative location. The probability is calcualted using the logistic function. We decided to limit the number of options to 2, both for computational reasons and because there is not need to do otherwise. This is the condition for the logit model for binary discrete choice model with two options [@liao1994interpreting]. The dependent variable in such a model is the probability that an event will occur ($P=1$), or not ($P=0$). In a residential choice model and for two options as the agent-based model here, the agent must make a choice between moving to alternative location ($P=1$) or not ($P=0$), where the latter outcome implies to stay on the current location. Fitting the paradigm of maximization of utility, the probability to relocate to alternative increases if the utility derived from the alternative location is higher than the current one, as described above from @bruch2009preferences. Translated in the logistic function:
 
-$P_j=\frac{1}{1 + \exp(-\lambda\times \Delta_{(U_j,U_i)})}$ 
-
-An alternative to the logit model is the multinomial choice model, which is a generalization of the binary model where the choice is between more than two options [@train2009discrete]. The probability to choose one option over the others is calculated according to the conditional logit model [@mcfadden1973conditional], depending on the characteristics of the options. Applied to utility maximization and random utility models [@mcfadden1973conditional;@van2009]:
-
-$P_j=\frac{\exp(U_j)}{\sum_{}exp((U_k))}$    
-
-$P_j=\frac{1}{1 + \exp((-\beta_e{(e_j-e_i)}) + (-\beta_v{(v_j-v_i)})}$ 
-
-
-$P_j=\frac{\exp(U_{(xj,yj)})}{\sum_{l}exp((U_{xl,yl}))}$    
-
-
-$P_j=\frac{1}{1 + \exp((-\beta_xe_j - \beta_xe_i)}$ 
-
-In Manski for probability to stay on current cell i$P_i=\frac{\exp(\beta_ee_j + \beta_vv_j)}{\exp(\beta_ee_j + \beta_vv_j) + \exp(\beta_ee_i + \beta_vv_i)}$
-
-$P_i=\frac{1}{1 + \exp((\beta_ee_j + \beta_vv_j) - (\beta_ee_i + \beta_vv_i))}$
+$P_j=\frac{1}{1 + \exp(-\beta\times \Delta_{(U_j,U_i)})}$ 
 
 
 
-$P_j=\frac{1}{1 + \exp((-\beta_e(ej-ei)) + (-\beta_v(vj-vi)))}$
-
-To my understanding, the two forms to calculate probability with logit model (logistic function) or multinomial choice (conditional logit), would be equivalent in representing a random utility model, as long as the number of options is limited to 2. This is the case of our model where the choice of the agent is between the current location and an alternative location. Both guarantee that the probability computed is between 0 and 1, that the maximization of utility drives the  agent to choose one option over the other. Both model a systematic component of utility and a  random component. Both assume that the random term $\epsilon$ is independent and equally distributed among options (i.i.d.). This link synthetizes: [logit_binary_choice, point C](https://en.wikipedia.org/wiki/Discrete_choice#A._Logit_with_attributes_of_the_person_but_no_attributes_of_the_alternatives)
-
-The condition of random terms as independent and identically distributed
-
-The random utility frame assumes an extreme-value distribution (Gumbel distribution) of the unknown random terms to fit this assumption. The difference of two Gumbel-distributed random variables has a logistic distribution, whose probability density function is the logistic function. The logistic function in the logit model implemented in this agent-based model calculates probability based on the difference of the two random utility
-
-The implementation of the logit model here in the agent-based model fits this condition, since the probability to 
-
-
-Since the logit model as formulated in the agent-based model uses the difference in the utility between the two options,
-
-
-(need of the exponential function), in the conditional logit through the Gumbel distribution,  in the 
-
-
-
-
-have in our model where th
-
-should be equivalent in representing a random utility model and what we need. They both are probabilities ranging from 0 to 1, the characteristic of the option regulates the probability to be selected, i.e. the utility derived from the alternative neighborhood.
-
-This link synthetizes: [logit_binary_choice, point C](https://en.wikipedia.org/wiki/Discrete_choice#A._Logit_with_attributes_of_the_person_but_no_attributes_of_the_alternatives)
-
-Here is the logistic function implemented in the model for the choice between current location and alternative location:
+Here is the logistic function implemented in the model for the choice between current location and alternative location and the two dimensions ethnic and value utility used:
 
 $$
 P_j=\frac{1}{1 + \exp((-ew\cdot k\times \Delta_{U_e})+(-vw\cdot k \times \Delta_{U_v}))}
@@ -429,15 +388,40 @@ Where:\par
 
 $P_j$ thus ranges from 0 = the agent remains in its current location, to 1 = the agent moves to the alternative location.
 
-
-
-which uses the conditioanl logit to calculate the probability to choose $\textit{j}$ ($P_j=\frac{\exp(U_{(xjyj)})}{\sum_{l}exp((U_{xl,yl}))}$). As I wrote and as I understand so far, for two options the calculation of probability according to the multinomial choice formulation and the logistic function for binary choice can be considered equivalent as they both will assure the $i.i.d$ distribution of the random term, which is the priority of random utility models.\\
-
-
-
-$k$ times ethnic weight $ew$ and $k$ times $vw$ substitute the parameters in random  utility for how important the ethnic composition and value composition are in the logistic function ($\lambda$ in $P_j=\frac{1}{1 + \exp(-\lambda\times \Delta_{U_e})+(-\lambda \times \Delta_{U_v}))}$ and $\beta_xe_j$ $\beta_yv_j$ in  $\textit{j}$ ($P_j=\frac{\exp(U_{(xjyj)})}{\sum_{l}exp((U_{xl,yl}))}$. My idea is that ethnic weight and value weight range from 0 to 1, whose value is too low causing random choices, by multiplying by a constant the ratio in the distribution point stay the same.\par
+$k$ times ethnic weight $ew$ and $k$ times $vw$ substitute the parameters in random  utility for how important the ethnic composition and value composition are in the logistic function. My idea is that ethnic weight and value weight range from 0 to 1, whose value is too low causing random choices, by multiplying by a constant the ratio in the distribution point stay the same.\par
 Below I report some graphs where I implement the logistic function as above tuning $k \cdot ew$ and $k \cdot vw$, checking if it would reproduce what expected from random utility models, I think it does. For parameters equal to 0, the probability to choose the alternative is $50%$ in all conditions. The best option is taken when parameters are increased, always $50%$ when the actual difference is 0. I tested some conditions considering the 2 types of utility (some would be not possible in the simulation if we keep $vw=1-ew$, but here was to see how it worked).\par
 On the x-axis is ethnic utility difference, on the y-axis the value utility difference. Each ranges from -1 (alternative = 0, current = 1), to 1 (alternative = 1, current = 0), with 0 = no difference between the options. I made up them out of possible conditions. For each condition (21x21= 441), the probability function is calculated using the logisticdunction above. Heatmaps in fig. \ref{fig:heatmaps}
+
+
+An alternative to the logit model is the multinomial choice model, which is a generalization of the binary model where the choice is between more than two options [@train2009discrete]. The probability to choose one option over the others is calculated according to the conditional logit model [@mcfadden1973conditional], depending on the characteristics of the options. Applied to utility maximization and random utility models [@mcfadden1973conditional;@van2009]:
+
+$P_j=\frac{\exp(U_j)}{\sum_{}exp((U_k))}$ 
+
+With utility calculated as above $\beta_ee_j + \beta_vv_j$ and $exp((U_k))$ the exponential function of the sum of all set of options
+
+$P_j=\frac{1}{1 + \exp((-\beta_e{(e_j-e_i)}) + (-\beta_v{(v_j-v_i)})}$ 
+
+
+$P_j=\frac{\exp(U_{(xj,yj)})}{\sum_{l}exp((U_{xl,yl}))}$    
+
+
+$P_j=\frac{1}{1 + \exp((-\beta_xe_j - \beta_xe_i)}$ 
+
+In Manski for probability to stay on current cell i$P_i=\frac{\exp(\beta_ee_j + \beta_vv_j)}{\exp(\beta_ee_j + \beta_vv_j) + \exp(\beta_ee_i + \beta_vv_i)}$
+
+$P_i=\frac{1}{1 + \exp((\beta_eUe_j + \beta_vUv_j) - (\beta_eUe_i + \beta_vUv_i))}$
+
+From here, in terms of two options, the probability of an agent to relocate from current node \textit{i} to alternative \textit{j}  becomes:
+
+$P_j=\frac{1}{1 + \exp((-\beta_e{(Ue_j-Ue_i)}) + (-\beta_v{(Uv_j-Uv_i)})}$ 
+
+I applied it to the beta distribution of ethnic weights and value weights
+
+
+To my understanding, the two forms to calculate probability with logit model (logistic function) or multinomial choice (conditional logit), would be equivalent in representing a random utility model, as long as the number of options is limited to 2. This is the case of our model where the choice of the agent is between the current location and an alternative location. Both guarantee that the probability computed is between 0 and 1, that the maximization of utility drives the  agent to choose one option over the other. Both model a systematic component of utility and a  random component. Both assume that the random term $\epsilon$ is independent and equally distributed among options (i.i.d.). This link synthetizes: [logit_binary_choice, point C](https://en.wikipedia.org/wiki/Discrete_choice#A._Logit_with_attributes_of_the_person_but_no_attributes_of_the_alternatives)
+
+The random utility frame assumes an extreme-value distribution (Gumbel distribution) of the unknown random terms to fit this assumption. The difference of two Gumbel-distributed random variables has a logistic distribution, whose probability density function is the logistic function. The logistic function in the logit model implemented in this agent-based model calculates probability based on the difference of the two random utility
+
 
 In the ANNEX of pdf is the sigmoid function for the logistic function, too long. Each vignette is one level of ethnic utility difference, the x-axis is the whole value utility difference range. You can manipulate $ew$, $vw$ and $k$ in the R code.
 
@@ -611,7 +595,7 @@ knitr::kable(report_E,align="c")
 
 e_w <- 0.2    # parameters to manipulate
 i_v <- 0.2   # Symmetric = S:1,M:0/Threshold = S:0
-S_v  <- 0
+S_v  <- 1
 
 fv0d2 <- f_val(e_w,0,i_v,S_v)             # value utility for each option, 
 fv1d2 <- f_val(e_w,0.1,i_v,S_v)           # increasing nuMber is average ethnic weight of neighborhood j
