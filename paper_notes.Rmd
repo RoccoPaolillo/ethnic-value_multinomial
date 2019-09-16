@@ -543,10 +543,10 @@ knitr::kable(report_one_run,align="c")
 # Choose parameters for desired ethnic similar proportion (i_e, float number), left-slope utility curve (S),right-slope utility curve (M),total number of agents in the neighborhood (n), then run (green arrow top-right).
 # The calculations are done for a max=8 neighbors (assuming we keep 8-patches Moore neighbor in NetLogo). Utility can be calculated with n > 8, but table row and x-axis graph will stop at 8.
 
-i_e = 0.8  # parameters to manipulate
+i_e = 0.5  # parameters to manipulate
 S = 1     # Symmetric single-peaked function: S=1,M=0
-M = 0    # Linear + Constant function = S=1,M=1
-n = 4     # Schelling Threshold function = S=0,M=1
+M = 0.5    # Linear + Constant function = S=1,M=1
+n = 8     # Schelling Threshold function = S=0,M=1
 
 f0m <- f_eth(i_e,M,0,n,S) # ethnic utility for each option, the increasing number is the number of agents of same ethnicity
 f1m <- f_eth(i_e,M,1,n,S)
