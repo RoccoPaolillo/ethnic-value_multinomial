@@ -40,7 +40,7 @@ to setup
        set color orange
         set shape ifelse-value (random 100 < circle_orange) ["circle"]["square"]
       ]
-      attribute_preferences
+    ;  attribute_preferences
       ]
     ]
   ]
@@ -50,39 +50,39 @@ to setup
   reset-ticks
 end
 
-to attribute_preferences                       ; preferences are the desired concentration of similar ethnicity or similar value. They can either be uniform or follow a beta distribution
+; to attribute_preferences                       ; preferences are the desired concentration of similar ethnicity or similar value. They can either be uniform or follow a beta distribution
                                                ; Desired ethnic composition and Desired value composition are independent distributions and depend on the value-orientation of the agent.
-  ifelse  shape = "square"  [
-    ifelse beta_distrib? [             ; beta distribution is activated wit the switch
+;  ifelse  shape = "square"  [
+;    ifelse beta_distrib? [             ; beta distribution is activated wit the switch
 
-      let x_e random-gamma alpha_i_e_sq 1     ; calculation of the beta distribution. First alpha parameter and beta parameter are calculated, then the ideal concentration.
-      let y_e random-gamma beta_i_e_sq 1      ; The process is repeated for ethnic concentration and value concentration.
-      let x_v random-gamma alpha_i_v_sq 1
-      let y_v random-gamma beta_i_v_sq 1
-      set i_e (x_e / (x_e + y_e))
-      set i_v (x_v / (x_v + y_v))
-    ]
-    [
-      set i_e i_e_sq
-      set i_v i_v_sq
-      ]
-  ][
-   ifelse beta_distrib? [              ; here the same commands for ethnic and value distribution of circle population
+ ;     let x_e random-gamma alpha_i_e_sq 1     ; calculation of the beta distribution. First alpha parameter and beta parameter are calculated, then the ideal concentration.
+ ;     let y_e random-gamma beta_i_e_sq 1      ; The process is repeated for ethnic concentration and value concentration.
+ ;     let x_v random-gamma alpha_i_v_sq 1
+;      let y_v random-gamma beta_i_v_sq 1
+ ;     set i_e (x_e / (x_e + y_e))
+ ;     set i_v (x_v / (x_v + y_v))
+;    ]
+ ;   [
+;      set i_e i_e_sq
+;      set i_v i_v_sq
+ ;     ]
+;  ][
+;   ifelse beta_distrib? [              ; here the same commands for ethnic and value distribution of circle population
+;;
+;      let x_e random-gamma alpha_i_e_cl 1
+;;      let y_e random-gamma beta_i_e_cl 1
+ ;     let x_v random-gamma alpha_i_v_cl 1
+ ;     let y_v random-gamma beta_i_v_cl 1
+;      set i_e (x_e / (x_e + y_e))
+;     set i_v (x_v / (x_v + y_v))
+;;    ]
+;    [
+;      set i_e i_e_cl
+ ;     set i_v i_v_cl
+;     ]
+;  ]
 
-      let x_e random-gamma alpha_i_e_cl 1
-      let y_e random-gamma beta_i_e_cl 1
-      let x_v random-gamma alpha_i_v_cl 1
-      let y_v random-gamma beta_i_v_cl 1
-      set i_e (x_e / (x_e + y_e))
-      set i_v (x_v / (x_v + y_v))
-    ]
-    [
-      set i_e i_e_cl
-      set i_v i_v_cl
-     ]
-  ]
-
-end
+; end
 
 to go
   update-turtles     ; updates of utility of turtles
@@ -96,15 +96,15 @@ end
 
 to move-turtles          ; choice for each turtle. The agent makes a patch-set combined of current location and an empty patch (the options)
 
-  ask turtles [
+  ask one-of turtles [
 
     let lambda-ie ifelse-value (shape = "square") [lambda-ie-sq][ lambda-ie-cl]   ; different lambdaas (ex betas) are specified, lambda-ie for ethnic composition
     let lambda-iv ifelse-value (shape = "square") [lambda-iv-sq][ lambda-iv-cl]   ; lambda-iv for value composition
 
    let ethnicity-myself ethnicity    ;  needed as local variable to be computed by the options of patch-set
    let shape-myself shape
-   let i_e-myself i_e
-   let i_v-myself i_v
+  ;  let i_e-myself ifelse-value (shape = "square") [i_e_sq] [i_e_cl]
+  ;  let i_v-myself ifelse-value (shape = "square") [i_v_sq][i_v_cl]
 
 
     let options (patch-set patch-here n-of num_alternative patches with [not any? turtles-here])    ; the list of options is made: made up of current node plus alternative empty nodes.
@@ -118,9 +118,8 @@ to move-turtles          ; choice for each turtle. The agent makes a patch-set c
 
       let n count (turtles-on neighbors)
 
-      set uti-eth utility xe n i_e-myself    ; value utility and ethnic utility of each option
-      set uti-val utility xv n i_v-myself
-
+      set uti-eth utility xe n    ; value utility and ethnic utility of each option
+      set uti-val utility xv n
     ]
 
     move-to rnd:weighted-one-of options [exp ((lambda-ie * (uti-eth)) + (lambda-iv * (uti-val)))]  ; roulette wheel: move to one option according to probability derived by expU,
@@ -140,8 +139,8 @@ to update-turtles                           ; updates of preferences of turtles
     set similar-ethnics (count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself])                              ; these are just to have reporters to check in the simulation
     set similar-value (count (turtles-on neighbors) with [shape = [shape] of myself])
     set total-neighbors (count turtles-on neighbors)
-    set ethnic-utility  ifelse-value (shape = "square") [utility similar-ethnics total-neighbors i_e_sq] [utility similar-ethnics total-neighbors i_e_cl]
-    set value-utility  ifelse-value (shape = "square") [utility  similar-value total-neighbors i_v_sq][utility similar-value total-neighbors i_v_cl]
+    set ethnic-utility  ifelse-value (shape = "square") [utility similar-ethnics total-neighbors ] [utility similar-ethnics total-neighbors ]
+    set value-utility  ifelse-value (shape = "square") [utility  similar-value total-neighbors ][utility similar-value total-neighbors ]
     set total-utility (ethnic-utility + value-utility)
 
   ]
@@ -157,37 +156,11 @@ to update-globals
 end
 
 
-to-report utility [a b f]  ; the three types of utility functions: threshold, single-peaked, linear + constant , a = concentration similar neighborhood, b = total number neighborhood, f = concentration preference
+to-report utility [a b]  ; the three types of utility functions: threshold, single-peaked, linear + constant , a = number similar neighborhood, b = total number neighborhood, f = concentration preference
 
-  if utility_function = "threshold"
-[ report ( ifelse-value (a >= (b * f))
-        [ 1 ][ 0 ]
+report ( ifelse-value (b = 0) [0]
+     [ precision (a / b)  3 ]
  )
-  ]
-
-
-if utility_function = "single-peaked"
-[ report ( ifelse-value (b = 0) [ifelse-value (f = 0) [1][0]]
-     [ifelse-value (a = (b * f)) [1]
-       [ifelse-value (a < (b * f))
-         [ precision (a / (b * f))  3
-         ][ precision ( f + ((1 -  (a / b)) * (1 - f)) / (1 - f)) 3 ]
-       ]
-     ]
- )
-  ]
-
-
-if utility_function = "linear-const"
-[ report ( ifelse-value (b = 0) [ifelse-value (f = 0) [1][0]]
-     [ifelse-value (a = (b * f)) [1]
-       [ifelse-value (a < (b * f))
-         [ precision (a / (b * f))  3
-         ][ 1 ]
-       ]
-     ]
- )
-  ]
 
 end
 @#$#@#$#@
@@ -342,10 +315,10 @@ NIL
 HORIZONTAL
 
 MONITOR
+274
+482
 336
-494
-398
-539
+527
 circle_blue
 count turtles with [shape = \"circle\" and ethnicity = \"local\"] / count turtles with [ethnicity = \"local\"]
 2
@@ -353,10 +326,10 @@ count turtles with [shape = \"circle\" and ethnicity = \"local\"] / count turtle
 11
 
 MONITOR
-402
-494
-474
-539
+340
+482
+412
+527
 square_bue
 count turtles with [shape = \"square\" and  ethnicity = \"local\"] / count turtles with [ethnicity = \"local\"]
 2
@@ -364,10 +337,10 @@ count turtles with [shape = \"square\" and  ethnicity = \"local\"] / count turtl
 11
 
 MONITOR
-479
-490
-559
-535
+417
+478
+497
+523
 circle_orange
 count turtles with [shape = \"circle\" and ethnicity = \"minority\"] / count turtles with [ethnicity = \"minority\"]
 2
@@ -375,10 +348,10 @@ count turtles with [shape = \"circle\" and ethnicity = \"minority\"] / count tur
 11
 
 MONITOR
-477
-538
-561
-583
+415
+526
+499
+571
 square_orange
 count turtles with [shape = \"square\" and ethnicity = \"minority\"] / count turtles with [ethnicity = \"minority\"]
 2
@@ -386,10 +359,10 @@ count turtles with [shape = \"square\" and ethnicity = \"minority\"] / count tur
 11
 
 MONITOR
-333
-537
-408
-582
+271
+525
+346
+570
 local/minority
 count turtles with [ethnicity = \"local\"] / count turtles
 2
@@ -397,10 +370,10 @@ count turtles with [ethnicity = \"local\"] / count turtles
 11
 
 MONITOR
-413
-539
-473
-584
+351
+527
+411
+572
 circle_%
 count turtles with [shape = \"circle\"] / count turtles
 2
@@ -451,36 +424,6 @@ PENS
 "uti-eth" 1.0 0 -2674135 true "" "plot mean [ethnic-utility] of turtles with [first shape = \"s\" and ethnicity = \"local\"]"
 "uti-val" 1.0 0 -13345367 true "" "plot mean [value-utility] of turtles with [first shape = \"s\" and ethnicity = \"local\"]"
 
-SLIDER
-0
-184
-118
-217
-i_e_sq
-i_e_sq
-0
-1
-1.0
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-122
-184
-238
-217
-i_v_sq
-i_v_sq
-0
-1
-1.0
-0.1
-1
-NIL
-HORIZONTAL
-
 PLOT
 994
 10
@@ -502,36 +445,6 @@ PENS
 "uti-eth" 1.0 0 -2674135 true "" "plot mean [ethnic-utility] of turtles with [first shape = \"s\" and ethnicity = \"minority\"]"
 "uti-val" 1.0 0 -13345367 true "" "plot mean [value-utility] of turtles with [first shape = \"s\" and ethnicity = \"minority\"]"
 "density" 1.0 0 -7500403 true "" "plot mean [count (turtles-on neighbors)] of turtles with [first shape = \"s\" and ethnicity = \"minority\"] / 8"
-
-SLIDER
-1
-294
-116
-327
-i_e_cl
-i_e_cl
-0
-1
-1.0
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-125
-293
-233
-326
-i_v_cl
-i_v_cl
-0
-1
-1.0
-0.1
-1
-NIL
-HORIZONTAL
 
 PLOT
 996
@@ -574,36 +487,6 @@ PENS
 "uti-eth" 1.0 0 -2674135 true "" "plot mean [ethnic-utility] of turtles"
 "uti-val" 1.0 0 -13345367 true "" "plot mean [value-utility] of turtles"
 "uti-tot" 1.0 0 -7500403 true "" "plot mean [total-utility] of turtles"
-
-TEXTBOX
-80
-157
-175
-175
-squared population
-11
-0.0
-1
-
-TEXTBOX
-78
-267
-160
-285
-circle population
-11
-0.0
-1
-
-CHOOSER
-576
-566
-714
-611
-utility_function
-utility_function
-"threshold" "single-peaked" "linear-const"
-1
 
 MONITOR
 1228
@@ -870,150 +753,19 @@ mean [value-utility] of turtles
 11
 
 SLIDER
-4
-225
-110
-258
+9
+418
+115
+451
 lambda-ie-sq
 lambda-ie-sq
 0
 100
-9.0
+5.0
 1
 1
 NIL
 HORIZONTAL
-
-SLIDER
-134
-445
-249
-478
-alpha_i_v_sq
-alpha_i_v_sq
-0.01
-10
-0.8
-0.01
-1
-NIL
-HORIZONTAL
-
-SLIDER
-131
-484
-246
-517
-beta_i_v_sq
-beta_i_v_sq
-0.01
-10
-0.5
-0.01
-1
-NIL
-HORIZONTAL
-
-SLIDER
-6
-447
-125
-480
-alpha_i_e_sq
-alpha_i_e_sq
-0.01
-10
-0.7
-0.01
-1
-NIL
-HORIZONTAL
-
-SLIDER
-5
-484
-124
-517
-beta_i_e_sq
-beta_i_e_sq
-0.01
-10
-0.2
-0.01
-1
-NIL
-HORIZONTAL
-
-SLIDER
-134
-526
-246
-559
-alpha_i_v_cl
-alpha_i_v_cl
-0.01
-10
-0.8
-0.01
-1
-NIL
-HORIZONTAL
-
-SLIDER
-133
-562
-245
-595
-beta_i_v_cl
-beta_i_v_cl
-0.01
-10
-3.0
-0.01
-1
-NIL
-HORIZONTAL
-
-SLIDER
-8
-525
-124
-558
-alpha_i_e_cl
-alpha_i_e_cl
-0.01
-10
-0.6
-0.01
-1
-NIL
-HORIZONTAL
-
-SLIDER
-8
-563
-124
-596
-beta_i_e_cl
-beta_i_e_cl
-0.01
-10
-0.5
-0.01
-1
-NIL
-HORIZONTAL
-
-SWITCH
-52
-402
-225
-435
-beta_distrib?
-beta_distrib?
-1
-1
--1000
 
 PLOT
 722
@@ -1157,42 +909,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-124
-224
-243
-257
+3
+492
+122
+525
 lambda-iv-sq
 lambda-iv-sq
-0
-100
-8.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-0
-338
-115
-371
-lambda-ie-cl
-lambda-ie-cl
-0
-100
-55.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-125
-336
-231
-369
-lambda-iv-cl
-lambda-iv-cl
 0
 100
 54.0
@@ -1200,6 +922,219 @@ lambda-iv-cl
 1
 NIL
 HORIZONTAL
+
+SLIDER
+6
+456
+112
+489
+lambda-ie-cl
+lambda-ie-cl
+0
+100
+7.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+4
+528
+121
+561
+lambda-iv-cl
+lambda-iv-cl
+0
+100
+7.0
+1
+1
+NIL
+HORIZONTAL
+
+SWITCH
+63
+141
+162
+174
+population
+population
+1
+1
+-1000
+
+SLIDER
+27
+191
+119
+224
+s
+s
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+127
+192
+219
+225
+d
+d
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
+
+SWITCH
+75
+244
+203
+277
+ethnic_group
+ethnic_group
+1
+1
+-1000
+
+SLIDER
+5
+290
+106
+323
+lambda-ie-loc
+lambda-ie-loc
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+5
+327
+106
+360
+lambda-iv-loc
+lambda-iv-loc
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+121
+291
+238
+324
+lambda-ie-min
+lambda-ie-min
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+122
+328
+238
+361
+lambda-iv-min
+lambda-iv-min
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+145
+421
+246
+454
+e-loc-sq
+e-loc-sq
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+144
+461
+248
+494
+e-min
+e-min
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+142
+498
+239
+531
+v-loc
+v-loc
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+141
+532
+239
+565
+v-min
+v-min
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
+
+SWITCH
+72
+374
+180
+407
+subgroup
+subgroup
+1
+1
+-1000
 
 @#$#@#$#@
 ## EXTENSION TO RND
