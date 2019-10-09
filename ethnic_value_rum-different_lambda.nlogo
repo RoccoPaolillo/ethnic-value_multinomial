@@ -50,39 +50,6 @@ to setup
   reset-ticks
 end
 
-; to attribute_preferences                       ; preferences are the desired concentration of similar ethnicity or similar value. They can either be uniform or follow a beta distribution
-                                               ; Desired ethnic composition and Desired value composition are independent distributions and depend on the value-orientation of the agent.
-;  ifelse  shape = "square"  [
-;    ifelse beta_distrib? [             ; beta distribution is activated wit the switch
-
- ;     let x_e random-gamma alpha_i_e_sq 1     ; calculation of the beta distribution. First alpha parameter and beta parameter are calculated, then the ideal concentration.
- ;     let y_e random-gamma beta_i_e_sq 1      ; The process is repeated for ethnic concentration and value concentration.
- ;     let x_v random-gamma alpha_i_v_sq 1
-;      let y_v random-gamma beta_i_v_sq 1
- ;     set i_e (x_e / (x_e + y_e))
- ;     set i_v (x_v / (x_v + y_v))
-;    ]
- ;   [
-;      set i_e i_e_sq
-;      set i_v i_v_sq
- ;     ]
-;  ][
-;   ifelse beta_distrib? [              ; here the same commands for ethnic and value distribution of circle population
-;;
-;      let x_e random-gamma alpha_i_e_cl 1
-;;      let y_e random-gamma beta_i_e_cl 1
- ;     let x_v random-gamma alpha_i_v_cl 1
- ;     let y_v random-gamma beta_i_v_cl 1
-;      set i_e (x_e / (x_e + y_e))
-;     set i_v (x_v / (x_v + y_v))
-;;    ]
-;    [
-;      set i_e i_e_cl
- ;     set i_v i_v_cl
-;     ]
-;  ]
-
-; end
 
 to go
   update-turtles     ; updates of utility of turtles
@@ -96,10 +63,12 @@ end
 
 to move-turtles          ; choice for each turtle. The agent makes a patch-set combined of current location and an empty patch (the options)
 
-  ask one-of turtles [
+  ask turtles [
 
-    let lambda-ie ifelse-value (shape = "square") [lambda-ie-sq][ lambda-ie-cl]   ; different lambdaas (ex betas) are specified, lambda-ie for ethnic composition
-    let lambda-iv ifelse-value (shape = "square") [lambda-iv-sq][ lambda-iv-cl]   ; lambda-iv for value composition
+    let lambda-ie ifelse-value (ethnicity = "local") [ifelse-value (shape = "square") [e_blue_sqr][e_blue_crl]] [ifelse-value (shape = "square")[e_orng_sqr][e_orng_crl]]         ; [lambda-ie-sq][ lambda-ie-cl]   ; different lambdaas (ex betas) are specified, lambda-ie for ethnic composition
+     let lambda-iv ifelse-value (ethnicity = "local") [ifelse-value (shape = "square") [v_blue_sqr][v_blue_crl]] [ifelse-value (shape = "square")[v_orng_sqr][v_orng_crl]]         ; [lambda-ie-sq][ lambda-ie-cl]   ; different lambdaas (ex betas) are specified, lambda-ie for ethnic composition
+
+;    let lambda-iv ifelse-value (shape = "square") ; [lambda-iv-sq][ lambda-iv-cl]   ; lambda-iv for value composition
 
    let ethnicity-myself ethnicity    ;  needed as local variable to be computed by the options of patch-set
    let shape-myself shape
@@ -266,7 +235,7 @@ NIL
 0.0
 10.0
 0.0
-1.0
+101.0
 true
 true
 "" ""
@@ -753,151 +722,25 @@ mean [value-utility] of turtles
 11
 
 SLIDER
-9
-418
-115
-451
+969
+521
+1087
+554
 lambda-ie-sq
 lambda-ie-sq
 0
 100
-5.0
+100.0
 1
 1
 NIL
 HORIZONTAL
 
-PLOT
-722
-465
-978
-615
-desired_proportion_square
-NIL
-NIL
-0.0
-1.1
-0.0
-1.0
-true
-true
-"" ""
-PENS
-"eth" 1.0 1 -2674135 true "" "set-histogram-num-bars 100\nhistogram [i_e] of  turtles with [shape = \"square\"]"
-"val" 1.0 1 -13345367 true "" "set-histogram-num-bars 100\nhistogram [i_v] of  turtles with [shape = \"square\"]"
-
-PLOT
-996
-465
-1232
-615
-desired_proportion_circle
-NIL
-NIL
-0.0
-1.1
-0.0
-10.0
-true
-true
-"" ""
-PENS
-"eth" 1.0 1 -2674135 true "" "set-histogram-num-bars 100\nhistogram [i_e] of  turtles with [shape = \"circle\"]"
-"val" 1.0 1 -13345367 true "" "set-histogram-num-bars 100\nhistogram [i_v] of  turtles with [shape = \"circle\"]"
-
-MONITOR
-1235
-468
-1303
-513
-mu_eth_sqr
-mean [i_e] of turtles with [shape = \"square\"]
-4
-1
-11
-
-MONITOR
-1306
-468
-1373
-513
-sd_eth_sqr
-standard-deviation [i_e] of turtles with [shape = \"square\"]
-4
-1
-11
-
-MONITOR
-1235
-516
-1304
-561
-mu_eth_crl
-mean [i_e] of turtles with [shape = \"circle\"]
-4
-1
-11
-
-MONITOR
-1306
-516
-1374
-561
-sd_eth_crl
-standard-deviation [i_e] of turtles with [shape = \"circle\"]
-4
-1
-11
-
-MONITOR
-1374
-468
-1441
-513
-mu_val_sqr
-mean [i_v] of turtles with [shape = \"square\"]
-4
-1
-11
-
-MONITOR
-1444
-468
-1507
-513
-sd_val_sqr
-standard-deviation [i_v] of turtles with [shape = \"square\"]
-4
-1
-11
-
-MONITOR
-1376
-517
-1440
-562
-mu_val_crl
-mean [i_v] of turtles  with [shape = \"circle\"]
-4
-1
-11
-
-MONITOR
-1445
-516
-1504
-561
-sd_val_crl
-standard-deviation [i_v] of turtles with [shape = \"circle\"]
-4
-1
-11
-
 SLIDER
-579
-529
-714
-562
+72
+540
+207
+573
 num_alternative
 num_alternative
 1
@@ -909,199 +752,162 @@ NIL
 HORIZONTAL
 
 SLIDER
-3
-492
-122
-525
+1095
+487
+1214
+520
 lambda-iv-sq
 lambda-iv-sq
 0
 100
-54.0
+48.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-6
-456
-112
-489
+969
+486
+1090
+519
 lambda-ie-cl
 lambda-ie-cl
 0
 100
-7.0
+100.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-4
-528
-121
-561
+1095
+524
+1212
+557
 lambda-iv-cl
 lambda-iv-cl
 0
 100
-7.0
+49.0
 1
 1
 NIL
 HORIZONTAL
 
-SWITCH
-63
+SLIDER
+49
+251
 141
-162
-174
-population
-population
-1
-1
--1000
-
-SLIDER
-27
-191
-119
-224
-s
-s
+284
+e_blue_sqr
+e_blue_sqr
 0
 100
-50.0
+55.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-127
-192
-219
-225
-d
-d
+51
+441
+143
+474
+v_blue_crl
+v_blue_crl
 0
 100
-50.0
-1
-1
-NIL
-HORIZONTAL
-
-SWITCH
-75
-244
-203
-277
-ethnic_group
-ethnic_group
-1
-1
--1000
-
-SLIDER
-5
-290
-106
-323
-lambda-ie-loc
-lambda-ie-loc
-0
-100
-50.0
+1.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-5
-327
-106
-360
-lambda-iv-loc
-lambda-iv-loc
+49
+287
+141
+320
+e_blue_crl
+e_blue_crl
 0
 100
-50.0
+55.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-121
-291
-238
-324
-lambda-ie-min
-lambda-ie-min
-0
-100
-50.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-122
-328
-238
-361
-lambda-iv-min
-lambda-iv-min
-0
-100
-50.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-145
-421
-246
-454
-e-loc-sq
-e-loc-sq
-0
-100
-50.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-144
-461
-248
-494
-e-min
-e-min
-0
-100
-50.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
+50
+406
 142
-498
-239
-531
-v-loc
-v-loc
+439
+v_blue_sqr
+v_blue_sqr
+0
+100
+1.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+146
+251
+242
+284
+e_orng_sqr
+e_orng_sqr
+0
+100
+55.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+146
+288
+241
+321
+e_orng_crl
+e_orng_crl
+0
+100
+55.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+60
+161
+219
+194
+similar_wanted
+similar_wanted
+0
+1
+1.0
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1009
+581
+1107
+614
+v-min
+v-min
 0
 100
 50.0
@@ -1111,30 +917,124 @@ NIL
 HORIZONTAL
 
 SLIDER
-141
-532
-239
-565
-v-min
-v-min
+148
+443
+244
+476
+v_orng_crl
+v_orng_crl
 0
 100
-50.0
+1.0
 1
 1
 NIL
 HORIZONTAL
 
-SWITCH
-72
-374
-180
+SLIDER
+148
 407
-subgroup
-subgroup
+243
+440
+v_orng_sqr
+v_orng_sqr
+0
+100
+1.0
 1
 1
--1000
+NIL
+HORIZONTAL
+
+TEXTBOX
+115
+227
+182
+245
+beta_ethnic
+11
+0.0
+1
+
+TEXTBOX
+115
+381
+173
+399
+beta_value
+11
+0.0
+1
+
+TEXTBOX
+36
+246
+51
+330
+↓\n↓\n↓\n↓\n↓\n↓
+11
+0.0
+1
+
+TEXTBOX
+5
+267
+37
+302
+ethnic group
+11
+0.0
+1
+
+TEXTBOX
+951
+559
+1144
+577
+—————————————————→
+11
+0.0
+1
+
+TEXTBOX
+80
+327
+211
+359
+→→→→→→→→→→→\n         value group
+11
+0.0
+1
+
+TEXTBOX
+38
+399
+53
+483
+↓\n↓\n↓\n↓\n↓\n↓
+11
+0.0
+1
+
+TEXTBOX
+7
+415
+41
+447
+ethnic group
+11
+0.0
+1
+
+TEXTBOX
+78
+482
+205
+510
+→→→→→→→→→→→\n         value group
+11
+0.0
+1
 
 @#$#@#$#@
 ## EXTENSION TO RND
