@@ -87,8 +87,8 @@ to move-turtles          ; choice for each turtle. The agent makes a patch-set c
 
       let n count (turtles-on neighbors)
 
-      set uti-eth utility xe n    ; value utility and ethnic utility of each option
-      set uti-val utility xv n
+      set uti-eth utility xe n similar_wanted_ethnic   ; value utility and ethnic utility of each option
+      set uti-val utility xv n similar_wanted_value
     ]
 
     move-to rnd:weighted-one-of options [exp ((lambda-ie * (uti-eth)) + (lambda-iv * (uti-val)))]  ; roulette wheel: move to one option according to probability derived by expU,
@@ -108,8 +108,8 @@ to update-turtles                           ; updates of preferences of turtles
     set similar-ethnics (count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself])                              ; these are just to have reporters to check in the simulation
     set similar-value (count (turtles-on neighbors) with [shape = [shape] of myself])
     set total-neighbors (count turtles-on neighbors)
-    set ethnic-utility  ifelse-value (shape = "square") [utility similar-ethnics total-neighbors ] [utility similar-ethnics total-neighbors ]
-    set value-utility  ifelse-value (shape = "square") [utility  similar-value total-neighbors ][utility similar-value total-neighbors ]
+    set ethnic-utility  utility similar-ethnics total-neighbors similar_wanted_ethnic
+    set value-utility  utility  similar-value total-neighbors similar_wanted_value
     set total-utility (ethnic-utility + value-utility)
 
   ]
@@ -125,11 +125,18 @@ to update-globals
 end
 
 
-to-report utility [a b]  ; the three types of utility functions: threshold, single-peaked, linear + constant , a = number similar neighborhood, b = total number neighborhood, f = concentration preference
+to-report utility [a b f]  ; the three types of utility functions: threshold, single-peaked, linear + constant , a = number similar neighborhood, b = total number neighborhood, f = concentration preference
 
 report ( ifelse-value (b = 0) [0]
-     [ precision (a / b)  3 ]
- )
+    [ ifelse-value (a = (b * f)) [1]
+      [ifelse-value (a < (b * f))
+      [precision (a / (b * f)) 3
+        ][ precision (f + ((1 - (a / b)) * (1 - f)) / (1 - f)) 3]
+      ]
+    ]
+    )
+
+
 
 end
 @#$#@#$#@
@@ -737,10 +744,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-72
-540
-207
-573
+60
+547
+195
+580
 num_alternative
 num_alternative
 1
@@ -797,30 +804,45 @@ NIL
 HORIZONTAL
 
 SLIDER
-49
-251
-141
-284
+48
+268
+140
+301
 e_blue_sqr
 e_blue_sqr
 0
 100
-55.0
+100.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-51
-441
-143
-474
+48
+463
+140
+496
 v_blue_crl
 v_blue_crl
 0
 100
-1.0
+0.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+47
+310
+139
+343
+e_blue_crl
+e_blue_crl
+0
+100
+0.0
 1
 1
 NIL
@@ -828,71 +850,56 @@ HORIZONTAL
 
 SLIDER
 49
-287
+423
 141
-320
-e_blue_crl
-e_blue_crl
-0
-100
-55.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-50
-406
-142
-439
+456
 v_blue_sqr
 v_blue_sqr
 0
 100
-1.0
+0.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-146
-251
-242
-284
-e_orng_sqr
-e_orng_sqr
-0
-100
-55.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-146
-288
+145
+268
 241
-321
-e_orng_crl
-e_orng_crl
+301
+e_orng_sqr
+e_orng_sqr
 0
 100
-55.0
+100.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-60
-161
-219
-194
-similar_wanted
-similar_wanted
+145
+312
+240
+345
+e_orng_crl
+e_orng_crl
+0
+100
+0.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+62
+150
+214
+183
+similar_wanted_ethnic
+similar_wanted_ethnic
 0
 1
 1.0
@@ -917,70 +924,70 @@ NIL
 HORIZONTAL
 
 SLIDER
-148
-443
-244
-476
+147
+464
+242
+497
 v_orng_crl
 v_orng_crl
 0
 100
-1.0
+0.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-148
-407
-243
-440
+147
+424
+242
+457
 v_orng_sqr
 v_orng_sqr
 0
 100
-1.0
+0.0
 1
 1
 NIL
 HORIZONTAL
 
 TEXTBOX
-115
-227
-182
-245
+114
+244
+181
+262
 beta_ethnic
 11
 0.0
 1
 
 TEXTBOX
-115
-381
-173
-399
+114
+398
+172
+416
 beta_value
 11
 0.0
 1
 
 TEXTBOX
-36
-246
-51
-330
+35
+264
+50
+348
 ↓\n↓\n↓\n↓\n↓\n↓
 11
 0.0
 1
 
 TEXTBOX
-5
-267
-37
-302
+4
+285
+36
+320
 ethnic group
 11
 0.0
@@ -997,44 +1004,59 @@ TEXTBOX
 1
 
 TEXTBOX
-80
-327
-211
-359
+78
+356
+209
+388
 →→→→→→→→→→→\n         value group
 11
 0.0
 1
 
 TEXTBOX
-38
-399
-53
-483
+37
+417
+52
+501
 ↓\n↓\n↓\n↓\n↓\n↓
 11
 0.0
 1
 
 TEXTBOX
-7
-415
-41
-447
+5
+445
+39
+477
 ethnic group
 11
 0.0
 1
 
 TEXTBOX
-78
-482
-205
-510
+74
+502
+201
+532
 →→→→→→→→→→→\n         value group
 11
 0.0
 1
+
+SLIDER
+63
+186
+212
+219
+similar_wanted_value
+similar_wanted_value
+0
+1
+1.0
+0.1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## EXTENSION TO RND
