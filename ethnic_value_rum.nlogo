@@ -131,7 +131,7 @@ report ( ifelse-value (b = 0) [0]               ; empty neighborhoods (total num
     ]
     )
 
-end
+end    ; single-peaked function for desired concentration, same as INFO: https://docs.google.com/document/d/1ohT817vJSuf6gCnpiea6OB6wLsMYcJrOnC7nBRzLr9M/edit?usp=sharing
 @#$#@#$#@
 GRAPHICS-WINDOW
 253
