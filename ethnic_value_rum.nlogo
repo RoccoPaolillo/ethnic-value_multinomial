@@ -906,7 +906,7 @@ TEXTBOX
 279
 37
 314
-ethnic group
+value group
 11
 0.0
 1
@@ -916,7 +916,7 @@ TEXTBOX
 347
 179
 379
-→→→→→→→→→→→\n         value group
+→→→→→→→→→→→\n         ethnic group
 11
 0.0
 1
@@ -936,7 +936,7 @@ TEXTBOX
 436
 39
 468
-ethnic group
+value group
 11
 0.0
 1
@@ -946,7 +946,7 @@ TEXTBOX
 494
 177
 524
-→→→→→→→→→→→\n         value group
+→→→→→→→→→→→\n         ethnic group
 11
 0.0
 1
@@ -1046,8 +1046,8 @@ https://docs.google.com/document/d/1ohT817vJSuf6gCnpiea6OB6wLsMYcJrOnC7nBRzLr9M/
 
 Distribution_beta_ethnic and Distribution_beta_value:
 Beta parameters. They are independent for the ethnic dimension and value dimension of utility. Uniformly distributed at local level of turtles depending on their ethnicity (color) and value orientation (shape). The interface shows how to combine their uniform distribution:
-- according to ethnicity on y-axis
-- according to value on the x-axis
+- according to ethnicity on x-axis
+- according to value on the y-axis
 - all population: all four betas for that dimension equal
 
 Number of alternative
