@@ -365,11 +365,11 @@ true
 true
 "" ""
 PENS
-"ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and first shape = \"c\" and ethnicity = \"local\"]"
-"value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and first shape = \"c\" and ethnicity = \"local\"]"
-"density" 1.0 0 -7500403 true "" "plot mean [count (turtles-on neighbors)] of turtles with [first shape = \"c\" and ethnicity = \"local\"] / 8"
-"uti-eth" 1.0 0 -2674135 true "" "plot mean [ethnic-utility] of turtles with [first shape = \"c\" and ethnicity = \"local\"]"
-"uti-val" 1.0 0 -13345367 true "" "plot mean [value-utility] of turtles with [first shape = \"c\" and ethnicity = \"local\"]"
+"ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and ethnicity = \"local\"]"
+"value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and ethnicity = \"local\"]"
+"density" 1.0 0 -7500403 true "" "plot mean [count (turtles-on neighbors)] of turtles with [shape = \"circle\" and ethnicity = \"local\"] / 8"
+"uti-eth" 1.0 0 -2674135 true "" "plot mean [ethnic-utility] of turtles with [shape = \"circle\"  and ethnicity = \"local\"]"
+"uti-val" 1.0 0 -13345367 true "" "plot mean [value-utility] of turtles with [shape = \"circle\"  and ethnicity = \"local\"]"
 
 PLOT
 721
@@ -387,11 +387,11 @@ true
 true
 "" ""
 PENS
-"ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and first shape = \"s\" and ethnicity = \"local\"]"
-"value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [first shape = [first shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and first shape = \"s\"  and ethnicity = \"local\"]"
-"dennsity" 1.0 0 -7500403 true "" "plot mean [count (turtles-on neighbors)] of turtles with [first shape = \"s\" and ethnicity = \"local\"] / 8"
-"uti-eth" 1.0 0 -2674135 true "" "plot mean [ethnic-utility] of turtles with [first shape = \"s\" and ethnicity = \"local\"]"
-"uti-val" 1.0 0 -13345367 true "" "plot mean [value-utility] of turtles with [first shape = \"s\" and ethnicity = \"local\"]"
+"ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and ethnicity = \"local\"]"
+"value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [ shape = [ shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and ethnicity = \"local\"]"
+"dennsity" 1.0 0 -7500403 true "" "plot mean [count (turtles-on neighbors)] of turtles with [shape = \"square\" and ethnicity = \"local\"] / 8"
+"uti-eth" 1.0 0 -2674135 true "" "plot mean [ethnic-utility] of turtles with [shape = \"square\" and ethnicity = \"local\"]"
+"uti-val" 1.0 0 -13345367 true "" "plot mean [value-utility] of turtles with [shape = \"square\" and ethnicity = \"local\"]"
 
 PLOT
 994
@@ -409,11 +409,11 @@ true
 true
 "" ""
 PENS
-"eth" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and first shape = \"s\" and ethnicity = \"minority\"]"
-"val" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and first shape = \"s\" and ethnicity = \"minority\"]"
-"uti-eth" 1.0 0 -2674135 true "" "plot mean [ethnic-utility] of turtles with [first shape = \"s\" and ethnicity = \"minority\"]"
-"uti-val" 1.0 0 -13345367 true "" "plot mean [value-utility] of turtles with [first shape = \"s\" and ethnicity = \"minority\"]"
-"density" 1.0 0 -7500403 true "" "plot mean [count (turtles-on neighbors)] of turtles with [first shape = \"s\" and ethnicity = \"minority\"] / 8"
+"eth" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and ethnicity = \"minority\"]"
+"val" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and ethnicity = \"minority\"]"
+"density" 1.0 0 -7500403 true "" "plot mean [count (turtles-on neighbors)] of turtles with [shape = \"square\" and ethnicity = \"minority\"] / 8"
+"uti-eth" 1.0 0 -2674135 true "" "plot mean [ethnic-utility] of turtles with [shape = \"square\" and ethnicity = \"minority\"]"
+"uti-val" 1.0 0 -13345367 true "" "plot mean [value-utility] of turtles with [shape = \"square\" and ethnicity = \"minority\"]"
 
 PLOT
 996
@@ -431,11 +431,11 @@ true
 true
 "" ""
 PENS
-"ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and first shape = \"c\" and ethnicity = \"minority\"]"
-"value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and first shape = \"c\" and ethnicity = \"minority\"]"
-"density" 1.0 0 -7500403 true "" "plot mean [count (turtles-on neighbors)] of turtles with [first shape = \"c\" and ethnicity = \"minority\"] / 8"
-"uti-eth" 1.0 0 -2674135 true "" "plot mean [ethnic-utility] of turtles with [ first shape = \"c\" and ethnicity = \"minority\"]"
-"val-eth" 1.0 0 -13345367 true "" "plot mean [value-utility] of turtles with [first shape = \"c\" and ethnicity = \"minority\"]"
+"ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and ethnicity = \"minority\"]"
+"value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and  shape = \"circle\"  and ethnicity = \"minority\"]"
+"density" 1.0 0 -7500403 true "" "plot mean [count (turtles-on neighbors)] of turtles with [ shape = \"circle\"  and ethnicity = \"minority\"] / 8"
+"uti-eth" 1.0 0 -2674135 true "" "plot mean [ethnic-utility] of turtles with [  shape = \"circle\"  and ethnicity = \"minority\"]"
+"val-eth" 1.0 0 -13345367 true "" "plot mean [value-utility] of turtles with [ shape = \"circle\"  and ethnicity = \"minority\"]"
 
 PLOT
 996
