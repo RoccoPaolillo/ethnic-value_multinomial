@@ -126,7 +126,7 @@ report ( ifelse-value (b = 0) [0]               ; empty neighborhoods (total num
     [ ifelse-value (a = (b * c)) [1]            ; to avoid problems when desired concentration is 0. Maximum utility is 1, i.e. concentration of similar ones is the same of desired concentration
       [ifelse-value (a < (b * c))
       [precision (a / (b * c)) 3                 ; for concentration of similars below the desired concentration
-        ][ precision (c + ((1 - (a / b)) * (1 - c)) / (1 - c)) 3]     ; for concentration above the desired concentration.
+        ][ precision (c + (((1 - (a / b)) * (1 - c)) / (1 - c))) 3]     ; for concentration above the desired concentration.
       ]
     ]
     )
@@ -176,9 +176,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-100
+101
 49
-222
+223
 82
 fraction_blue
 fraction_blue
@@ -745,7 +745,7 @@ e_blue_sqr
 e_blue_sqr
 0
 100
-0.0
+4.0
 1
 1
 NIL
@@ -760,7 +760,7 @@ v_blue_crl
 v_blue_crl
 0
 100
-0.0
+4.0
 1
 1
 NIL
@@ -775,7 +775,7 @@ e_blue_crl
 e_blue_crl
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -790,7 +790,7 @@ v_blue_sqr
 v_blue_sqr
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -805,7 +805,7 @@ e_orng_sqr
 e_orng_sqr
 0
 100
-0.0
+4.0
 1
 1
 NIL
@@ -820,7 +820,7 @@ e_orng_crl
 e_orng_crl
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -835,7 +835,7 @@ similar_wanted_ethnic
 similar_wanted_ethnic
 0
 1
-0.0
+1.0
 0.1
 1
 NIL
@@ -850,7 +850,7 @@ v_orng_crl
 v_orng_crl
 0
 100
-0.0
+4.0
 1
 1
 NIL
@@ -865,7 +865,7 @@ v_orng_sqr
 v_orng_sqr
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -960,7 +960,7 @@ similar_wanted_value
 similar_wanted_value
 0
 1
-0.0
+1.0
 0.1
 1
 NIL
@@ -995,6 +995,28 @@ desired concentration
 11
 0.0
 1
+
+MONITOR
+571
+543
+652
+588
+prop_minority
+count turtles with [ethnicity = \"minority\"] / count turtles
+2
+1
+11
+
+MONITOR
+675
+545
+745
+590
+prop_local
+count turtles with [ethnicity = \"local\"] / count turtles
+2
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
