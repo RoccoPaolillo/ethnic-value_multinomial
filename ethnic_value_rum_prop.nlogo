@@ -21,6 +21,8 @@ similar-ethnics
   total-utility
   i_e
   i_v
+  beta-ie
+  beta-iv
 ]
 
 to setup
@@ -40,23 +42,30 @@ to setup
        set color orange
         set shape ifelse-value (random 100 < circle_orange) ["circle"]["square"]
       ]
-    ;  attribute_preferences
+
       ]
+
+
+
     ]
   ]
  update-turtles
  update-globals
+
  ; random-seed new-seed
   reset-ticks
 end
+
 
 
 to go
   update-turtles     ; updates of utility of turtles
   move-turtles       ; relocation decision of turtles
   update-globals     ; global reportes
+
 tick
 end
+
 
 
 
@@ -65,12 +74,20 @@ to move-turtles          ; choice for each turtle. The agent makes a patch-set c
 
   ask turtles [
 
-    let beta-ie ifelse-value (ethnicity = "local") [ifelse-value (shape = "square") [e_blue_sqr][e_blue_crl]] [ifelse-value (shape = "square")[e_orng_sqr][e_orng_crl]]
-    let beta-iv ifelse-value (ethnicity = "local") [ifelse-value (shape = "square") [v_blue_sqr][v_blue_crl]] [ifelse-value (shape = "square")[v_orng_sqr][v_orng_crl]]
+
+ ;   let beta-ie ifelse-value (ethnicity = "local") [ifelse-value (shape = "square") [e_blue_sqr][v_blue_crl * val_sqr]] [ifelse-value (shape = "square")[e_orng_sqr][v_orng_crl * val_sqr]]
+ ;   let beta-iv ifelse-value (ethnicity = "local") [ifelse-value (shape = "square") [v_blue_sqr][v_blue_crl]] [ifelse-value (shape = "square")[v_orng_sqr][v_orng_crl]]
+
+
+   ; let beta-ie ifelse-value (ethnicity = "local") [ifelse-value (shape = "square") [e_blue_sqr][e_blue_crl]] [ifelse-value (shape = "square")[e_orng_sqr][e_orng_crl]]
+
+
 
    let ethnicity-myself ethnicity    ;  needed as local variable to be computed by the options of patch-set
    let shape-myself shape
 
+    let beta-ie-myself beta-ie
+    let beta-iv-myself beta-iv
 
     let options (patch-set patch-here n-of num_alternative patches with [not any? turtles-here])    ; the list of options is made: made up of current node plus alternative empty nodes.
                                                                                                     ; number of alternatives to current location can be set with num_alternative
@@ -87,7 +104,7 @@ to move-turtles          ; choice for each turtle. The agent makes a patch-set c
       set uti-val utility xv n similar_wanted_value
     ]
 
-    move-to rnd:weighted-one-of options [exp ((beta-ie * (uti-eth)) + (beta-iv * (uti-val)))]  ; roulette wheel: move to one option according to probability derived by expU,
+    move-to rnd:weighted-one-of options [exp ((beta-ie-myself * (uti-eth)) + (beta-iv-myself * (uti-val)))]  ; roulette wheel: move to one option according to probability derived by expU,
                                                                                                    ; U of each dimension = beta_ethnic*ethnic_utility + beta_value*value_utility
                                                                                                    ; RND roulette-wheel: sorts the options to move to according to expU/Sum(expU)
 
@@ -96,9 +113,13 @@ to move-turtles          ; choice for each turtle. The agent makes a patch-set c
 
 end
 
+
 to update-turtles                           ; updates of preferences of turtles
 
   ask turtles[
+
+    set beta-ie ifelse-value (ethnicity = "local") [ifelse-value (shape = "square") [e_blue_sqr][v_blue_crl * eth_crl]] [ifelse-value (shape = "square")[e_orng_sqr][v_orng_crl * eth_crl]]
+    set beta-iv ifelse-value (ethnicity = "local") [ifelse-value (shape = "square") [e_blue_sqr * val_sqr][v_blue_crl]] [ifelse-value (shape = "square")[e_orng_sqr * val_sqr][v_orng_crl]]
 
     set similar-ethnics (count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself])       ; these are just to have reporters to check in the simulation
     set similar-value (count (turtles-on neighbors) with [shape = [shape] of myself])
@@ -191,10 +212,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-578
-479
-641
-512
+587
+476
+650
+509
 setup
 setup
 NIL
@@ -208,10 +229,10 @@ NIL
 1
 
 BUTTON
-645
-479
-708
-512
+654
+476
+717
+509
 NIL
 go
 T
@@ -284,10 +305,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-274
-482
-336
-527
+255
+473
+317
+518
 circle_blue
 count turtles with [shape = \"circle\" and ethnicity = \"local\"] / count turtles with [ethnicity = \"local\"]
 2
@@ -295,10 +316,10 @@ count turtles with [shape = \"circle\" and ethnicity = \"local\"] / count turtle
 11
 
 MONITOR
-340
-482
-412
-527
+321
+473
+393
+518
 square_bue
 count turtles with [shape = \"square\" and  ethnicity = \"local\"] / count turtles with [ethnicity = \"local\"]
 2
@@ -306,10 +327,10 @@ count turtles with [shape = \"square\" and  ethnicity = \"local\"] / count turtl
 11
 
 MONITOR
-417
+398
+469
 478
-497
-523
+514
 circle_orange
 count turtles with [shape = \"circle\" and ethnicity = \"minority\"] / count turtles with [ethnicity = \"minority\"]
 2
@@ -317,10 +338,10 @@ count turtles with [shape = \"circle\" and ethnicity = \"minority\"] / count tur
 11
 
 MONITOR
-415
-526
-499
-571
+396
+517
+480
+562
 square_orange
 count turtles with [shape = \"square\" and ethnicity = \"minority\"] / count turtles with [ethnicity = \"minority\"]
 2
@@ -328,10 +349,10 @@ count turtles with [shape = \"square\" and ethnicity = \"minority\"] / count tur
 11
 
 MONITOR
-271
-525
-346
-570
+252
+516
+327
+561
 local/minority
 count turtles with [ethnicity = \"local\"] / count turtles
 2
@@ -339,10 +360,10 @@ count turtles with [ethnicity = \"local\"] / count turtles
 11
 
 MONITOR
-351
-527
-411
-572
+332
+518
+392
+563
 circle_%
 count turtles with [shape = \"circle\"] / count turtles
 2
@@ -722,10 +743,10 @@ mean [value-utility] of turtles
 11
 
 SLIDER
-60
-538
-195
-571
+586
+516
+719
+549
 num_alternative
 num_alternative
 1
@@ -737,57 +758,27 @@ NIL
 HORIZONTAL
 
 SLIDER
-49
-262
-141
-295
+41
+252
+143
+285
 e_blue_sqr
 e_blue_sqr
 0
 100
-49.0
+10.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-48
-454
-140
-487
+41
+399
+133
+432
 v_blue_crl
 v_blue_crl
-0
-100
-6.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-48
-304
-140
-337
-e_blue_crl
-e_blue_crl
-0
-100
-55.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-49
-414
-141
-447
-v_blue_sqr
-v_blue_sqr
 0
 100
 10.0
@@ -798,39 +789,24 @@ HORIZONTAL
 
 SLIDER
 146
-262
-242
-295
+251
+246
+284
 e_orng_sqr
 e_orng_sqr
 0
 100
-49.0
+10.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-146
-306
-241
-339
-e_orng_crl
-e_orng_crl
-0
-100
-55.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-96
-147
-242
-180
+94
+134
+240
+167
 similar_wanted_ethnic
 similar_wanted_ethnic
 0
@@ -842,27 +818,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-147
-455
-242
-488
+137
+400
+229
+433
 v_orng_crl
 v_orng_crl
-0
-100
-6.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-148
-415
-242
-448
-v_orng_sqr
-v_orng_sqr
 0
 100
 10.0
@@ -872,90 +833,90 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-84
-239
-231
-257
-distribution beta_ethnic
+1380
+518
+1441
+536
+beta_value
 11
 0.0
 1
 
 TEXTBOX
-80
-390
-219
-408
+1373
+401
+1512
+419
 distribution beta_value
 11
 0.0
 1
 
 TEXTBOX
-36
-258
-51
-342
+1340
+455
+1355
+539
 ↓\n↓\n↓\n↓\n↓\n↓
 11
 0.0
 1
 
 TEXTBOX
-5
-279
-37
-314
+1308
+477
+1340
+512
 value group
 11
 0.0
 1
 
 TEXTBOX
-48
-347
-179
-379
+1305
+554
+1436
+586
 →→→→→→→→→→→\n         ethnic group
 11
 0.0
 1
 
 TEXTBOX
-37
-408
-52
-492
+1418
+419
+1433
+503
 ↓\n↓\n↓\n↓\n↓\n↓
 11
 0.0
 1
 
 TEXTBOX
-5
-436
-39
-468
+1386
+447
+1420
+479
 value group
 11
 0.0
 1
 
 TEXTBOX
-50
-494
-177
-524
-→→→→→→→→→→→\n         ethnic group
+1103
+568
+1263
+586
+→→→ ethnic group →→→\n         
 11
 0.0
 1
 
 SLIDER
-97
-183
-241
-216
+95
+170
+239
+203
 similar_wanted_value
 similar_wanted_value
 0
@@ -967,40 +928,40 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-191
-349
-242
-381
+1439
+560
+1490
+592
 all four: all population
 10
 0.0
 1
 
 TEXTBOX
-188
-492
-244
-518
+1385
+420
+1441
+446
 all four: all population
 10
 0.0
 1
 
 TEXTBOX
-13
-164
-81
-202
+11
+151
+79
+189
 desired concentration
 11
 0.0
 1
 
 MONITOR
-571
-543
-652
-588
+493
+472
+574
+517
 prop_minority
 count turtles with [ethnicity = \"minority\"] / count turtles
 2
@@ -1008,15 +969,183 @@ count turtles with [ethnicity = \"minority\"] / count turtles
 11
 
 MONITOR
-675
-545
-745
-590
+493
+520
+574
+565
 prop_local
 count turtles with [ethnicity = \"local\"] / count turtles
 2
 1
 11
+
+SLIDER
+104
+315
+200
+348
+val_sqr
+val_sqr
+0
+1
+0.9
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+78
+457
+194
+490
+eth_crl
+eth_crl
+0
+1
+0.3
+0.1
+1
+NIL
+HORIZONTAL
+
+MONITOR
+811
+497
+899
+542
+b-eth_blue_sqr
+mean [beta-ie] of turtles with [ethnicity = \"local\" and shape = \"square\"]
+2
+1
+11
+
+MONITOR
+906
+496
+995
+541
+b-eth_orng_sqr
+mean [beta-ie] of turtles with [ethnicity = \"minority\" and shape = \"square\"]
+2
+1
+11
+
+MONITOR
+1088
+472
+1180
+517
+b-val_blue_sqr
+mean [beta-iv] of turtles with [ethnicity = \"local\" and shape = \"square\"]
+2
+1
+11
+
+MONITOR
+1183
+472
+1269
+517
+b-val_orng_sqr
+mean [beta-iv] of turtles with [ethnicity = \"minority\" and shape = \"square\"]
+2
+1
+11
+
+MONITOR
+810
+543
+900
+588
+b-eth_blue_crl
+mean [beta-ie] of turtles with [ethnicity = \"local\" and shape = \"circle\"]
+2
+1
+11
+
+MONITOR
+905
+544
+994
+589
+b-eth_orng_crl
+mean [beta-ie] of turtles with [ethnicity = \"minority\" and shape = \"circle\"]
+2
+1
+11
+
+MONITOR
+1088
+520
+1180
+565
+b-val_blue_crl
+mean [beta-iv] of turtles with [ethnicity = \"local\" and shape = \"circle\"]
+2
+1
+11
+
+MONITOR
+1182
+519
+1269
+564
+b-val_orng_crl
+mean [beta-iv] of turtles with [ethnicity = \"minority\" and shape = \"circle\"]
+2
+1
+11
+
+TEXTBOX
+1296
+594
+1430
+612
+→→→ ethnic group →→→
+11
+0.0
+1
+
+TEXTBOX
+92
+228
+242
+246
+beta-ethnic square group
+11
+0.0
+1
+
+TEXTBOX
+93
+296
+210
+314
+beta-ethnic/beta-value
+11
+0.0
+1
+
+TEXTBOX
+82
+372
+196
+390
+beta-value circle group
+11
+0.0
+1
+
+TEXTBOX
+76
+440
+204
+458
+beta-value / beta-ethnic
+11
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
