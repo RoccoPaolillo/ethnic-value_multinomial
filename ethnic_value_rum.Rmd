@@ -1,0 +1,103 @@
+---
+output:
+  bookdown::pdf_document2:
+    toc: false
+ #   keep_tex: false
+    fig_caption: yes
+title: "Preferences interact: what consequences for a Schelling scenario?"
+# subtitle: "Target: BIGSSS Research Day"
+author:  Rocco Paolillo, Andreas Flache, Jan Lorenz
+date:  "`r  as.Date(Sys.time(), '%d %B %Y')`"
+# "`r  as.Date(Sys.time(), '%d %B %Y')`"
+language: en-GB
+bibliography: "references.bib"
+always_allow_html: yes
+header-includes:
+- \usepackage{float}
+- \usepackage{multirow}
+- \usepackage{xcolor} 
+- \usepackage{amsmath}
+- \usepackage{graphicx}
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.lp="fig:",warning = FALSE)
+
+# install.packages("tinytex", repos = "https://cloud.r-project.org" )
+
+
+
+library(tidyverse)
+library(ggplot2)
+library(gridExtra)
+library(tidyr)
+library(plyr)
+library(foreach)
+
+
+# data_eq_30_10 <- read.csv("50_g_30_bh_10bl.csv",sep = ",",skip = 6)      # eq_30 equal conditionn for high beta 30 beig recollected
+#  names(data_eq_30_10) <- pull(read_csv("code_names.csv"))
+#  data_eq_30_20 <- read.csv("50_g_30_bh_20bl.csv",sep = ",",skip = 6)
+#   names(data_eq_30_20) <- pull(read_csv("code_names.csv"))
+#  data_eq_30_30 <- read.csv("50_g_30_bh_30bl.csv",sep = ",",skip = 6)
+#   names(data_eq_30_30) <- pull(read_csv("code_names.csv"))
+#  raw_eq_30 <- rbind(data_eq_30_10,data_eq_30_20,data_eq_30_30)
+#  write.csv(raw_eq_30, file = "eq_30.csv",row.names=FALSE)
+# 
+# 
+# 
+# eq_30 <- read.csv("eq_30.csv",sep = ",",skip = 6)
+# names(eq_30) <- pull(read_csv("code_names.csv"))
+
+eq_10 <- read.csv("50g_10_bh_10_bl.csv",sep = ",",skip = 6)
+names(eq_10) <- pull(read_csv("code_names.csv"))
+
+mj_30 <- read.csv("80_g_30_bh.csv",sep = ",",skip = 6)
+names(mj_30) <- pull(read_csv("code_names.csv"))
+
+mj_10 <- read.csv("80_g_10_bh.csv",sep = ",",skip = 6)
+names(mj_10) <- pull(read_csv("code_names.csv"))
+
+
+
+ f_spk <- function(i_e,x,n){      # utility function as single-peaked
+  if (x > n){
+    U <- NA}else{
+    if (x < (n*i_e)){
+  U <- (x / (n*i_e))
+     }else if (x > (n*i_e)){
+        U <- i_e + (((1- (x/n))*(1-i_e))/(1-i_e))
+       }else{
+    U <- 1}
+       round(U,digits = 3)
+     }
+}
+
+ f_thr <- function(i_e,x,n){  # to plot threshold function
+  if (x >= (n*i_e)){
+    U <- 1}else{
+   U <- 0 }
+}
+   
+
+ # install.packages("tinytex", repos = "https://cloud.r-project.org" ) #, try if debug needed
+
+ 
+ 
+```
+
+
+\abstract{}
+
+
+# Introduction {-}
+
+# Model and Experiments
+
+
+# Results
+
+
+
+# References
