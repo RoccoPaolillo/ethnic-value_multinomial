@@ -51,8 +51,8 @@ mj_30 <- read.csv("80_g_30_bh.csv",sep = ",",skip = 6)
 names(mj_30) <- pull(read_csv("code_names.csv"))
 
 
-test <- read.csv("cond1.csv",sep = ",", skip = 6)
-names(test) <- pull(read_csv("code_names.csv"))
+mj_30_10 <- read.csv("80_g_30_10.csv",sep = ",", skip = 6)
+names(mj_30_10) <- pull(read_csv("code_names.csv"))
 
 raw_f <- rbind(eq_30,eq_10,mj_30,mj_10)
 
@@ -142,7 +142,7 @@ At each step, an agent randomly selected compares its current location to a numb
 
 ```{r  heatmap, include = FALSE, echo = FALSE}
 
-dataset %>% filter(e_sqr == 30, v_crl == 30) 
+mj_30_10 %>% filter(e_sqr == 30, v_crl == 10) 
 
 ```
 
