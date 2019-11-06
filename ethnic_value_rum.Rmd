@@ -19,6 +19,7 @@ header-includes:
 - \usepackage{amsmath}
 - \usepackage{graphicx}
 
+
 ---
 
 ```{r setup, include=FALSE}
@@ -48,6 +49,10 @@ names(eq_30) <- pull(read_csv("code_names.csv"))
 
 mj_30 <- read.csv("80_g_30_bh.csv",sep = ",",skip = 6)
 names(mj_30) <- pull(read_csv("code_names.csv"))
+
+
+test <- read.csv("cond1.csv",sep = ",", skip = 6)
+names(test) <- pull(read_csv("code_names.csv"))
 
 raw_f <- rbind(eq_30,eq_10,mj_30,mj_10)
 
@@ -80,7 +85,9 @@ write.csv(dataset, file = "dataset.csv",row.names=FALSE) # later for reproductio
   if (x >= (n*i_e)){
     U <- 1}else{
    U <- 0 }
-}
+ }
+ 
+
    
 
  # install.packages("tinytex", repos = "https://cloud.r-project.org" ) #, try if debug needed
@@ -95,14 +102,45 @@ write.csv(dataset, file = "dataset.csv",row.names=FALSE) # later for reproductio
 
 # Introduction {-}
 
+
+* Schelling's model and previous work. Interaction of preferences.
+Schelling's model
+Literature update
+@paolillo2018 Diverse dimensions can define individuals and their similarity. Results from @paolillo2018
+
+* Update: justification for random utility models
+Better define the individual  decision process
+Link with empirical data
+
+
+* Research question
+How would the interaction between $\beta$ for different dimensions affect Schelling's scenarios
+
+
+
 # Model and Experiments
+
+The model^[The model can be found here:https://github.com/RoccoPaolillo/BIGSSS_ResearchDay.git] was built in NetLogo 6.1.0 and extends work by @paolillo2018.
+Agents interact on a regular grid 51 times 51 with periodic boundary conditions (torus world). Each node of the grid can host 1 agent or being empty. Agents represents individuals who relocate and are  defined by two static and overlapping variables: ethnicity and value orientation. Ethnicity is modeled through color tag. Agents with blue color represent the local population, agents with orange color represent the minority group. Value orientation through shape tag. 
+
+We define value orientation as the common membership of agents sharing same beliefs, preferences etc. potentially subject to change and independent of their attributed ethnicity. As such value orientation relates to value homophily compared to ethncity related to ascribed status homophily.
+Each agent hold a preference for the ethnic composition and the value composition of each neighborhood.
+Neighborhoods are defined as a Moore distance.
+At each step, an agent randomly selected compares its current location to a number of alternative ones, calculates utility for each and decides which location they prefer.
+
+* Calculation utility and probability function
+
+
+
+
+
 
 
 
 
 # Results
 
-```{r  heatmap, echo = FALSE}
+```{r  heatmap, include = FALSE, echo = FALSE}
 
 dataset %>% filter(e_sqr == 30, v_crl == 30) 
 
