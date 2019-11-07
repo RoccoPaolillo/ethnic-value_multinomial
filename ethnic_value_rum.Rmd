@@ -56,10 +56,16 @@ names(mj_30_10) <- pull(read_csv("code_names.csv"))
 eq_30_10 <- read.csv("50_g_30_10.csv",sep = ",", skip = 6)
 names(eq_30_10) <- pull(read_csv("code_names.csv"))
 
+test <- read.csv("test-beta-eth.csv",sep = ",",skip = 6)
+names(test)[names(test) == "X.step."] <- "step"
+names(test)[names(test) == "X.run.number."] <- "run"
+names(test)[names(test) == "beta.ie"] <- "beta_ie"
+names(test)[names(test) == "mean..count..turtles.on.neighbors..with..ethnicity....ethnicity..of.myself...of.turtles.with..count..turtles.on.neighbors.....1."] <- "eth_seg"
 
 
 
-raw_f <- rbind(eq_30,eq_10,mj_30,mj_10)
+
+raw_f <- rbind(eq_30,eq_10,mj_30,mj_10,eq_30_10,mj_30_10)
 
 
 df_e_sqr <- raw_f$e_sqr - raw_f$v_sqr
@@ -147,8 +153,7 @@ At each step, an agent randomly selected compares its current location to a numb
 
 ```{r gg }
 
-eq_30_10 %>% filter(e_sqr == 30, v_crl == 10)
-mj_30_10 %>% filter(e_sqr == 30, v_crl == 10)
+raw_f %>% filter(e_sqr == 30, v_crl == 10)
 
 ```
 
