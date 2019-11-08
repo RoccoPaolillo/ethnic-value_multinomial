@@ -118,10 +118,21 @@ write.csv(dataset, file = "dataset.csv",row.names=FALSE) # later for reproductio
 Schelling's model
 Literature update
 @paolillo2018 Diverse dimensions can define individuals and their similarity. Results from @paolillo2018
+@hedstrom2009oxford, chapter 11, 12
 
-* Update: justification for random utility models
+
+* Why an additional characteristic than ethnicity, literature in residential studies
+
+
+* Update: justification for random utility models, literature in ABM
 Better define the individual  decision process
 Link with empirical data
+@huang2014review
+@klabunde2016decision
+@bruch2019choice
+
+
+
 
 
 * Research question
