@@ -1,7 +1,8 @@
 Reference to check
-a
-b
-c
+
+To check literature Neighborhood chance and neighborhood change: A comment on Bruch and Mare
+To check literature Generative models of segregation: Investigating model-generated patterns of residential segregati...
+To check literature Modeling individual-level heterogeneity in racial residential segregation
 
 @article{huang2014review,
   title={A review of urban residential choice models using agent-based modeling},
