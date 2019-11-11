@@ -1,0 +1,221 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Preferences interact: what consequences for a Schelling scenario?},
+            pdfauthor={Rocco Paolillo, Andreas Flache, Jan Lorenz},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\providecommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Preferences interact: what consequences for a Schelling scenario?}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Rocco Paolillo, Andreas Flache, Jan Lorenz}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+    \date{}
+    \predate{}\postdate{}
+  
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{graphicx}
+
+\begin{document}
+\maketitle
+
+\abstract{}
+
+\hypertarget{introduction}{%
+\section*{Introduction}\label{introduction}}
+\addcontentsline{toc}{section}{Introduction}
+
+\begin{itemize}
+\item
+  Schelling's model and previous work. Interaction of preferences.
+  Schelling's model
+  Literature update
+  Paolillo and Lorenz (2018) Diverse dimensions can define individuals and their similarity. Results from Paolillo and Lorenz (2018)
+  ({\textbf{???}}), chapter 11, 12
+\item
+  Why an additional characteristic than ethnicity, literature in residential studies
+\item
+  Update: justification for random utility models, literature in ABM
+  Better define the individual decision process
+  Link with empirical data
+  ({\textbf{???}})
+  Klabunde and Willekens (2016)
+  Bruch and Swait (2019)
+\item
+  Research question
+  How would the interaction between \(\beta\) for different dimensions affect Schelling's scenarios
+\end{itemize}
+
+\hypertarget{model-and-experiments}{%
+\section{Model and Experiments}\label{model-and-experiments}}
+
+The model\footnote{The model can be found here:\url{https://github.com/RoccoPaolillo/BIGSSS_ResearchDay.git}} was built in NetLogo 6.1.0 and extends work by Paolillo and Lorenz (2018).
+Agents interact on a regular grid 51 times 51 with periodic boundary conditions (torus world). Each node of the grid can host 1 agent or being empty. Agents represents individuals who relocate and are defined by two static and overlapping variables: ethnicity and value orientation. Ethnicity is modeled through color tag. Agents with blue color represent the local population, agents with orange color represent the minority group. Value orientation through shape tag.
+
+We define value orientation as the common membership of agents sharing same beliefs, preferences etc. potentially subject to change and independent of their attributed ethnicity. As such value orientation relates to value homophily compared to ethncity related to ascribed status homophily.
+Each agent hold a preference for the ethnic composition and the value composition of each neighborhood.
+Neighborhoods are defined as a Moore distance.
+At each step, an agent randomly selected compares its current location to a number of alternative ones, calculates utility for each and decides which location they prefer.
+
+\begin{itemize}
+\tightlist
+\item
+  Calculation utility and probability function
+\end{itemize}
+
+To explore what levels of \(\beta\) should not be excluded from the manipulations, I built a specific model with a unique beta for ethnic composition (\(\beta_{ie}\) ) that does not change among agents. At each run I incremented degree of \(\beta_{ie} \in[0,100]\) and let run for 1000 ticks with agents asynchronously relocating (not 1 agent for 1 tick, all to complete the procedure to restart). In each condition linear function was used: the preference peak of agents was \(100\%\) for ethnically similar
+
+To explore what levels of \(\beta\) should not be excluded from the manipulations, I made a specific model ``rum\_eth.nlogo'' (in material), with a unique \(\beta\) for all agents. I run the simulation for 1000 ticks (not 1 agent 1 tick):
+* linear function: peak preference for all agents at \(100 \%\)
+* density == \(70 \%\)
+* equal distribution of value orientation in each ethnic group
+* changing \(beta_ie\) at each run \(beta_ie \in[0,100]\)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{a <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"one-beta.csv"}\NormalTok{,}\DataTypeTok{sep =} \StringTok{","}\NormalTok{,}\DataTypeTok{skip =} \DecValTok{6}\NormalTok{)}
+\KeywordTok{names}\NormalTok{(a)[}\KeywordTok{names}\NormalTok{(a) }\OperatorTok{==}\StringTok{ "mean..count..turtles.on.neighbors..with..ethnicity....ethnicity..of.myself....count..turtles.on.neighbors....of.turtles.with..count..turtles.on.neighbors.....1."}\NormalTok{ ] <-}\StringTok{ "eth_seg"}
+
+\NormalTok{a }\OperatorTok{%>%}\StringTok{ }\KeywordTok{filter}\NormalTok{(ticks }\OperatorTok{==}\StringTok{ }\DecValTok{0}  \OperatorTok{|}\StringTok{ }\NormalTok{ticks }\OperatorTok{==}\StringTok{ }\DecValTok{500}  \OperatorTok{|}\StringTok{ }\NormalTok{ticks }\OperatorTok{==}\StringTok{ }\DecValTok{100} \OperatorTok{|}\StringTok{ }\NormalTok{ticks }\OperatorTok{==}\StringTok{ }\DecValTok{1000}\NormalTok{)  }\OperatorTok{%>%}\StringTok{  }\KeywordTok{filter}\NormalTok{(beta.ie }\OperatorTok{>=}\StringTok{ }\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{beta.ie }\OperatorTok{<=}\StringTok{ }\DecValTok{15}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ beta.ie, }\DataTypeTok{y =}\NormalTok{ eth_seg)) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{facet_wrap}\NormalTok{(}\OperatorTok{~}\StringTok{ }\NormalTok{ticks, }\DataTypeTok{labeller =}\NormalTok{ label_both)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{ethnic_value_rum_files/figure-latex/one-beta-1.pdf}
+\caption{\label{fig:one-beta}Comparison of ethnic segregation for one beta-ethnic, not interaction. Used one-beta.csv from simulation rum-eth.nlogo}
+\end{figure}
+
+\hypertarget{results}{%
+\section{Results}\label{results}}
+
+\hypertarget{references}{%
+\section*{References}\label{references}}
+\addcontentsline{toc}{section}{References}
+
+\hypertarget{refs}{}
+\leavevmode\hypertarget{ref-bruch2019choice}{}%
+Bruch, Elizabeth, and Joffre Swait. 2019. ``Choice Set Formation in Residential Mobility and Its Implications for Segregation Dynamics.'' \emph{Demography}, 1--28.
+
+\leavevmode\hypertarget{ref-klabunde2016decision}{}%
+Klabunde, Anna, and Frans Willekens. 2016. ``Decision-Making in Agent-Based Models of Migration: State of the Art and Challenges.'' \emph{European Journal of Population} 32 (1): 73--97.
+
+\leavevmode\hypertarget{ref-paolillo2018}{}%
+Paolillo, Rocco, and Jan Lorenz. 2018. ``How Different Homophily Preferences Mitigate and Spur Ethnic and Value Segregation: Schelling's Model Extended.'' \emph{Advances in Complex Systems} 21 (06n07): 1850026.
+
+
+\end{document}

@@ -7,7 +7,7 @@ output:
 title: "Preferences interact: what consequences for a Schelling scenario?"
 # subtitle: "Target: BIGSSS Research Day"
 author:  Rocco Paolillo, Andreas Flache, Jan Lorenz
-date:  "`r  as.Date(Sys.time(), '%d %B %Y')`"
+# date:  "`r  as.Date(Sys.time(), '%d %B %Y')`"
 # "`r  as.Date(Sys.time(), '%d %B %Y')`"
 language: en-GB
 bibliography: "references.bib"
@@ -18,17 +18,12 @@ header-includes:
 - \usepackage{xcolor} 
 - \usepackage{amsmath}
 - \usepackage{graphicx}
-
-
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.lp="fig:",warning = FALSE)
 
 # install.packages("tinytex", repos = "https://cloud.r-project.org" )
-
-
-
 library(tidyverse)
 library(ggplot2)
 library(gridExtra)
@@ -36,46 +31,6 @@ library(tidyr)
 library(plyr)
 library(dplyr)
 
-
-eq_10 <- read.csv("50_g_10_bh.csv",sep = ",",skip = 6)
-names(eq_10) <- pull(read_csv("code_names.csv"))
-
-mj_10 <- read.csv("80_g_10_bh.csv",sep = ",",skip = 6)
-names(mj_10) <- pull(read_csv("code_names.csv"))
-
-eq_30 <- read.csv("50_g_30_hb.csv", sep = ",", skip = 6)
-names(eq_30) <- pull(read_csv("code_names.csv"))
-
-mj_30 <- read.csv("80_g_30_bh.csv",sep = ",",skip = 6)
-names(mj_30) <- pull(read_csv("code_names.csv"))
-
-
-mj_30_10 <- read.csv("80_g_30_10.csv",sep = ",", skip = 6)
-names(mj_30_10) <- pull(read_csv("code_names.csv"))
-
-eq_30_10 <- read.csv("50_g_30_10.csv",sep = ",", skip = 6)
-names(eq_30_10) <- pull(read_csv("code_names.csv"))
-
-test <- read.csv("test-beta-eth.csv",sep = ",",skip = 6)
-names(test)[names(test) == "X.step."] <- "step"
-names(test)[names(test) == "X.run.number."] <- "run"
-names(test)[names(test) == "beta.ie"] <- "beta_ie"
-names(test)[names(test) == "mean..count..turtles.on.neighbors..with..ethnicity....ethnicity..of.myself...of.turtles.with..count..turtles.on.neighbors.....1."] <- "eth_seg"
-
-
-
-
-raw_f <- rbind(eq_30,eq_10,mj_30,mj_10,eq_30_10,mj_30_10)
-
-
-df_e_sqr <- raw_f$e_sqr - raw_f$v_sqr
-df_v_crl <-  raw_f$v_crl - raw_f$e_crl
-
-dataset <- cbind(raw_f,df_e_sqr,df_v_crl)
-
-# check <- final[,c(9,10,27,11,12,28)]
-
-write.csv(dataset, file = "dataset.csv",row.names=FALSE) # later for reproduction
 
 
 
@@ -107,12 +62,10 @@ write.csv(dataset, file = "dataset.csv",row.names=FALSE) # later for reproductio
  
 ```
 
-
 \abstract{}
 
 
 # Introduction {-}
-
 
 * Schelling's model and previous work. Interaction of preferences.
 Schelling's model
@@ -130,6 +83,7 @@ Link with empirical data
 @huang2014review
 @klabunde2016decision
 @bruch2019choice
+
 
 
 
@@ -153,6 +107,25 @@ At each step, an agent randomly selected compares its current location to a numb
 * Calculation utility and probability function
 
 
+To explore what levels of $\beta$ should not be excluded from the manipulations, I built a specific model with a unique beta for ethnic composition ($\beta_{ie}$ ) that does not change among agents. At each run I incremented degree of $\beta_{ie} \in[0,100]$ and let run for 1000 ticks with agents asynchronously relocating (not 1 agent for 1 tick, all to complete the procedure to restart). In each condition linear function was used: the preference peak of agents was $100\%$ for ethnically similar
+
+
+To explore what levels of $\beta$ should not be excluded from the manipulations, I made a specific model "rum_eth.nlogo" (in material), with a unique $\beta$ for all agents. I run the simulation for 1000 ticks (not 1 agent 1 tick):
+* linear function: peak preference for all agents at $100 \%$
+* density == $70 \%$
+* equal distribution of value orientation in each ethnic group
+* changing $beta_ie$ at each run $beta_ie \in[0,100]$
+
+```{r one-beta, fig.cap="Comparison of ethnic segregation for one beta-ethnic, not interaction. Used one-beta.csv from simulation rum-eth.nlogo" , include=TRUE}
+
+
+
+a <- read.csv("one-beta.csv",sep = ",",skip = 6)
+names(a)[names(a) == "mean..count..turtles.on.neighbors..with..ethnicity....ethnicity..of.myself....count..turtles.on.neighbors....of.turtles.with..count..turtles.on.neighbors.....1." ] <- "eth_seg"
+
+a %>% filter(ticks == 0  | ticks == 500  | ticks == 100 | ticks == 1000)  %>%  filter(beta.ie >= 0 & beta.ie <= 15) %>% ggplot(aes(x = beta.ie, y = eth_seg)) + geom_bar(stat="identity") + facet_wrap(~ ticks, labeller = label_both)
+
+```
 
 
 
@@ -162,10 +135,5 @@ At each step, an agent randomly selected compares its current location to a numb
 
 # Results
 
-```{r gg }
-
-raw_f %>% filter(e_sqr == 30, v_crl == 10)
-
-```
 
 # References
