@@ -128,6 +128,86 @@ a %>% filter(ticks == 0  | ticks == 500  | ticks == 100 | ticks == 1000)  %>%  f
 ```
 
 
+```{r att_income , include=TRUE}
+
+f_att <- function(i,b){   # utility function as single-peaked
+ A <- 1 / (1 + exp(-b(i)))
+}
+
+  b <- 0.5
+  
+a_0 <- f_cst(a,0)
+a_1 <- f_cst(a,0.1)
+a_2 <- f_cst(a,0.2)
+a_3 <- f_cst(a,0.3)
+a_4 <- f_cst(a,0.4)
+a_5 <- f_cst(a,0.5)
+a_6 <- f_cst(a,0.6)
+a_7 <- f_cst(a,0.7)
+a_8 <- f_cst(a,0.8)
+a_9 <- f_cst(a,0.9)
+a_10 <- f_cst(a,1)
+
+Prob_A <- c(a_0,a_1,a_2,a_3,a_4,a_5,a_6,a_7,a_8,a_9,a_10)
+income <- seq(0,i, by = 0.1)
+
+plot(price,na.omit(utility),ylab = "utility_ec",xlab="price", main = paste0("income =",i))
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r income_price , include=TRUE}
+
+# tentative of utility economic, given by the difference (income - price), so to represent how convenient a location is. 
+# ideally identity equation: if income < price, probability would be 0. If beta is negative, the probability could still be computed, which is nonsense
+
+f_cst <- function(i,p){   # utility function as single-peaked
+ if (i < p){
+    U <- NA}else{
+  U <- ((i - p) / i)}
+}
+
+  i <- 0.5
+  
+i_0 <- f_cst(i,0)
+i_1 <- f_cst(i,0.1)
+i_2 <- f_cst(i,0.2)
+i_3 <- f_cst(i,0.3)
+i_4 <- f_cst(i,0.4)
+i_5 <- f_cst(i,0.5)
+i_6 <- f_cst(i,0.6)
+i_7 <- f_cst(i,0.7)
+i_8 <- f_cst(i,0.8)
+i_9 <- f_cst(i,0.9)
+i_10 <- f_cst(i,1)
+
+utility <- c(i_0,i_1,i_2,i_3,i_4,i_5,i_6,i_7,i_8,i_9,i_10)
+price <- seq(0,i, by = 0.1)
+
+plot(price,na.omit(utility),ylab = "utility_ec",xlab="price", main = paste0("income =",i))
+
+
+
+
+```
 
 
 
