@@ -5,8 +5,8 @@ output:
  #   keep_tex: false
     fig_caption: yes
 title: "Preferences interact: what consequences for a Schelling scenario?"
-# subtitle: "Target: BIGSSS Research Day"
-author:  Rocco Paolillo, Andreas Flache, Jan Lorenz
+subtitle: "Title to define"
+author:  Rocco Paolillo, Andreas Flache
 # date:  "`r  as.Date(Sys.time(), '%d %B %Y')`"
 # "`r  as.Date(Sys.time(), '%d %B %Y')`"
 language: en-GB
@@ -32,7 +32,8 @@ library(plyr)
 library(dplyr)
 
 
-
+# Beta distribution parameters mean and standard deviation
+# https://stats.stackexchange.com/questions/12232/calculating-the-parameters-of-a-beta-distribution-using-the-mean-and-variance
 
  f_spk <- function(i_e,x,n){      # utility function as single-peaked
   if (x > n){
@@ -69,28 +70,31 @@ library(dplyr)
 
 * Schelling's model and previous work. Interaction of preferences.
 Schelling's model
-Literature update
+Literature update @verweij2006clumsy
 @paolillo2018 Diverse dimensions can define individuals and their similarity. Results from @paolillo2018
 @hedstrom2009oxford, chapter 11, 12
 
 
-* Why an additional characteristic than ethnicity, literature in residential studies
+* Why an additional characteristic than ethnicity, literature in residential studies. How it correlates with income/social mobility
+@esser2010, transmission of capital
+south2016neighborhood on life course economic capital transmission
+
 
 
 * Update: justification for random utility models, literature in ABM
 Better define the individual  decision process
 Link with empirical data
-@huang2014review
 @klabunde2016decision
 @bruch2019choice
 
 
-
+* Costs
 
 
 
 * Research question
-How would the interaction between $\beta$ for different dimensions affect Schelling's scenarios
+How would the interaction between $\beta$ for different dimensions affect Schelling's scenarios?
+How the effect would change when income is included? And correlation between income and socio-demographic characteristics (value) included?
 
 
 
@@ -106,75 +110,139 @@ At each step, an agent randomly selected compares its current location to a numb
 
 * Calculation utility and probability function
 
-
-To explore what levels of $\beta$ should not be excluded from the manipulations, I built a specific model with a unique beta for ethnic composition ($\beta_{ie}$ ) that does not change among agents. At each run I incremented degree of $\beta_{ie} \in[0,100]$ and let run for 1000 ticks with agents asynchronously relocating (not 1 agent for 1 tick, all to complete the procedure to restart). In each condition linear function was used: the preference peak of agents was $100\%$ for ethnically similar
-
-
-To explore what levels of $\beta$ should not be excluded from the manipulations, I made a specific model "rum_eth.nlogo" (in material), with a unique $\beta$ for all agents. I run the simulation for 1000 ticks (not 1 agent 1 tick):
-* linear function: peak preference for all agents at $100 \%$
-* density == $70 \%$
-* equal distribution of value orientation in each ethnic group
+To explore what levels of $\beta$ should not be excluded, I made a specific model "beta-et.nlogo" (in "material/beta-diff"), with an uniform $\beta_{ie}$ for ethnic composition. The simulation was simplified with one slider $\beta_{ie}$ for all agents  (same as 4 subgroup with equal $\beta$), to simplify code and lift computational power. I run the simulation for 1000 ticks (not 1 tick 1 agent, as in NetLogo asynchronous behavior: all agents run the procedure and then repeat):
+* monotonic linear function: desired concentration ethnically similar $100 \%$ \par
+* density == $70 \%$ \par
+* $50 \%$ distribution of value orientation in each ethnic group \par
 * changing $beta_ie$ at each run $beta_ie \in[0,100]$
 
-```{r one-beta, fig.cap="Comparison of ethnic segregation for one beta-ethnic, not interaction. Used one-beta.csv from simulation rum-eth.nlogo" , include=TRUE}
+Collected ethnic segregation, here reported for different ticks (Fig: \ref{fig:onebeta}) \par
 
+```{r onebeta, fig.cap="Comparison of ethnic segregation for one beta-ethnic, not interaction. Used one-beta.csv from simulation rum-eth.nlogo" , include=TRUE, echo=FALSE}
 
+# setwd("C:/Users/rocpa/OneDrive/Desktop/AF-02-12/ethnic-value_multinomial/material/beta-diff")
 
-a <- read.csv("one-beta.csv",sep = ",",skip = 6)
+a <- read.csv("beta-et.csv",sep = ",",skip = 6)
 names(a)[names(a) == "mean..count..turtles.on.neighbors..with..ethnicity....ethnicity..of.myself....count..turtles.on.neighbors....of.turtles.with..count..turtles.on.neighbors.....1." ] <- "eth_seg"
 
-a %>% filter(ticks == 0  | ticks == 500  | ticks == 100 | ticks == 1000)  %>%  filter(beta.ie >= 0 & beta.ie <= 15) %>% ggplot(aes(x = beta.ie, y = eth_seg)) + geom_bar(stat="identity") + facet_wrap(~ ticks, labeller = label_both)
+a %>% filter(ticks == 0  | ticks == 500  | ticks == 100 | ticks == 1000)  %>%  filter(beta.ie >= 0 & beta.ie <= 30) %>% ggplot(aes(x = beta.ie, y = eth_seg)) + geom_bar(stat="identity") + facet_wrap(~ ticks, labeller = label_both) 
 
 ```
 
 
-```{r att_income , include=TRUE}
 
-f_att <- function(i,b){   # utility function as single-peaked
- A <- 1 / (1 + exp(-b(i)))
+
+To test if the effect of  $\beta_{ie}$ for ethnic composition would be different if interacting with $\beta_{iv}$, I run another
+
+what levels of $\beta$ should not be excluded, I made a specific model "beta-et-vl.nlogo" (in "material/beta-diff"), with uniform $\beta_{ie}$ for ethnic composition and $\beta_{iv}$ for value composition. The simulation was simplified with a slider $\beta_{ie}$ and a slider $\beta_{iv}$ for all agents (same as 4 subgroup with equal $\beta$), to simplify code and lift computational power. I run the simulation for 1000 ticks (not 1 agent 1 tick):
+* monotonic linear function: desired concentration ethnically similar $100 \%$, desired concentration value simular $100 \%$ \par
+* density == $70 \%$ \par
+* $50 \%$ distribution of value orientation in each ethnic group \par
+* changing $beta_ie$ at each run $\beta_{ie} \in[0,20]$ and $\beta_{iv} \in[0,20]$, with condition of $\beta_{ie} \geq \beta_{iv}$
+
+Collected ethnic segregation, here reported at ticks = 1000, and faceted $\beta_{ie}$ x $\beta_{iv}$ (Fig: \ref{fig:twobeta}). 
+
+
+
+```{r twobeta, fig.cap="Comparison of ethnic segregation for interaction beta-ethnic and beta-value. Used diff_10.csv from simulation rum_eth-val.nlogo. Histogram don't appear for conditions of b_iv > b_ie, which are excluded from BehaviorSpace.", include=TRUE, echo=FALSE}
+
+# setwd("C:/Users/rocpa/OneDrive/Desktop/AF-02-12/ethnic-value_multinomial/material/beta-diff")
+
+b  <-  read.csv("beta-et-vl.csv",sep = ",",skip = 6)
+names(b)[names(b) == "mean..count..turtles.on.neighbors..with..ethnicity....ethnicity..of.myself....count..turtles.on.neighbors...of.turtles.with..count..turtles.on.neighbors.....1." ] <- "eth_seg"
+names(b)[names(b) == "mean..count..turtles.on.neighbors..with..shape....shape..of.myself....count..turtles.on.neighbors...of.turtles.with..count..turtles.on.neighbors.....1."] <- "val_seg"
+
+c  <- b %>% filter(beta.ie >= beta.iv )
+
+diff_ev <- c$beta.ie - c$beta.iv
+c  <- cbind(c,diff_ev)
+
+c %>%  filter(ticks == 1000)  %>% ggplot(aes(x = beta.ie, y = eth_seg)) + geom_bar(stat = "identity") + facet_wrap(~  beta.iv, labeller = label_both) 
+
+```
+
+
+
+
+# APPENDIX, Functions used in the simulations
+
+
+##  Derivate probability being tolerant/not tolerant from income 
+
+Already in the model, income follows beta distribution. Tolerance is one possible implementation, the main point is a cross-ethnic category that might depend on the income distribution (Fig: \ref{fig:attincome})
+
+
+
+$$P = \frac{1}{(1 + \exp(-\lambda\times(i - 0.5)))}$$
+
+
+
+where: \par
+$\textit{i}$: income \par
+$i - 0.5$: considering income follows beta distribution $i\in{[0,1]}$. The higher income is than 0.5, the higher the probability the agent is tolerant \par
+$\lambda$: parameter of randomness on the derivation tolerance from income \par
+
+```{r attincome,fig.pos='H',out.width="80%",fig.align='center',fig.cap="Probability of binary cross-category (tolerant/not tolerant) from the distribution of income",include=TRUE, echo=FALSE}
+
+# How the cross-category, e.g. tolerance can depend on wealth/income distribution, which can be used also for housing purchasing
+# Seems feasible to me to use beta distribution for wealth at this point. To be used: logistic function, which
+
+f_att <- function(i,l){   # utility function as single-peaked
+ A <- 1 / (1 + exp((-l)*(i - 0.5)))
 }
 
-  b <- 0.5
+  l <- 6
   
-a_0 <- f_cst(a,0)
-a_1 <- f_cst(a,0.1)
-a_2 <- f_cst(a,0.2)
-a_3 <- f_cst(a,0.3)
-a_4 <- f_cst(a,0.4)
-a_5 <- f_cst(a,0.5)
-a_6 <- f_cst(a,0.6)
-a_7 <- f_cst(a,0.7)
-a_8 <- f_cst(a,0.8)
-a_9 <- f_cst(a,0.9)
-a_10 <- f_cst(a,1)
+
+# a_1n <- f_att(-1,l)
+# a_2n <- f_att(-0.9,l)
+# a_3n <- f_att(-0.8,l)
+# a_4n <- f_att(-0.7,l)
+# a_5n <- f_att(-0.6,l)
+# a_6n <- f_att(-0.5,l)
+# a_7n <- f_att(-0.4,l)
+# a_8n <- f_att(-0.3,l)
+# a_9n <- f_att(-0.2,l)
+# a_10n <- f_att(-0.1,l)  
+    
+a_0 <- f_att(0,l)
+a_1 <- f_att(0.1,l)
+a_2 <- f_att(0.2,l)
+a_3 <- f_att(0.3,l)
+a_4 <- f_att(0.4,l)
+a_5 <- f_att(0.5,l)
+a_6 <- f_att(0.6,l)
+a_7 <- f_att(0.7,l)
+a_8 <- f_att(0.8,l)
+a_9 <- f_att(0.9,l)
+a_10 <- f_att(1,l)
 
 Prob_A <- c(a_0,a_1,a_2,a_3,a_4,a_5,a_6,a_7,a_8,a_9,a_10)
-income <- seq(0,i, by = 0.1)
+income <- seq(0,1, by = 0.1)
 
-plot(price,na.omit(utility),ylab = "utility_ec",xlab="price", main = paste0("income =",i))
+plot(income,Prob_A,ylab = "P_attA",xlab="income")
 
 
 
 
 ```
 
+##  Economic Utility related to price
+
+Utility for the agent to select the most advantageous option  (Fig: \ref{fig:economic}). I figured it out so that income will have an indirect effect on costs of relocation. Role within the agent to rank the options (preferring the cheapest one), but also between agents: given the same price for a location, utility will be higher for agents who have higher income, since they can afford higher costs.
 
 
 
+$$U_{ec} = \frac{i - p}{i}$$
 
 
 
+where: \par
+$\textit{i}$: income \par
+$p$: price of potential relocation \par
 
 
-
-
-
-
-
-
-
-
-```{r income_price , include=TRUE}
+```{r economic,fig.pos='H',out.width="80%",fig.align='center',fig.cap="Cost formation",include=TRUE, echo=FALSE}
 
 # tentative of utility economic, given by the difference (income - price), so to represent how convenient a location is. 
 # ideally identity equation: if income < price, probability would be 0. If beta is negative, the probability could still be computed, which is nonsense
@@ -185,7 +253,7 @@ f_cst <- function(i,p){   # utility function as single-peaked
   U <- ((i - p) / i)}
 }
 
-  i <- 0.5
+  i <- 0.7
   
 i_0 <- f_cst(i,0)
 i_1 <- f_cst(i,0.1)
@@ -200,14 +268,138 @@ i_9 <- f_cst(i,0.9)
 i_10 <- f_cst(i,1)
 
 utility <- c(i_0,i_1,i_2,i_3,i_4,i_5,i_6,i_7,i_8,i_9,i_10)
-price <- seq(0,i, by = 0.1)
+price <- seq(0,1, by = 0.1)
 
-plot(price,na.omit(utility),ylab = "utility_ec",xlab="price", main = paste0("income =",i))
+plot(price,utility,ylab = "Economic Utility",xlab="price", main = paste0("income =",i))
 
 
 
 
 ```
+
+
+```{r economic0,fig.pos='H',out.width="80%",fig.align='center',fig.cap="Cost formation",include=TRUE, echo=FALSE}
+
+# tentative of utility economic, given by the difference (income - price), so to represent how convenient a location is. 
+# ideally identity equation: if income < price, probability would be 0. If beta is negative, the probability could still be computed, which is nonsense
+
+f_cst <- function(i,p){   # utility function as single-peaked
+ if (i < p){
+    U <- NA}else{
+  U <- ((i - p) / i)}
+}
+
+inc <- c(rep(0.80,11), rep(0.50,11))
+price <- rep(seq(0,1, by = 0.1),2)
+
+
+df <- cbind(inc,price)
+
+df_fin <- data.frame(cbind(df,ut_ec = mapply(function(x,y)  if (x < y){NA}else{round(((x - y) / x),2)}, inc, price) ))
+
+
+ggplot(df_fin,aes(x = price, y = ut_ec, color = as.factor(inc))) + geom_point() + scale_color_manual(values=c("red", "blue"), guide = guide_legend(title="Income")) + theme_bw() +  labs(y = "Economic Utility")# + scale_color_manual(values=c("red", "blue"))
+
+# i_07 <- f_cst(i,0)
+# i_17 <- f_cst(i,0.1)
+# i_27 <- f_cst(i,0.2)
+# i_37 <- f_cst(i,0.3)
+# i_47 <- f_cst(i,0.4)
+# i_57 <- f_cst(i,0.5)
+# i_67 <- f_cst(i,0.6)
+# i_77 <- f_cst(i,0.7)
+# i_87 <- f_cst(i,0.8)
+# i_97 <- f_cst(i,0.9)
+# i_107 <- f_cst(i,1)
+# 
+# i_05 <- f_cst(i,0)
+# i_15 <- f_cst(i,0.1)
+# i_25 <- f_cst(i,0.2)
+# i_35 <- f_cst(i,0.3)
+# i_45 <- f_cst(i,0.4)
+# i_55 <- f_cst(i,0.5)
+# i_65 <- f_cst(i,0.6)
+# i_75 <- f_cst(i,0.7)
+# i_85 <- f_cst(i,0.8)
+# i_95 <- f_cst(i,0.9)
+# i_105 <- f_cst(i,1)
+# 
+# utility <- c(i_0,i_1,i_2,i_3,i_4,i_5,i_6,i_7,i_8,i_9,i_10)
+# 
+# plot(price,utility,ylab = "Economic Utility",xlab="price", main = paste0("income =",i))
+
+
+
+
+```
+
+
+
+PRICE: num. neighbors/8 * mean(income) of neighbors
+
+
+```{r att_income-linear , include=FALSE, echo=FALSE}
+
+# How the cross-category, e.g. tolerance can depend on wealth/income distribution, which can be used also for housing purchasing
+# Seems feasible to me to use beta distribution for wealth at this point. To be used: logistic function, which
+
+f_att <- function(i){   # utility function as single-peaked
+A <- (((i*10)^i) / 10)
+}
+
+
+
+# a_1n <- f_att(-1,l)
+# a_2n <- f_att(-0.9,l)
+# a_3n <- f_att(-0.8,l)
+# a_4n <- f_att(-0.7,l)
+# a_5n <- f_att(-0.6,l)
+# a_6n <- f_att(-0.5,l)
+# a_7n <- f_att(-0.4,l)
+# a_8n <- f_att(-0.3,l)
+# a_9n <- f_att(-0.2,l)
+# a_10n <- f_att(-0.1,l)  
+    
+a_0 <- f_att(0)
+a_05 <- f_att(0.05)
+a_1 <- f_att(0.1)
+a_15<- f_att(0.15)
+a_2 <- f_att(0.2)
+a_25<- f_att(0.25)
+a_3 <- f_att(0.3)
+a_35<- f_att(0.35)
+a_4 <- f_att(0.4)
+a_45<- f_att(0.45)
+a_5 <- f_att(0.5)
+a_55<- f_att(0.55)
+a_6 <- f_att(0.6)
+a_65<- f_att(0.65)
+a_7 <- f_att(0.7)
+a_75<- f_att(0.75)
+a_8 <- f_att(0.8)
+a_85<- f_att(0.85)
+a_9 <- f_att(0.9)
+a_95<- f_att(0.95)
+a_10 <- f_att(1)
+
+Prob_A <- c(a_0,a_05,a_1,a_15,a_2,a_25,a_3,a_35,a_4,a_45,a_5,a_55,a_6,a_65,a_7,a_75,a_8,a_85,a_9,a_95,a_10)
+income <- seq(0,1, by = 0.05)
+
+plot(income,Prob_A,ylab = "P_attA",xlab="income")
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 

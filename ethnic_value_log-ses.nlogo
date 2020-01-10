@@ -1,0 +1,1701 @@
+extensions [rnd]
+
+globals [
+  percent-similar-eth
+  percent-similar-val
+]
+
+patches-own [
+ uti-eth
+ uti-val
+]
+
+turtles-own [
+  ethnicity
+  ses
+ prob-tolerance
+similar-ethnics
+  total-neighbors
+  ethnic-utility
+  value-utility
+  similar-value
+  total-utility
+  i_e
+  i_v
+]
+
+to setup
+
+  clear-all
+  ask patches [set pcolor white
+    if random 100 < density [sprout 1 [
+
+      ifelse random 100 < fraction_blue  ; attribution of ethnicity local vs minority
+
+      [set ethnicity "local"
+       set color blue
+      ]
+
+      [set ethnicity "minority"
+       set color orange
+      ]
+
+      ; here income distribution and cross-category (e.g. tolerance) attributed with it.
+      let alpha ifelse-value (ethnicity = "local") [alpha-ses-blue][alpha-ses-org]      ; still in the turtles environment. SES/income follows a beta distribution, depending on their ethnicity
+      let beta ifelse-value (ethnicity = "local") [beta-ses-blue][beta-ses-org]         ; here alpha and beta parameters according to ethnic group
+      set ses beta-ses alpha beta                                                       ; ses/income beta distribution
+      set prob-tolerance (1 / (1 + exp((- lambda_att)*(ses -  0.5))))                      ; this is the probability in the logistic function, binary outcome of logistic function is the cross-attribution
+      ifelse random-float 1 < prob-tolerance [set shape "circle"][set shape "square"]      ; (e.g. tolerant/not tolerant) depending on the ses/income of individual agent, and how far it falls from 0.5, which is
+                                                                                      ; the middle point (not median) of beta distribution [0,1] (as normalized distribution)
+                                                                                      ; lamda_att = 0, the prob. of agent being tolerant/not tolerant is totally independent of income (50/50).
+                                                                                      ; the higher lambda_att, the higher the prob. to be tolerant/not tolerant depending on how far ses/income is from 0.5
+                                                                                      ; lambda_att = 4/5 optimal fit, otherwise overfit: minimal distance brings all extreme probability
+                                                                                      ; I called "tolerance" variable the computed probability based on logistic function, just to report in plots
+      ]
+    ]
+  ]
+ update-turtles
+ update-globals
+  reset-ticks
+  setup-plots
+end
+
+
+to go
+  update-turtles     ; updates of utility of turtles
+  move-turtles       ; relocation decision of turtles
+  update-globals     ; global reportes
+tick
+end
+
+
+
+
+to move-turtles          ; choice for each turtle. The agent makes a patch-set combined of current location and an empty patch (the options)
+
+  ask turtles [
+
+    let beta-ie ifelse-value (ethnicity = "local") [ifelse-value (shape = "square") [e_blue_sqr][e_blue_crl]] [ifelse-value (shape = "square")[e_orng_sqr][e_orng_crl]]
+    let beta-iv ifelse-value (ethnicity = "local") [ifelse-value (shape = "square") [v_blue_sqr][v_blue_crl]] [ifelse-value (shape = "square")[v_orng_sqr][v_orng_crl]]
+
+   let ethnicity-myself ethnicity    ;  needed as local variable to be computed by the options of patch-set
+   let shape-myself shape
+
+
+    let options (patch-set patch-here n-of num_alternative patches with [not any? turtles-here])    ; the list of options is made: made up of current node plus alternative empty nodes.
+                                                                                                    ; number of alternatives to current location can be set with num_alternative
+
+    ask options [                       ; the ethnic and value utility are computed for each option of the agent. Utility is computed through the reporter below
+                                        ; Options are local to the caller turtle
+
+      let xe count (turtles-on neighbors) with [ethnicity = ethnicity-myself]
+      let xv count (turtles-on neighbors) with [ shape = shape-myself]
+
+      let n count (turtles-on neighbors)
+
+      set uti-eth utility xe n similar_wanted_ethnic   ; value utility and ethnic utility of each option
+      set uti-val utility xv n similar_wanted_value
+    ]
+
+    move-to rnd:weighted-one-of options [exp ((beta-ie * (uti-eth)) + (beta-iv * (uti-val)))]  ; roulette wheel: move to one option according to probability derived by expU,
+                                                                                                   ; U of each dimension = beta_ethnic*ethnic_utility + beta_value*value_utility
+                                                                                                   ; RND roulette-wheel: sorts the options to move to according to expU/Sum(expU)
+
+  ]
+
+
+end
+
+to update-turtles                           ; updates of preferences of turtles
+
+  ask turtles[
+
+    set similar-ethnics (count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself])       ; these are just to have reporters to check in the simulation
+    set similar-value (count (turtles-on neighbors) with [shape = [shape] of myself])
+    set total-neighbors (count turtles-on neighbors)
+    set ethnic-utility  utility similar-ethnics total-neighbors similar_wanted_ethnic
+    set value-utility  utility  similar-value total-neighbors similar_wanted_value
+    set total-utility (ethnic-utility + value-utility)
+
+  ]
+end
+
+to update-globals
+
+  let tot-ethnics sum [ similar-ethnics ] of turtles               ; reporters for emerging properties: ethnic  and value segregation
+  let tot-value sum [ similar-value ] of turtles
+ let tot-neighbors sum [ total-neighbors ] of turtles
+  set percent-similar-val (tot-value / tot-neighbors) * 100
+  set percent-similar-eth (tot-ethnics / tot-neighbors) * 100
+end
+
+
+to-report beta-ses [d f]       ; beta distribution of ses/income
+   let x random-gamma d 1
+   report ( x / ( x + random-gamma f 1) )
+end
+
+
+to-report utility [a b c]  ; the three types of utility functions: threshold, single-peaked, linear + constant , a = number similar neighborhood, b = total number neighborhood, f = concentration preference
+
+report ( ifelse-value (b = 0) [0]               ; empty neighborhoods (total number of neighbors 0) have 0, whatever the desired concentration is (previously they would have positevely assessed if desired concentration was 0)
+    [ ifelse-value (a = (b * c)) [1]            ; to avoid problems when desired concentration is 0. Maximum utility is 1, i.e. concentration of similar ones is the same of desired concentration
+      [ifelse-value (a < (b * c))
+      [precision (a / (b * c)) 3                 ; for concentration of similars below the desired concentration
+        ][ precision (c + (((1 - (a / b)) * (1 - c)) / (1 - c))) 3]     ; for concentration above the desired concentration.
+      ]
+    ]
+    )
+
+end    ; single-peaked function for desired concentration, same as INFO: https://docs.google.com/document/d/1ohT817vJSuf6gCnpiea6OB6wLsMYcJrOnC7nBRzLr9M/edit?usp=sharing
+@#$#@#$#@
+GRAPHICS-WINDOW
+258
+10
+715
+468
+-1
+-1
+8.804
+1
+10
+1
+1
+1
+0
+1
+1
+1
+-25
+25
+-25
+25
+0
+0
+1
+ticks
+30.0
+
+SLIDER
+30
+10
+122
+43
+density
+density
+0
+99
+70.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+127
+10
+229
+43
+fraction_blue
+fraction_blue
+50
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+582
+477
+645
+510
+setup
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+654
+477
+717
+510
+NIL
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+PLOT
+722
+318
+979
+462
+segregation-global
+NIL
+NIL
+0.0
+10.0
+0.0
+101.0
+true
+true
+"" ""
+PENS
+"eth-seg" 1.0 0 -5825686 true "" "plot percent-similar-eth"
+"val-seg" 1.0 0 -10899396 true "" "plot percent-similar-val"
+
+MONITOR
+256
+522
+318
+567
+circle_blue
+count turtles with [shape = \"circle\" and ethnicity = \"local\"] / count turtles with [ethnicity = \"local\"]
+2
+1
+11
+
+MONITOR
+322
+522
+394
+567
+square_bue
+count turtles with [shape = \"square\" and  ethnicity = \"local\"] / count turtles with [ethnicity = \"local\"]
+2
+1
+11
+
+MONITOR
+399
+523
+479
+568
+circle_orange
+count turtles with [shape = \"circle\" and ethnicity = \"minority\"] / count turtles with [ethnicity = \"minority\"]
+2
+1
+11
+
+MONITOR
+481
+523
+565
+568
+square_orange
+count turtles with [shape = \"square\" and ethnicity = \"minority\"] / count turtles with [ethnicity = \"minority\"]
+2
+1
+11
+
+MONITOR
+416
+474
+491
+519
+local/minority
+count turtles with [ethnicity = \"local\"] / count turtles
+2
+1
+11
+
+MONITOR
+494
+474
+554
+519
+circle_%
+count turtles with [shape = \"circle\"] / count turtles
+2
+1
+11
+
+PLOT
+722
+163
+977
+313
+circle-blue
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and ethnicity = \"local\"]"
+"value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and ethnicity = \"local\"]"
+"density" 1.0 0 -7500403 true "" "plot mean [count (turtles-on neighbors)] of turtles with [shape = \"circle\" and ethnicity = \"local\"] / 8"
+"uti-eth" 1.0 0 -2674135 true "" "plot mean [ethnic-utility] of turtles with [shape = \"circle\"  and ethnicity = \"local\"]"
+"uti-val" 1.0 0 -13345367 true "" "plot mean [value-utility] of turtles with [shape = \"circle\"  and ethnicity = \"local\"]"
+
+PLOT
+721
+10
+980
+160
+square-blue
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and ethnicity = \"local\"]"
+"value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [ shape = [ shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and ethnicity = \"local\"]"
+"dennsity" 1.0 0 -7500403 true "" "plot mean [count (turtles-on neighbors)] of turtles with [shape = \"square\" and ethnicity = \"local\"] / 8"
+"uti-eth" 1.0 0 -2674135 true "" "plot mean [ethnic-utility] of turtles with [shape = \"square\" and ethnicity = \"local\"]"
+"uti-val" 1.0 0 -13345367 true "" "plot mean [value-utility] of turtles with [shape = \"square\" and ethnicity = \"local\"]"
+
+PLOT
+994
+10
+1224
+160
+square-orange
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"eth" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and ethnicity = \"minority\"]"
+"val" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"square\" and ethnicity = \"minority\"]"
+"density" 1.0 0 -7500403 true "" "plot mean [count (turtles-on neighbors)] of turtles with [shape = \"square\" and ethnicity = \"minority\"] / 8"
+"uti-eth" 1.0 0 -2674135 true "" "plot mean [ethnic-utility] of turtles with [shape = \"square\" and ethnicity = \"minority\"]"
+"uti-val" 1.0 0 -13345367 true "" "plot mean [value-utility] of turtles with [shape = \"square\" and ethnicity = \"minority\"]"
+
+PLOT
+996
+164
+1230
+314
+circle-orange
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"ethnic" 1.0 0 -5825686 true "" "plot mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = \"circle\" and ethnicity = \"minority\"]"
+"value" 1.0 0 -10899396 true "" "plot mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and  shape = \"circle\"  and ethnicity = \"minority\"]"
+"density" 1.0 0 -7500403 true "" "plot mean [count (turtles-on neighbors)] of turtles with [ shape = \"circle\"  and ethnicity = \"minority\"] / 8"
+"uti-eth" 1.0 0 -2674135 true "" "plot mean [ethnic-utility] of turtles with [  shape = \"circle\"  and ethnicity = \"minority\"]"
+"val-eth" 1.0 0 -13345367 true "" "plot mean [value-utility] of turtles with [ shape = \"circle\"  and ethnicity = \"minority\"]"
+
+PLOT
+996
+316
+1231
+462
+utility-global
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"uti-eth" 1.0 0 -2674135 true "" "plot mean [ethnic-utility] of turtles"
+"uti-val" 1.0 0 -13345367 true "" "plot mean [value-utility] of turtles"
+"uti-tot" 1.0 0 -7500403 true "" "plot mean [total-utility] of turtles"
+
+MONITOR
+1228
+10
+1291
+55
+eth-sq-bl
+mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and first shape = \"s\" and ethnicity = \"local\"]
+2
+1
+11
+
+MONITOR
+1226
+60
+1291
+105
+eth-sq-or
+mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and first shape = \"s\" and ethnicity = \"minority\"]
+2
+1
+11
+
+MONITOR
+1293
+10
+1353
+55
+val-sq-bl
+mean [count (turtles-on neighbors) with [first shape = [first shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and first shape = \"s\"  and ethnicity = \"local\"]
+2
+1
+11
+
+MONITOR
+1294
+59
+1357
+104
+val-sq-or
+mean [count (turtles-on neighbors) with [first shape = [first shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and first shape = \"s\"  and ethnicity = \"minority\"]
+2
+1
+11
+
+MONITOR
+1228
+110
+1289
+155
+den_sq_bl
+mean [count (turtles-on neighbors)] of turtles with [first shape = \"s\" and ethnicity = \"local\"] / 8
+2
+1
+11
+
+MONITOR
+1296
+109
+1358
+154
+den_sq_or
+mean [count (turtles-on neighbors)] of turtles with [first shape = \"s\" and ethnicity = \"minority\"] / 8
+2
+1
+11
+
+MONITOR
+1359
+10
+1422
+55
+ut-et-sq-bl
+mean [ethnic-utility] of turtles with [first shape = \"s\" and ethnicity = \"local\"]
+2
+1
+11
+
+MONITOR
+1360
+60
+1426
+105
+ut-et-sq-or
+mean [ethnic-utility] of turtles with [first shape = \"s\" and ethnicity = \"minority\"]
+2
+1
+11
+
+MONITOR
+1427
+10
+1493
+55
+ut-vl-sq-bl
+mean [value-utility] of turtles with [first shape = \"s\" and ethnicity = \"local\"]
+2
+1
+11
+
+MONITOR
+1430
+58
+1492
+103
+ut-vl-sq-or
+mean [value-utility] of turtles with [first shape = \"s\" and ethnicity = \"minority\"]
+2
+1
+11
+
+MONITOR
+1233
+164
+1291
+209
+eth-cl-bl
+mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and first shape = \"c\" and ethnicity = \"local\"]
+2
+1
+11
+
+MONITOR
+1294
+164
+1351
+209
+val-cl-bl
+mean [count (turtles-on neighbors) with [first shape = [first shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and first shape = \"c\"  and ethnicity = \"local\"]
+2
+1
+11
+
+MONITOR
+1357
+164
+1424
+209
+ut-et-cl-bl
+mean [ethnic-utility] of turtles with [first shape = \"c\" and ethnicity = \"local\"]
+2
+1
+11
+
+MONITOR
+1428
+164
+1493
+209
+ut-vl-cl-bl
+mean [value-utility] of turtles with [first shape = \"c\" and ethnicity = \"local\"]
+2
+1
+11
+
+MONITOR
+1234
+214
+1291
+259
+eth-cl-or
+mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and first shape = \"c\" and ethnicity = \"minority\"]
+2
+1
+11
+
+MONITOR
+1294
+213
+1352
+258
+val-cl-or
+mean [count (turtles-on neighbors) with [first shape = [first shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and first shape = \"c\"  and ethnicity = \"minority\"]
+2
+1
+11
+
+MONITOR
+1357
+211
+1425
+256
+ut-et-cl-or
+mean [ethnic-utility] of turtles with [first shape = \"c\" and ethnicity = \"minority\"]
+2
+1
+11
+
+MONITOR
+1428
+212
+1495
+257
+ut-vl-cl-or
+mean [value-utility] of turtles with [first shape = \"c\" and ethnicity = \"minority\"]
+2
+1
+11
+
+MONITOR
+1235
+262
+1291
+307
+den_cl_bl
+mean [count (turtles-on neighbors)] of turtles with [first shape = \"c\" and ethnicity = \"local\"] / 8
+2
+1
+11
+
+MONITOR
+1295
+260
+1353
+305
+den_cl_or
+mean [count (turtles-on neighbors)] of turtles with [first shape = \"c\" and ethnicity = \"minority\"] / 8
+2
+1
+11
+
+MONITOR
+1239
+315
+1296
+360
+eth-seg
+percent-similar-eth
+2
+1
+11
+
+MONITOR
+1240
+365
+1297
+410
+val-seg
+percent-similar-val
+2
+1
+11
+
+MONITOR
+1302
+314
+1359
+359
+eth-uti
+mean [ethnic-utility] of turtles
+2
+1
+11
+
+MONITOR
+1302
+364
+1359
+409
+val-uti
+mean [value-utility] of turtles
+2
+1
+11
+
+SLIDER
+1349
+499
+1497
+532
+num_alternative
+num_alternative
+1
+count patches with [not any? turtles-here]
+1.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+44
+309
+136
+342
+e_blue_sqr
+e_blue_sqr
+0
+100
+4.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+48
+498
+140
+531
+v_blue_crl
+v_blue_crl
+0
+100
+6.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+43
+351
+135
+384
+e_blue_crl
+e_blue_crl
+0
+100
+8.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+49
+458
+141
+491
+v_blue_sqr
+v_blue_sqr
+0
+100
+5.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+141
+309
+237
+342
+e_orng_sqr
+e_orng_sqr
+0
+100
+2.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+141
+353
+236
+386
+e_orng_crl
+e_orng_crl
+0
+100
+4.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1346
+426
+1492
+459
+similar_wanted_ethnic
+similar_wanted_ethnic
+0
+1
+1.0
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+147
+499
+242
+532
+v_orng_crl
+v_orng_crl
+0
+100
+6.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+148
+459
+242
+492
+v_orng_sqr
+v_orng_sqr
+0
+100
+8.0
+1
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+79
+286
+226
+304
+distribution beta_ethnic
+11
+0.0
+1
+
+TEXTBOX
+80
+434
+219
+452
+distribution beta_value
+11
+0.0
+1
+
+TEXTBOX
+31
+305
+46
+389
+↓\n↓\n↓\n↓\n↓\n↓
+11
+0.0
+1
+
+TEXTBOX
+0
+326
+32
+361
+value group
+11
+0.0
+1
+
+TEXTBOX
+43
+394
+174
+426
+→→→→→→→→→→→\n         ethnic group
+11
+0.0
+1
+
+TEXTBOX
+37
+452
+52
+536
+↓\n↓\n↓\n↓\n↓\n↓
+11
+0.0
+1
+
+TEXTBOX
+5
+480
+39
+512
+value group
+11
+0.0
+1
+
+TEXTBOX
+50
+538
+177
+568
+→→→→→→→→→→→\n         ethnic group
+11
+0.0
+1
+
+SLIDER
+1347
+462
+1491
+495
+similar_wanted_value
+similar_wanted_value
+0
+1
+1.0
+0.1
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+186
+396
+237
+428
+all four: all population
+10
+0.0
+1
+
+TEXTBOX
+188
+536
+244
+562
+all four: all population
+10
+0.0
+1
+
+TEXTBOX
+1263
+443
+1331
+481
+desired concentration
+11
+0.0
+1
+
+MONITOR
+257
+473
+338
+518
+prop_minority
+count turtles with [ethnicity = \"minority\"] / count turtles
+2
+1
+11
+
+MONITOR
+341
+474
+411
+519
+prop_local
+count turtles with [ethnicity = \"local\"] / count turtles
+2
+1
+11
+
+TEXTBOX
+9
+153
+127
+171
+ses local beta distribution
+10
+0.0
+1
+
+TEXTBOX
+126
+151
+265
+169
+ses minority beta distribution
+10
+0.0
+1
+
+SLIDER
+4
+168
+129
+201
+alpha-ses-blue
+alpha-ses-blue
+0.01
+30
+6.55
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+5
+203
+127
+236
+beta-ses-blue
+beta-ses-blue
+0.01
+30
+2.0
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+134
+167
+252
+200
+alpha-ses-org
+alpha-ses-org
+0.01
+30
+11.37
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+134
+203
+252
+236
+beta-ses-org
+beta-ses-org
+0.01
+30
+13.11
+0.01
+1
+NIL
+HORIZONTAL
+
+PLOT
+724
+464
+981
+614
+ses-tolerance distribution
+NIL
+NIL
+0.0
+1.0
+0.0
+10.0
+true
+true
+"" ""
+PENS
+"ses-local" 0.01 1 -13345367 true "" "histogram [ses] of turtles with [ethnicity = \"local\"]"
+"prob.tol-blue" 0.01 0 -10899396 true "" "histogram [prob-tolerance] of turtles with [ethnicity = \"local\"]"
+"ses-org" 0.01 1 -955883 true "" "histogram [ses] of turtles with [ethnicity = \"minority\"]"
+"prob.tol-org" 0.01 0 -2674135 true "" "histogram [prob-tolerance] of turtles with [ethnicity = \"minority\"]"
+
+SLIDER
+64
+241
+183
+274
+lambda_att
+lambda_att
+0
+10
+20.0
+1
+1
+NIL
+HORIZONTAL
+
+INPUTBOX
+4
+53
+83
+113
+mean-income
+0.274
+1
+0
+Number
+
+MONITOR
+87
+62
+137
+107
+alpha
+- ((mean-income * ((sd-income ^ 2) + (mean-income ^ 2) - mean-income)) / (sd-income ^ 2))
+2
+1
+11
+
+INPUTBOX
+142
+55
+204
+115
+sd-income
+0.067
+1
+0
+Number
+
+MONITOR
+206
+63
+256
+108
+beta
+(((sd-income ^ 2) + (mean-income ^ 2) - mean-income) * (mean-income - 1)) / (sd-income ^ 2)
+2
+1
+11
+
+TEXTBOX
+17
+117
+255
+135
+alpha & beta parameters must be positive!
+11
+0.0
+1
+
+MONITOR
+988
+481
+1072
+526
+m_ses_blue
+mean [ses] of turtles with [ethnicity = \"local\"]
+3
+1
+11
+
+MONITOR
+1073
+482
+1163
+527
+sd_ses_blue
+standard-deviation [ses] of turtles with [ethnicity = \"local\"]
+3
+1
+11
+
+MONITOR
+985
+546
+1072
+591
+m_ses_orange
+mean [ses] of turtles with [ethnicity = \"minority\"]
+3
+1
+11
+
+MONITOR
+1075
+546
+1160
+591
+sd_ses_orange
+standard-deviation [ses] of turtles with [ethnicity = \"minority\"]
+3
+1
+11
+
+TEXTBOX
+1248
+488
+1344
+595
+since desired concentration = 100% and number alternative = 1, maybe we can delete these
+11
+0.0
+1
+
+@#$#@#$#@
+## WHAT IS IT?
+
+Here the cross-ethnic attribution of agents (e.g. tolerance/conservatism) is derived from the ses/income of agents. Assumption here is that people can define similarity based on other characteristics (ACS paper), and that these characteristics might correlate with their socio-demographic characteristics, as income/social status in this case. Different justification can support this, theoretically as shared values due to integration through social mobility, or simple observation of correlation from data.
+
+The advantage and interest here is to simplify the simulation and justify the inclusion of income. Income will influence the distribution of the secondary cross-ethnic category of agents (e.g. tolerance), neighborhood wealth composition and resources to move (interacting with costs). 
+
+The logistic function is used to model the probability of an agent being tolerant/not tolerant due to its income: assuming a binary cross-ethnic characteristic and randomness  in the function, different scenarios can be implemented.
+
+## HOW IT WORKS
+
+Ses/income of agents follow a beta distribution [0,1] depending on their ethnicity: one distribution for local population and one distribution for minority population. This represent a realistic case to account for capital differences between groups. 
+
+The logistic function is used to model the probability of an agent being tolerant/not tolerant due to its income: P = 1 / (1 + exp(-l(x-x0))).
+Tolerance is one possible category. The idea is to have a binary cross-ethnic category. Implicitly, probability can be reverse (e.g. the richer, the more conservative) and randomness included.
+
+The sigmoid's midpoint is 0.5 (x0 in x - x0), considering the beta-distribution ranges [0,1]. The higher income is compared  to the middle point 0.5, the higher is the probability that the agent is tolerant. using median as sigmoid's point was tested, seemed not theoretically and pratically credible.
+
+Parameter lambda_att regulates the randomness, from 0, the probability to be tolerant or intolerant is equally 0.5, the higher it is, the more the income will influence the probability to be tolerant.
+
+
+## HOW TO USE IT
+
+- Density (of population), fraction_blue and beta distribution are the same
+
+NEW: parameters for beta distribution income and tolerance derived by income
+
+- local population: alpha-ses-blue and beta-ses-blue
+- minority population:  alpha-ses-org and beta-ses-org
+- lamda_att: parameter randomness income>tolerance in logistic function:
+0: total random and independent of income (50% tolerant, 50% conservative)
+4/5: good fit with distribution of income. Variable prob-tolerance is equivalent  to computed probability in logistic function
+higher values: overfit to extreme probability limit
+
+Probability from logistic  function affected by extreme distribution (e.g. close to 1)
+
+## THINGS TO NOTICE
+
+Added plots for income distribution and prob. being  tolerant according to ethnic group, and monitors mean and standard-deviation income.
+
+## POSSIBLE EXTENSIONS
+
+So far the cross-ethnic category is still binary. Overall I think it is good at this step to understand the model, makes easy in the neighborhood selection and comparison with original Schelling. And easier to compute in logistic function. 
+
+The additional characteristic, e.g. tolerance, might indeed depend on the ethnic group, e.g. due to social norms/cultural transmission. Implementing both cases now would confuse I think. To think about.
+
+## NEXT STEPS
+
+Relocation costs and price formation
+@#$#@#$#@
+default
+true
+0
+Polygon -7500403 true true 150 5 40 250 150 205 260 250
+
+airplane
+true
+0
+Polygon -7500403 true true 150 0 135 15 120 60 120 105 15 165 15 195 120 180 135 240 105 270 120 285 150 270 180 285 210 270 165 240 180 180 285 195 285 165 180 105 180 60 165 15
+
+arrow
+true
+0
+Polygon -7500403 true true 150 0 0 150 105 150 105 293 195 293 195 150 300 150
+
+box
+false
+0
+Polygon -7500403 true true 150 285 285 225 285 75 150 135
+Polygon -7500403 true true 150 135 15 75 150 15 285 75
+Polygon -7500403 true true 15 75 15 225 150 285 150 135
+Line -16777216 false 150 285 150 135
+Line -16777216 false 150 135 15 75
+Line -16777216 false 150 135 285 75
+
+bug
+true
+0
+Circle -7500403 true true 96 182 108
+Circle -7500403 true true 110 127 80
+Circle -7500403 true true 110 75 80
+Line -7500403 true 150 100 80 30
+Line -7500403 true 150 100 220 30
+
+butterfly
+true
+0
+Polygon -7500403 true true 150 165 209 199 225 225 225 255 195 270 165 255 150 240
+Polygon -7500403 true true 150 165 89 198 75 225 75 255 105 270 135 255 150 240
+Polygon -7500403 true true 139 148 100 105 55 90 25 90 10 105 10 135 25 180 40 195 85 194 139 163
+Polygon -7500403 true true 162 150 200 105 245 90 275 90 290 105 290 135 275 180 260 195 215 195 162 165
+Polygon -16777216 true false 150 255 135 225 120 150 135 120 150 105 165 120 180 150 165 225
+Circle -16777216 true false 135 90 30
+Line -16777216 false 150 105 195 60
+Line -16777216 false 150 105 105 60
+
+car
+false
+0
+Polygon -7500403 true true 300 180 279 164 261 144 240 135 226 132 213 106 203 84 185 63 159 50 135 50 75 60 0 150 0 165 0 225 300 225 300 180
+Circle -16777216 true false 180 180 90
+Circle -16777216 true false 30 180 90
+Polygon -16777216 true false 162 80 132 78 134 135 209 135 194 105 189 96 180 89
+Circle -7500403 true true 47 195 58
+Circle -7500403 true true 195 195 58
+
+circle
+false
+0
+Circle -7500403 true true 0 0 300
+
+circle 2
+false
+0
+Circle -7500403 true true 0 0 300
+Circle -16777216 true false 30 30 240
+
+cow
+false
+0
+Polygon -7500403 true true 200 193 197 249 179 249 177 196 166 187 140 189 93 191 78 179 72 211 49 209 48 181 37 149 25 120 25 89 45 72 103 84 179 75 198 76 252 64 272 81 293 103 285 121 255 121 242 118 224 167
+Polygon -7500403 true true 73 210 86 251 62 249 48 208
+Polygon -7500403 true true 25 114 16 195 9 204 23 213 25 200 39 123
+
+cylinder
+false
+0
+Circle -7500403 true true 0 0 300
+
+dot
+false
+0
+Circle -7500403 true true 90 90 120
+
+face happy
+false
+0
+Circle -7500403 true true 8 8 285
+Circle -16777216 true false 60 75 60
+Circle -16777216 true false 180 75 60
+Polygon -16777216 true false 150 255 90 239 62 213 47 191 67 179 90 203 109 218 150 225 192 218 210 203 227 181 251 194 236 217 212 240
+
+face neutral
+false
+0
+Circle -7500403 true true 8 7 285
+Circle -16777216 true false 60 75 60
+Circle -16777216 true false 180 75 60
+Rectangle -16777216 true false 60 195 240 225
+
+face sad
+false
+0
+Circle -7500403 true true 8 8 285
+Circle -16777216 true false 60 75 60
+Circle -16777216 true false 180 75 60
+Polygon -16777216 true false 150 168 90 184 62 210 47 232 67 244 90 220 109 205 150 198 192 205 210 220 227 242 251 229 236 206 212 183
+
+fish
+false
+0
+Polygon -1 true false 44 131 21 87 15 86 0 120 15 150 0 180 13 214 20 212 45 166
+Polygon -1 true false 135 195 119 235 95 218 76 210 46 204 60 165
+Polygon -1 true false 75 45 83 77 71 103 86 114 166 78 135 60
+Polygon -7500403 true true 30 136 151 77 226 81 280 119 292 146 292 160 287 170 270 195 195 210 151 212 30 166
+Circle -16777216 true false 215 106 30
+
+flag
+false
+0
+Rectangle -7500403 true true 60 15 75 300
+Polygon -7500403 true true 90 150 270 90 90 30
+Line -7500403 true 75 135 90 135
+Line -7500403 true 75 45 90 45
+
+flower
+false
+0
+Polygon -10899396 true false 135 120 165 165 180 210 180 240 150 300 165 300 195 240 195 195 165 135
+Circle -7500403 true true 85 132 38
+Circle -7500403 true true 130 147 38
+Circle -7500403 true true 192 85 38
+Circle -7500403 true true 85 40 38
+Circle -7500403 true true 177 40 38
+Circle -7500403 true true 177 132 38
+Circle -7500403 true true 70 85 38
+Circle -7500403 true true 130 25 38
+Circle -7500403 true true 96 51 108
+Circle -16777216 true false 113 68 74
+Polygon -10899396 true false 189 233 219 188 249 173 279 188 234 218
+Polygon -10899396 true false 180 255 150 210 105 210 75 240 135 240
+
+house
+false
+0
+Rectangle -7500403 true true 45 120 255 285
+Rectangle -16777216 true false 120 210 180 285
+Polygon -7500403 true true 15 120 150 15 285 120
+Line -16777216 false 30 120 270 120
+
+leaf
+false
+0
+Polygon -7500403 true true 150 210 135 195 120 210 60 210 30 195 60 180 60 165 15 135 30 120 15 105 40 104 45 90 60 90 90 105 105 120 120 120 105 60 120 60 135 30 150 15 165 30 180 60 195 60 180 120 195 120 210 105 240 90 255 90 263 104 285 105 270 120 285 135 240 165 240 180 270 195 240 210 180 210 165 195
+Polygon -7500403 true true 135 195 135 240 120 255 105 255 105 285 135 285 165 240 165 195
+
+line
+true
+0
+Line -7500403 true 150 0 150 300
+
+line half
+true
+0
+Line -7500403 true 150 0 150 150
+
+pentagon
+false
+0
+Polygon -7500403 true true 150 15 15 120 60 285 240 285 285 120
+
+person
+false
+0
+Circle -7500403 true true 110 5 80
+Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 195 90
+Rectangle -7500403 true true 127 79 172 94
+Polygon -7500403 true true 195 90 240 150 225 180 165 105
+Polygon -7500403 true true 105 90 60 150 75 180 135 105
+
+plant
+false
+0
+Rectangle -7500403 true true 135 90 165 300
+Polygon -7500403 true true 135 255 90 210 45 195 75 255 135 285
+Polygon -7500403 true true 165 255 210 210 255 195 225 255 165 285
+Polygon -7500403 true true 135 180 90 135 45 120 75 180 135 210
+Polygon -7500403 true true 165 180 165 210 225 180 255 120 210 135
+Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
+Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
+Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
+
+sheep
+false
+15
+Circle -1 true true 203 65 88
+Circle -1 true true 70 65 162
+Circle -1 true true 150 105 120
+Polygon -7500403 true false 218 120 240 165 255 165 278 120
+Circle -7500403 true false 214 72 67
+Rectangle -1 true true 164 223 179 298
+Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
+Circle -1 true true 3 83 150
+Rectangle -1 true true 65 221 80 296
+Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
+Polygon -7500403 true false 276 85 285 105 302 99 294 83
+Polygon -7500403 true false 219 85 210 105 193 99 201 83
+
+square
+false
+0
+Rectangle -7500403 true true 30 30 270 270
+
+square 2
+false
+0
+Rectangle -7500403 true true 30 30 270 270
+Rectangle -16777216 true false 60 60 240 240
+
+star
+false
+0
+Polygon -7500403 true true 151 1 185 108 298 108 207 175 242 282 151 216 59 282 94 175 3 108 116 108
+
+target
+false
+0
+Circle -7500403 true true 0 0 300
+Circle -16777216 true false 30 30 240
+Circle -7500403 true true 60 60 180
+Circle -16777216 true false 90 90 120
+Circle -7500403 true true 120 120 60
+
+tree
+false
+0
+Circle -7500403 true true 118 3 94
+Rectangle -6459832 true false 120 195 180 300
+Circle -7500403 true true 65 21 108
+Circle -7500403 true true 116 41 127
+Circle -7500403 true true 45 90 120
+Circle -7500403 true true 104 74 152
+
+triangle
+false
+0
+Polygon -7500403 true true 150 30 15 255 285 255
+
+triangle 2
+false
+0
+Polygon -7500403 true true 150 30 15 255 285 255
+Polygon -16777216 true false 151 99 225 223 75 224
+
+truck
+false
+0
+Rectangle -7500403 true true 4 45 195 187
+Polygon -7500403 true true 296 193 296 150 259 134 244 104 208 104 207 194
+Rectangle -1 true false 195 60 195 105
+Polygon -16777216 true false 238 112 252 141 219 141 218 112
+Circle -16777216 true false 234 174 42
+Rectangle -7500403 true true 181 185 214 194
+Circle -16777216 true false 144 174 42
+Circle -16777216 true false 24 174 42
+Circle -7500403 false true 24 174 42
+Circle -7500403 false true 144 174 42
+Circle -7500403 false true 234 174 42
+
+turtle
+true
+0
+Polygon -10899396 true false 215 204 240 233 246 254 228 266 215 252 193 210
+Polygon -10899396 true false 195 90 225 75 245 75 260 89 269 108 261 124 240 105 225 105 210 105
+Polygon -10899396 true false 105 90 75 75 55 75 40 89 31 108 39 124 60 105 75 105 90 105
+Polygon -10899396 true false 132 85 134 64 107 51 108 17 150 2 192 18 192 52 169 65 172 87
+Polygon -10899396 true false 85 204 60 233 54 254 72 266 85 252 107 210
+Polygon -7500403 true true 119 75 179 75 209 101 224 135 220 225 175 261 128 261 81 224 74 135 88 99
+
+wheel
+false
+0
+Circle -7500403 true true 3 3 294
+Circle -16777216 true false 30 30 240
+Line -7500403 true 150 285 150 15
+Line -7500403 true 15 150 285 150
+Circle -7500403 true true 120 120 60
+Line -7500403 true 216 40 79 269
+Line -7500403 true 40 84 269 221
+Line -7500403 true 40 216 269 79
+Line -7500403 true 84 40 221 269
+
+wolf
+false
+0
+Polygon -16777216 true false 253 133 245 131 245 133
+Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
+Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
+
+x
+false
+0
+Polygon -7500403 true true 270 75 225 30 30 225 75 270
+Polygon -7500403 true true 30 75 75 30 270 225 225 270
+@#$#@#$#@
+NetLogo 6.1.1
+@#$#@#$#@
+@#$#@#$#@
+@#$#@#$#@
+<experiments>
+  <experiment name="experiment" repetitions="5" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="1000"/>
+    <metric>mean [total-utility] of turtles</metric>
+    <metric>mean [ethnic-utility] of turtles</metric>
+    <metric>mean [value-utility] of turtles</metric>
+    <metric>mean [count (turtles-on neighbors)]  of turtles / 8</metric>
+    <metric>mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors)] of turtles with [count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean  [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors)]  of turtles with [count (turtles-on neighbors) &gt;= 1]</metric>
+    <metric>mean [total-utility] of turtles  with [ethnicity = "local"]</metric>
+    <metric>mean [ethnic-utility] of turtles with [ethnicity = "local"]</metric>
+    <metric>mean [value-utility] of turtles with [ethnicity = "local"]</metric>
+    <metric>mean [count (turtles-on neighbors)]  of turtles  with [ethnicity = "local"] / 8</metric>
+    <metric>mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors)] of turtles with [count (turtles-on neighbors) &gt;= 1 and ethnicity = "local"]</metric>
+    <metric>mean  [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors)]  of turtles with [count (turtles-on neighbors) &gt;= 1 and ethnicity = "local"]</metric>
+    <metric>mean [total-utility] of turtles  with [ethnicity = "minority"]</metric>
+    <metric>mean [ethnic-utility] of turtles with [ethnicity = "minority"]</metric>
+    <metric>mean [value-utility] of turtles with [ethnicity = "minority"]</metric>
+    <metric>mean [count (turtles-on neighbors)]  of turtles  with [ethnicity = "minority"] / 8</metric>
+    <metric>mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors)] of turtles with [count (turtles-on neighbors) &gt;= 1 and ethnicity = "minority"]</metric>
+    <metric>mean  [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors)]  of turtles with [count (turtles-on neighbors) &gt;= 1 and ethnicity = "minority"]</metric>
+    <metric>mean [total-utility] of turtles  with [shape = "square"]</metric>
+    <metric>mean [ethnic-utility] of turtles with [shape = "square"]</metric>
+    <metric>mean [value-utility] of turtles with [shape = "square"]</metric>
+    <metric>mean [count (turtles-on neighbors)]  of turtles  with [shape = "square"] / 8</metric>
+    <metric>mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors)] of turtles with [count (turtles-on neighbors) &gt;= 1 and shape = "square"]</metric>
+    <metric>mean  [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors)]  of turtles with [count (turtles-on neighbors) &gt;= 1 and shape = "square"]</metric>
+    <metric>mean [total-utility] of turtles  with [shape = "circle"]</metric>
+    <metric>mean [ethnic-utility] of turtles with [shape = "circle"]</metric>
+    <metric>mean [value-utility] of turtles with [shape = "circle"]</metric>
+    <metric>mean [count (turtles-on neighbors)]  of turtles  with [shape = "circle"] / 8</metric>
+    <metric>mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors)] of turtles with [count (turtles-on neighbors) &gt;= 1 and shape = "circle"]</metric>
+    <metric>mean  [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors)]  of turtles with [count (turtles-on neighbors) &gt;= 1 and shape = "circle"]</metric>
+    <metric>mean [total-utility] of turtles  with [ethnicity = "local" and shape = "circle"]</metric>
+    <metric>mean [ethnic-utility] of turtles with [ethnicity = "local" and shape = "circle"]</metric>
+    <metric>mean [value-utility] of turtles with [ethnicity = "local" and shape = "circle"]</metric>
+    <metric>mean [count (turtles-on neighbors)]  of turtles  with [ethnicity = "local" and shape = "circle"] / 8</metric>
+    <metric>mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors)] of turtles with [count (turtles-on neighbors) &gt;= 1 and ethnicity = "local" and shape = "circle"]</metric>
+    <metric>mean  [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors)]  of turtles with [count (turtles-on neighbors) &gt;= 1 and ethnicity = "local" and shape = "circle"]</metric>
+    <metric>mean [total-utility] of turtles  with [ethnicity = "minority" and shape = "circle"]</metric>
+    <metric>mean [ethnic-utility] of turtles with [ethnicity = "minority" and shape = "circle"]</metric>
+    <metric>mean [value-utility] of turtles with [ethnicity = "minority" and shape = "circle"]</metric>
+    <metric>mean [count (turtles-on neighbors)]  of turtles  with [ethnicity = "minority" and shape = "circle"] / 8</metric>
+    <metric>mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors)] of turtles with [count (turtles-on neighbors) &gt;= 1 and ethnicity = "minority" and shape = "circle"]</metric>
+    <metric>mean  [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors)]  of turtles with [count (turtles-on neighbors) &gt;= 1 and ethnicity = "minority" and shape = "circle"]</metric>
+    <metric>mean [total-utility] of turtles  with [ethnicity = "local" and shape = "square"]</metric>
+    <metric>mean [ethnic-utility] of turtles with [ethnicity = "local" and shape = "square"]</metric>
+    <metric>mean [value-utility] of turtles with [ethnicity = "local" and shape = "square"]</metric>
+    <metric>mean [count (turtles-on neighbors)]  of turtles  with [ethnicity = "local" and shape = "square"] / 8</metric>
+    <metric>mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors)] of turtles with [count (turtles-on neighbors) &gt;= 1 and ethnicity = "local" and shape = "square"]</metric>
+    <metric>mean  [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors)]  of turtles with [count (turtles-on neighbors) &gt;= 1 and ethnicity = "local" and shape = "square"]</metric>
+    <metric>mean [total-utility] of turtles  with [ethnicity = "minority" and shape = "square"]</metric>
+    <metric>mean [ethnic-utility] of turtles with [ethnicity = "minority" and shape = "square"]</metric>
+    <metric>mean [value-utility] of turtles with [ethnicity = "minority" and shape = "square"]</metric>
+    <metric>mean [count (turtles-on neighbors)]  of turtles  with [ethnicity = "minority" and shape = "square"] / 8</metric>
+    <metric>mean [count (turtles-on neighbors) with [ethnicity = [ethnicity] of myself] / count (turtles-on neighbors)] of turtles with [count (turtles-on neighbors) &gt;= 1 and ethnicity = "minority" and shape = "square"]</metric>
+    <metric>mean  [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors)]  of turtles with [count (turtles-on neighbors) &gt;= 1 and ethnicity = "minority" and shape = "square"]</metric>
+    <enumeratedValueSet variable="i_v_cl">
+      <value value="0"/>
+      <value value="0.3"/>
+      <value value="0.5"/>
+      <value value="0.7"/>
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="density">
+      <value value="70"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="lambda">
+      <value value="55"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="i_e_cl">
+      <value value="0"/>
+      <value value="0.3"/>
+      <value value="0.5"/>
+      <value value="0.7"/>
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="i_e_sq">
+      <value value="0"/>
+      <value value="0.3"/>
+      <value value="0.5"/>
+      <value value="0.7"/>
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="utility_function">
+      <value value="&quot;threshold&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="circle_blue">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="i_v_sq">
+      <value value="0"/>
+      <value value="0.3"/>
+      <value value="0.5"/>
+      <value value="0.7"/>
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="fraction_blue">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="circle_orange">
+      <value value="50"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
+@#$#@#$#@
+@#$#@#$#@
+default
+0.0
+-0.2 0 0.0 1.0
+0.0 1 1.0 0.0
+0.2 0 0.0 1.0
+link direction
+true
+0
+Line -7500403 true 150 150 90 180
+Line -7500403 true 150 150 210 180
+@#$#@#$#@
+0
+@#$#@#$#@

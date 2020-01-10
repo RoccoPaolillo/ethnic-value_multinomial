@@ -1,3 +1,6 @@
+ethnic_value_log-ses with logistic function for attribution ses-value
+
+
 Reference to check
 
 To check literature Neighborhood chance and neighborhood change: A comment on Bruch and Mare
