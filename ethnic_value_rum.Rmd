@@ -65,6 +65,7 @@ library(dplyr)
 
 \abstract{}
 
+# INTRO FOCUSED ON SCHELLING, MUST BE ON HYBRID SEGREGATION
 
 # Introduction {-}
 
