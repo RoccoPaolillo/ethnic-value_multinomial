@@ -10,7 +10,7 @@ author:  Rocco Paolillo, Andreas Flache
 # date:  "`r  as.Date(Sys.time(), '%d %B %Y')`"
 # "`r  as.Date(Sys.time(), '%d %B %Y')`"
 language: en-GB
-bibliography: "references.bib"
+bibliography: "material/references.bib"
 always_allow_html: yes
 header-includes:
 - \usepackage{float}
@@ -68,35 +68,17 @@ library(dplyr)
 
 # Introduction {-}
 
-* Schelling's model and previous work. Interaction of preferences.
-Schelling's model
-Literature update @verweij2006clumsy
-@paolillo2018 Diverse dimensions can define individuals and their similarity. Results from @paolillo2018
-@hedstrom2009oxford, chapter 11, 12
+Residential segregation can be defined as the unequal and non random distribution of people  belonging to different groups within the spatial units of a city [@bruch2009segregation;@clark2008understanding]. The interest of the social sciences on the topic is due the consequences it can have on the chance of interaction and integration between groups [@bolt2010linking], with exclusion of minorities in deprived neighborhoods and perpetuation of inequalities through generations [@van2012understanding]. A key research question in literature is on the dynamics of emergence of residential segregation. Two hystorical hypothesis are the spatial assimilation theory and the place stratification theory. According to the former, spatial distance reflects the social distance between groups, and can change as effect of social moblity (@coulter2019ethnic), while the latter focuses on the strategies of gatekeepers, e.g. sellers, to prevent undesired newcomers to neighborhood (@horr2018ethnic). Both have in common the assumption that residential  segregation is the intended result of individual behavior. A third perspective can be that of social complexity and Schelling's agent-based model of residential segregation, which addresses residential segregation as a stable property of the aggregated behavior of people who seek to satisfy even mild homophily preferences within spatial constraints [@schelling1969;@schelling1971;@schelling1978]. The paper here presented follows this stream of literature and aims at contributing to Schelling's type dynamics. \par
 
-
-* Why an additional characteristic than ethnicity, literature in residential studies. How it correlates with income/social mobility
-@esser2010, transmission of capital
-south2016neighborhood on life course economic capital transmission
+Schelling focused on the black and white population in the U.S. cities in the '60s and proposed an alternative to segregation as due to overt discrimination. His model is built on homophily preferences of movers and threshold function of their relocation choice [@schelling1969;@schelling1971;@schelling1978]. Homophily preferences refer to the tendency of people to aggregate with similar ones, with not derogation of the outgroup, while threshold function means that people will move out of a neighborhood to a random relocation only under the condition that the concentration of similar ones falls below a desired percentage. Residential segregation emerges from the interaction of people following such behavior within spatial constraints due first to density of population, even in case of mild preferences. Within the literature stemming from Schelling, @paolillo2018 focused on his concept of similarity as based on a "twofold, exhaustive and recognizable distinction" [@schelling1969, p.488]. Although not in the intention of Schelling, literature has most interpreted this as a binary definition of ethnicity as fundamental to group membership and segregation. As basic consideration, @paolillo2018 argued that in modern and diverse societies ethnicity might not be the unique driver to membership and exclusion [@alba2014twilight;@crul2016super] and that the way people navigate diversity in society might be more important than ethnicity per se. The authors introduced an additional definition of similarity as value-orientation independent of ethnic membership, and focused on the value of tolerance towards diversity [@dragolov2016social]. Theoretically, they backed this idea with the ethnic boundary making perspective, which focuses on the mechanisms that generate and consolidate boundaries of in-group/out-group definition over the given ethnic membership [@wimmer2013;@wimmer09;@esser2010]. They divided the population of agents between intolerant ethnicity-oriented, which considered as similar those agents of the same ethnicity regardless of their value orientation, and tolerant value-oriented, which considered as similar those agents of the same value orientation despite their ethnicity. They kept the original threshold behavior for both types of agents. Additionally, they investigated the consequences of relative group sizes, as critical in the social sciences [@esser2010; @blau1977macrosociological] and less studied in Schelling's literature [@schelling1971;@troitzsch2017axiomatic]. As overall results, the emergence of value segregation by tolerant agents reduced ethhnic segregation compared to the original Schelling's model. Yet, the key result was the spillover effect between the two types of segregation: ethnically mixed neighborhoods formed by tolerant agents became eventually attractive to intolerant agents, due to higher chance to find members of their ethnic group. The tendency was higher for intolerants in the minority condition. The author investigated under what rate of desired concentration for the two groups all agents were happy with their relocation, in particular until when value-oriented agents would have accepted intolerant agents before leaving, so that originally ethnically mixed neighborhoods turned ethnically homogeneous. In this paper, we want to extend the modifications made by @paolillo2018 with introduction of value oriented agents to the recent progress in Schelling's literature for what concerns the relocation choice of agents, in particular adopting a different function than threshold and the framework of random utility models.\par
+Random utility models are not new in empirical studies of residential segregation [@frankhauser2016deciding]. Stemming from utility maximization paradigm, this class of models assumes that people aim at taking the option that best satisfies their needs, summarized within an utility function, but still, they incorporate randomness as a component of the choice, meaning not always the maximization of utility is granted [@hess2018revisiting]. Assumption of these models is that utility is defined by diverse dimensions and each is quantified by a parameter $\beta$ unknown in principle, and that can be only estimated by empirical observation of the options people selected from [@manski1977structure]. Randomness in utility has several reasons, e.g. people don't know all available options, utility might differ among people in a population, and people can fail in picking up the desired option [@hess2018revisiting]. Within these models, the conditional logit model by @mcfadden1973conditional ($P_{i \in k} = \frac{expU{i}}{\sum U^{k}}$) had particular success into residential studies, since it allows to combine socio-demographic characteristics of the selector with the characteristics of the options to select from. In recent years, the paradigm of random utility model and McFadden's conditional logit have been implemented into Schelling's  type dynamics [@zhang2004;@xie2012modeling;@bruch2014population]. The interest of agent-based modelers was to model a more appropriate decision rule under relocation choice, linking with literature in empirical studies and comparison with empirical data through calibration of $\beta$ and utility function [@bruch2012methodological]. In particular @bruch2006 paper implemented alternative to the Schelling's threshold function, and focused on the linear continuuous function, which means agents have the maximum of utility at $100 \%$ similars' concentration (monotonic linearity). Revising results after detenction of a coding error by @van2009, @bruch2009preferences show how the linear function compared to the threshold function slows down the convergence towards segregation of the Schelling's model that remains a constant outcome, and that agents become more sensitive to change in the neighborhood composition with more fined scenarios that a threshold model would show. Both for the insights into segregation dynamics and for the threoretical fit of linear function to utility paradigm, this approach appears noteworthy. Despite the inclusion of contingencies to relocation choice as price formation, most of these studies remains on the original Schelling's dimension of ethnic homophily as definition of individual preferences. We want to extend this aspect and implement the linear function used by @bruch2009preferences and random utility model within the extension of both ethnic and value preferences of agents [@paolillo2018].\par
+In sum, the aim of this paper is to contribute to the literature on Schelling's dynamics by including both ethnic and value preferences underlying relocation choice of agents and emerging segregation, investigating their mutual interdependence. To this goal, we extend the work by @paolillo2018 by aligning it to recent trends in Schelling's implementation within random utility models and substituting the original threshold function with linear utility function. We include a different parameter $\beta$ for ethnic homophily and value homophily for each type of agent (\ref{fig:model}), which is a more realistic assumption. Following the conditional logit model, such implementation can disentangle the case of people's preferences varying across ethnic groups as well as within ethnic groups due to the value orientation of agents. Similarly, the difference in degree of value homophily (or ethnic homophily) can vary for agents identified as tolerant but belonging to different ethnic groups. Additionally, we will explore these sets within the condition of relative group size for ethnicity and value orientation. The main contribution of the paper is to link such parameter for subgroups of population  and distribution of different types of agents to both ethnic and value segregation compared to previous studies. Furthermore, the paper aims at disentangle the conditions under which value segregation might mitigate, or spur ethnic segregation, and vice versa for the interdependence of ethnic segregation over value segregation.
 
 
 
-* Update: justification for random utility models, literature in ABM
-Better define the individual  decision process
-Link with empirical data
-@klabunde2016decision
-@bruch2019choice
-
-
-* Costs
-
-
-
-* Research question
-How would the interaction between $\beta$ for different dimensions affect Schelling's scenarios?
-How the effect would change when income is included? And correlation between income and socio-demographic characteristics (value) included?
-
-
+```{r model, fig.pos ='h!',out.width='50%',out.height='90%',fig.show='hold',fig.align='center', fig.cap= "Draft of agents attribution and emerging segregations, to revise.",  echo = FALSE, include=TRUE}
+knitr::include_graphics("C:/Users/rocpa/OneDrive/Desktop/AF/ethnic-value_multinomial/material/model_pr.jpg")
+```
 
 # Model and Experiments
 
@@ -120,7 +102,7 @@ Collected ethnic segregation, here reported for different ticks (Fig: \ref{fig:o
 
 ```{r onebeta, fig.cap="Comparison of ethnic segregation for one beta-ethnic, not interaction. Used one-beta.csv from simulation rum-eth.nlogo" , include=TRUE, echo=FALSE}
 
-# setwd("C:/Users/rocpa/OneDrive/Desktop/AF-02-12/ethnic-value_multinomial/material/beta-diff")
+setwd("C:/Users/rocpa/OneDrive/Desktop/AF/ethnic-value_multinomial/material/beta-diff/")
 
 a <- read.csv("beta-et.csv",sep = ",",skip = 6)
 names(a)[names(a) == "mean..count..turtles.on.neighbors..with..ethnicity....ethnicity..of.myself....count..turtles.on.neighbors....of.turtles.with..count..turtles.on.neighbors.....1." ] <- "eth_seg"
@@ -146,7 +128,7 @@ Collected ethnic segregation, here reported at ticks = 1000, and faceted $\beta_
 
 ```{r twobeta, fig.cap="Comparison of ethnic segregation for interaction beta-ethnic and beta-value. Used diff_10.csv from simulation rum_eth-val.nlogo. Histogram don't appear for conditions of b_iv > b_ie, which are excluded from BehaviorSpace.", include=TRUE, echo=FALSE}
 
-# setwd("C:/Users/rocpa/OneDrive/Desktop/AF-02-12/ethnic-value_multinomial/material/beta-diff")
+setwd("C:/Users/rocpa/OneDrive/Desktop/AF/ethnic-value_multinomial/material/beta-diff/")
 
 b  <-  read.csv("beta-et-vl.csv",sep = ",",skip = 6)
 names(b)[names(b) == "mean..count..turtles.on.neighbors..with..ethnicity....ethnicity..of.myself....count..turtles.on.neighbors...of.turtles.with..count..turtles.on.neighbors.....1." ] <- "eth_seg"
@@ -160,247 +142,6 @@ c  <- cbind(c,diff_ev)
 c %>%  filter(ticks == 1000)  %>% ggplot(aes(x = beta.ie, y = eth_seg)) + geom_bar(stat = "identity") + facet_wrap(~  beta.iv, labeller = label_both) 
 
 ```
-
-
-
-
-# APPENDIX, Functions used in the simulations
-
-
-##  Derivate probability being tolerant/not tolerant from income 
-
-Already in the model, income follows beta distribution. Tolerance is one possible implementation, the main point is a cross-ethnic category that might depend on the income distribution (Fig: \ref{fig:attincome})
-
-
-
-$$P = \frac{1}{(1 + \exp(-\lambda\times(i - 0.5)))}$$
-
-
-
-where: \par
-$\textit{i}$: income \par
-$i - 0.5$: considering income follows beta distribution $i\in{[0,1]}$. The higher income is than 0.5, the higher the probability the agent is tolerant \par
-$\lambda$: parameter of randomness on the derivation tolerance from income \par
-
-```{r attincome,fig.pos='H',out.width="80%",fig.align='center',fig.cap="Probability of binary cross-category (tolerant/not tolerant) from the distribution of income",include=TRUE, echo=FALSE}
-
-# How the cross-category, e.g. tolerance can depend on wealth/income distribution, which can be used also for housing purchasing
-# Seems feasible to me to use beta distribution for wealth at this point. To be used: logistic function, which
-
-f_att <- function(i,l){   # utility function as single-peaked
- A <- 1 / (1 + exp((-l)*(i - 0.5)))
-}
-
-  l <- 6
-  
-
-# a_1n <- f_att(-1,l)
-# a_2n <- f_att(-0.9,l)
-# a_3n <- f_att(-0.8,l)
-# a_4n <- f_att(-0.7,l)
-# a_5n <- f_att(-0.6,l)
-# a_6n <- f_att(-0.5,l)
-# a_7n <- f_att(-0.4,l)
-# a_8n <- f_att(-0.3,l)
-# a_9n <- f_att(-0.2,l)
-# a_10n <- f_att(-0.1,l)  
-    
-a_0 <- f_att(0,l)
-a_1 <- f_att(0.1,l)
-a_2 <- f_att(0.2,l)
-a_3 <- f_att(0.3,l)
-a_4 <- f_att(0.4,l)
-a_5 <- f_att(0.5,l)
-a_6 <- f_att(0.6,l)
-a_7 <- f_att(0.7,l)
-a_8 <- f_att(0.8,l)
-a_9 <- f_att(0.9,l)
-a_10 <- f_att(1,l)
-
-Prob_A <- c(a_0,a_1,a_2,a_3,a_4,a_5,a_6,a_7,a_8,a_9,a_10)
-income <- seq(0,1, by = 0.1)
-
-plot(income,Prob_A,ylab = "P_attA",xlab="income")
-
-
-
-
-```
-
-##  Economic Utility related to price
-
-Utility for the agent to select the most advantageous option  (Fig: \ref{fig:economic}). I figured it out so that income will have an indirect effect on costs of relocation. Role within the agent to rank the options (preferring the cheapest one), but also between agents: given the same price for a location, utility will be higher for agents who have higher income, since they can afford higher costs.
-
-
-
-$$U_{ec} = \frac{i - p}{i}$$
-
-
-
-where: \par
-$\textit{i}$: income \par
-$p$: price of potential relocation \par
-
-
-```{r economic,fig.pos='H',out.width="80%",fig.align='center',fig.cap="Cost formation",include=TRUE, echo=FALSE}
-
-# tentative of utility economic, given by the difference (income - price), so to represent how convenient a location is. 
-# ideally identity equation: if income < price, probability would be 0. If beta is negative, the probability could still be computed, which is nonsense
-
-f_cst <- function(i,p){   # utility function as single-peaked
- if (i < p){
-    U <- NA}else{
-  U <- ((i - p) / i)}
-}
-
-  i <- 0.7
-  
-i_0 <- f_cst(i,0)
-i_1 <- f_cst(i,0.1)
-i_2 <- f_cst(i,0.2)
-i_3 <- f_cst(i,0.3)
-i_4 <- f_cst(i,0.4)
-i_5 <- f_cst(i,0.5)
-i_6 <- f_cst(i,0.6)
-i_7 <- f_cst(i,0.7)
-i_8 <- f_cst(i,0.8)
-i_9 <- f_cst(i,0.9)
-i_10 <- f_cst(i,1)
-
-utility <- c(i_0,i_1,i_2,i_3,i_4,i_5,i_6,i_7,i_8,i_9,i_10)
-price <- seq(0,1, by = 0.1)
-
-plot(price,utility,ylab = "Economic Utility",xlab="price", main = paste0("income =",i))
-
-
-
-
-```
-
-
-```{r economic0,fig.pos='H',out.width="80%",fig.align='center',fig.cap="Cost formation",include=TRUE, echo=FALSE}
-
-# tentative of utility economic, given by the difference (income - price), so to represent how convenient a location is. 
-# ideally identity equation: if income < price, probability would be 0. If beta is negative, the probability could still be computed, which is nonsense
-
-f_cst <- function(i,p){   # utility function as single-peaked
- if (i < p){
-    U <- NA}else{
-  U <- ((i - p) / i)}
-}
-
-inc <- c(rep(0.80,11), rep(0.50,11))
-price <- rep(seq(0,1, by = 0.1),2)
-
-
-df <- cbind(inc,price)
-
-df_fin <- data.frame(cbind(df,ut_ec = mapply(function(x,y)  if (x < y){NA}else{round(((x - y) / x),2)}, inc, price) ))
-
-
-ggplot(df_fin,aes(x = price, y = ut_ec, color = as.factor(inc))) + geom_point() + scale_color_manual(values=c("red", "blue"), guide = guide_legend(title="Income")) + theme_bw() +  labs(y = "Economic Utility")# + scale_color_manual(values=c("red", "blue"))
-
-# i_07 <- f_cst(i,0)
-# i_17 <- f_cst(i,0.1)
-# i_27 <- f_cst(i,0.2)
-# i_37 <- f_cst(i,0.3)
-# i_47 <- f_cst(i,0.4)
-# i_57 <- f_cst(i,0.5)
-# i_67 <- f_cst(i,0.6)
-# i_77 <- f_cst(i,0.7)
-# i_87 <- f_cst(i,0.8)
-# i_97 <- f_cst(i,0.9)
-# i_107 <- f_cst(i,1)
-# 
-# i_05 <- f_cst(i,0)
-# i_15 <- f_cst(i,0.1)
-# i_25 <- f_cst(i,0.2)
-# i_35 <- f_cst(i,0.3)
-# i_45 <- f_cst(i,0.4)
-# i_55 <- f_cst(i,0.5)
-# i_65 <- f_cst(i,0.6)
-# i_75 <- f_cst(i,0.7)
-# i_85 <- f_cst(i,0.8)
-# i_95 <- f_cst(i,0.9)
-# i_105 <- f_cst(i,1)
-# 
-# utility <- c(i_0,i_1,i_2,i_3,i_4,i_5,i_6,i_7,i_8,i_9,i_10)
-# 
-# plot(price,utility,ylab = "Economic Utility",xlab="price", main = paste0("income =",i))
-
-
-
-
-```
-
-
-
-PRICE: num. neighbors/8 * mean(income) of neighbors
-
-
-```{r att_income-linear , include=FALSE, echo=FALSE}
-
-# How the cross-category, e.g. tolerance can depend on wealth/income distribution, which can be used also for housing purchasing
-# Seems feasible to me to use beta distribution for wealth at this point. To be used: logistic function, which
-
-f_att <- function(i){   # utility function as single-peaked
-A <- (((i*10)^i) / 10)
-}
-
-
-
-# a_1n <- f_att(-1,l)
-# a_2n <- f_att(-0.9,l)
-# a_3n <- f_att(-0.8,l)
-# a_4n <- f_att(-0.7,l)
-# a_5n <- f_att(-0.6,l)
-# a_6n <- f_att(-0.5,l)
-# a_7n <- f_att(-0.4,l)
-# a_8n <- f_att(-0.3,l)
-# a_9n <- f_att(-0.2,l)
-# a_10n <- f_att(-0.1,l)  
-    
-a_0 <- f_att(0)
-a_05 <- f_att(0.05)
-a_1 <- f_att(0.1)
-a_15<- f_att(0.15)
-a_2 <- f_att(0.2)
-a_25<- f_att(0.25)
-a_3 <- f_att(0.3)
-a_35<- f_att(0.35)
-a_4 <- f_att(0.4)
-a_45<- f_att(0.45)
-a_5 <- f_att(0.5)
-a_55<- f_att(0.55)
-a_6 <- f_att(0.6)
-a_65<- f_att(0.65)
-a_7 <- f_att(0.7)
-a_75<- f_att(0.75)
-a_8 <- f_att(0.8)
-a_85<- f_att(0.85)
-a_9 <- f_att(0.9)
-a_95<- f_att(0.95)
-a_10 <- f_att(1)
-
-Prob_A <- c(a_0,a_05,a_1,a_15,a_2,a_25,a_3,a_35,a_4,a_45,a_5,a_55,a_6,a_65,a_7,a_75,a_8,a_85,a_9,a_95,a_10)
-income <- seq(0,1, by = 0.05)
-
-plot(income,Prob_A,ylab = "P_attA",xlab="income")
-
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -744,8 +744,8 @@ SLIDER
 e_blue_sqr
 e_blue_sqr
 0
-100
-49.0
+10
+5.0
 1
 1
 NIL
@@ -759,8 +759,8 @@ SLIDER
 v_blue_crl
 v_blue_crl
 0
-100
-6.0
+10
+5.0
 1
 1
 NIL
@@ -774,8 +774,8 @@ SLIDER
 e_blue_crl
 e_blue_crl
 0
-100
-55.0
+10
+4.0
 1
 1
 NIL
@@ -789,8 +789,8 @@ SLIDER
 v_blue_sqr
 v_blue_sqr
 0
-100
-10.0
+10
+4.0
 1
 1
 NIL
@@ -804,8 +804,8 @@ SLIDER
 e_orng_sqr
 e_orng_sqr
 0
-100
-49.0
+10
+0.0
 1
 1
 NIL
@@ -819,8 +819,8 @@ SLIDER
 e_orng_crl
 e_orng_crl
 0
-100
-55.0
+10
+0.0
 1
 1
 NIL
@@ -849,8 +849,8 @@ SLIDER
 v_orng_crl
 v_orng_crl
 0
-100
-6.0
+10
+5.0
 1
 1
 NIL
@@ -864,8 +864,8 @@ SLIDER
 v_orng_sqr
 v_orng_sqr
 0
-100
-10.0
+10
+4.0
 1
 1
 NIL
