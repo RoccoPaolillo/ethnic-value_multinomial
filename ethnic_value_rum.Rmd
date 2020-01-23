@@ -4,13 +4,13 @@ output:
     toc: false
  #   keep_tex: false
     fig_caption: yes
-title: "Preferences interact: what consequences for a Schelling scenario?"
+title: "Tolerant  to ethnic diversity, intolerant to intolerance"
 subtitle: "Title to define"
 author:  Rocco Paolillo, Andreas Flache
 # date:  "`r  as.Date(Sys.time(), '%d %B %Y')`"
 # "`r  as.Date(Sys.time(), '%d %B %Y')`"
 language: en-GB
-bibliography: "material/references.bib"
+bibliography: "references.bib"
 always_allow_html: yes
 header-includes:
 - \usepackage{float}
@@ -69,19 +69,37 @@ library(dplyr)
 
 # Introduction {-}
 
-Residential segregation can be defined as the unequal and non random distribution of people  belonging to different groups within the spatial units of a city [@bruch2009segregation;@clark2008understanding]. The interest of the social sciences on the topic is due the consequences it can have on the chance of interaction and integration between groups [@bolt2010linking], with exclusion of minorities in deprived neighborhoods and perpetuation of inequalities through generations [@van2012understanding]. A key research question in literature is on the dynamics of emergence of residential segregation. Two hystorical hypothesis are the spatial assimilation theory and the place stratification theory. According to the former, spatial distance reflects the social distance between groups, and can change as effect of social moblity (@coulter2019ethnic), while the latter focuses on the strategies of gatekeepers, e.g. sellers, to prevent undesired newcomers to neighborhood (@horr2018ethnic). Both have in common the assumption that residential  segregation is the intended result of individual behavior. A third perspective can be that of social complexity and Schelling's agent-based model of residential segregation, which addresses residential segregation as a stable property of the aggregated behavior of people who seek to satisfy even mild homophily preferences within spatial constraints [@schelling1969;@schelling1971;@schelling1978]. The paper here presented follows this stream of literature and aims at contributing to Schelling's type dynamics. \par
+STRESS A LINEARITY APPROACH vs SYSTEMIC APPROACH. Residential segregation can be defined as the unequal and non random distribution of people  belonging to different groups within the spatial units of a city [@bruch2009segregation;@clark2008understanding]. The interest of the social sciences on the topic is due the consequences it can have on the chance of interaction and integration between groups [@bolt2010linking], with exclusion of minorities in deprived neighborhoods and perpetuation of inequalities through generations [@van2012understanding]. A key research question in literature is on the dynamics of emergence of residential segregation. Two hystorical hypothesis are the spatial assimilation theory and the place stratification theory. According to the former, spatial distance reflects the social distance between groups, and can change as effect of social moblity (@coulter2019ethnic), while the latter focuses on the strategies of gatekeepers, e.g. sellers, to prevent undesired newcomers to neighborhood (@horr2018ethnic). Both have in common the assumption that residential  segregation is the intended result of individual behavior. A third perspective can be that of social complexity and Schelling's agent-based model of residential segregation, which addresses residential segregation as a stable property of the aggregated behavior of people who seek to satisfy even mild homophily preferences within spatial constraints [@schelling1969;@schelling1971;@schelling1978]. The paper here presented follows this stream of literature and aims at contributing to Schelling's type dynamics. \par
 
-Schelling focused on the black and white population in the U.S. cities in the '60s and proposed an alternative to segregation as due to overt discrimination. His model is built on homophily preferences of movers and threshold function of their relocation choice [@schelling1969;@schelling1971;@schelling1978]. Homophily preferences refer to the tendency of people to aggregate with similar ones, with not derogation of the outgroup, while threshold function means that people will move out of a neighborhood to a random relocation only under the condition that the concentration of similar ones falls below a desired percentage. Residential segregation emerges from the interaction of people following such behavior within spatial constraints due first to density of population, even in case of mild preferences. Within the literature stemming from Schelling, @paolillo2018 focused on his concept of similarity as based on a "twofold, exhaustive and recognizable distinction" [@schelling1969, p.488]. Although not in the intention of Schelling, literature has most interpreted this as a binary definition of ethnicity as fundamental to group membership and segregation. As basic consideration, @paolillo2018 argued that in modern and diverse societies ethnicity might not be the unique driver to membership and exclusion [@alba2014twilight;@crul2016super] and that the way people navigate diversity in society might be more important than ethnicity per se. The authors introduced an additional definition of similarity as value-orientation independent of ethnic membership, and focused on the value of tolerance towards diversity [@dragolov2016social]. Theoretically, they backed this idea with the ethnic boundary making perspective, which focuses on the mechanisms that generate and consolidate boundaries of in-group/out-group definition over the given ethnic membership [@wimmer2013;@wimmer09;@esser2010]. They divided the population of agents between intolerant ethnicity-oriented, which considered as similar those agents of the same ethnicity regardless of their value orientation, and tolerant value-oriented, which considered as similar those agents of the same value orientation despite their ethnicity. They kept the original threshold behavior for both types of agents. Additionally, they investigated the consequences of relative group sizes, as critical in the social sciences [@esser2010; @blau1977macrosociological] and less studied in Schelling's literature [@schelling1971;@troitzsch2017axiomatic]. As overall results, the emergence of value segregation by tolerant agents reduced ethhnic segregation compared to the original Schelling's model. Yet, the key result was the spillover effect between the two types of segregation: ethnically mixed neighborhoods formed by tolerant agents became eventually attractive to intolerant agents, due to higher chance to find members of their ethnic group. The tendency was higher for intolerants in the minority condition. The author investigated under what rate of desired concentration for the two groups all agents were happy with their relocation, in particular until when value-oriented agents would have accepted intolerant agents before leaving, so that originally ethnically mixed neighborhoods turned ethnically homogeneous. In this paper, we want to extend the modifications made by @paolillo2018 with introduction of value oriented agents to the recent progress in Schelling's literature for what concerns the relocation choice of agents, in particular adopting a different function than threshold and the framework of random utility models.\par
-Random utility models are not new in empirical studies of residential segregation [@frankhauser2016deciding]. Stemming from utility maximization paradigm, this class of models assumes that people aim at taking the option that best satisfies their needs, summarized within an utility function, but still, they incorporate randomness as a component of the choice, meaning not always the maximization of utility is granted [@hess2018revisiting]. Assumption of these models is that utility is defined by diverse dimensions and each is quantified by a parameter $\beta$ unknown in principle, and that can be only estimated by empirical observation of the options people selected from [@manski1977structure]. Randomness in utility has several reasons, e.g. people don't know all available options, utility might differ among people in a population, and people can fail in picking up the desired option [@hess2018revisiting]. Within these models, the conditional logit model by @mcfadden1973conditional ($P_{i \in k} = \frac{expU{i}}{\sum U^{k}}$) had particular success into residential studies, since it allows to combine socio-demographic characteristics of the selector with the characteristics of the options to select from. In recent years, the paradigm of random utility model and McFadden's conditional logit have been implemented into Schelling's  type dynamics [@zhang2004;@xie2012modeling;@bruch2014population]. The interest of agent-based modelers was to model a more appropriate decision rule under relocation choice, linking with literature in empirical studies and comparison with empirical data through calibration of $\beta$ and utility function [@bruch2012methodological]. In particular @bruch2006 paper implemented alternative to the Schelling's threshold function, and focused on the linear continuuous function, which means agents have the maximum of utility at $100 \%$ similars' concentration (monotonic linearity). Revising results after detenction of a coding error by @van2009, @bruch2009preferences show how the linear function compared to the threshold function slows down the convergence towards segregation of the Schelling's model that remains a constant outcome, and that agents become more sensitive to change in the neighborhood composition with more fined scenarios that a threshold model would show. Both for the insights into segregation dynamics and for the threoretical fit of linear function to utility paradigm, this approach appears noteworthy. Despite the inclusion of contingencies to relocation choice as price formation, most of these studies remains on the original Schelling's dimension of ethnic homophily as definition of individual preferences. We want to extend this aspect and implement the linear function used by @bruch2009preferences and random utility model within the extension of both ethnic and value preferences of agents [@paolillo2018].\par
-In sum, the aim of this paper is to contribute to the literature on Schelling's dynamics by including both ethnic and value preferences underlying relocation choice of agents and emerging segregation, investigating their mutual interdependence. To this goal, we extend the work by @paolillo2018 by aligning it to recent trends in Schelling's implementation within random utility models and substituting the original threshold function with linear utility function. We include a different parameter $\beta$ for ethnic homophily and value homophily for each type of agent (\ref{fig:model}), which is a more realistic assumption. Following the conditional logit model, such implementation can disentangle the case of people's preferences varying across ethnic groups as well as within ethnic groups due to the value orientation of agents. Similarly, the difference in degree of value homophily (or ethnic homophily) can vary for agents identified as tolerant but belonging to different ethnic groups. Additionally, we will explore these sets within the condition of relative group size for ethnicity and value orientation. The main contribution of the paper is to link such parameter for subgroups of population  and distribution of different types of agents to both ethnic and value segregation compared to previous studies. Furthermore, the paper aims at disentangle the conditions under which value segregation might mitigate, or spur ethnic segregation, and vice versa for the interdependence of ethnic segregation over value segregation.
+Diversity in cities: how to navigate the difference: Heterogeneity in ethnic preferences and competing preferences
+
+Lead Question (ex):
+* how can we explain hybrid ethnic segregation patterns? (The Economist)
+* hybrid segregation on value and ethnic for different types of people
+
+Assumption: 
+* people differ in their degree of ethnic preferences (lit. @xie2012modeling, @hatna2015combining)
+* peole have different preferences and sort out of different factors [@bruch2009segregation]
+
+@xie2012modeling: use different threshold size according to class from Guttman, the 6th class not conforming to Guttman linear function and rum. Their concept of heterogeneity is on the different threshold levels (within 5 classes, with the 5th being tolerant to $57 \%$ to $100 \%$) black, so indifferent), with the consequence to decrease segregation. This trend holds also when continuous preferences are included, meaning cumulative threshold between agents. We would modify $\beta$, decomposing a random utility model, assuming the desired concentration peak 1 and varying $\beta$ \par
+
+In  the definition of competing preferences, stress that the value-orientation across ethnicity is defiant to Schelling's dichotomous definition of similarity (see @clark1991residential for a critical view)
 
 
+
+@clark1991residential old: for historical excursus
+@chen2005emergence: good perspective to position with value similarity (not in their paper). Update literature, consider heterogeneity within the same race
+
+Define need of value similarity 
+
+
+Role of relative group size for both the ethnic and the value dimension
 
 ```{r model, fig.pos ='h!',out.width='50%',out.height='90%',fig.show='hold',fig.align='center', fig.cap= "Draft of agents attribution and emerging segregations, to revise.",  echo = FALSE, include=TRUE}
 knitr::include_graphics("C:/Users/rocpa/OneDrive/Desktop/AF/ethnic-value_multinomial/material/model_pr.jpg")
 ```
 
-# Model and Experiments
+# Model
 
 The model^[The model can be found here:https://github.com/RoccoPaolillo/BIGSSS_ResearchDay.git] was built in NetLogo 6.1.0 and extends work by @paolillo2018.
 Agents interact on a regular grid 51 times 51 with periodic boundary conditions (torus world). Each node of the grid can host 1 agent or being empty. Agents represents individuals who relocate and are  defined by two static and overlapping variables: ethnicity and value orientation. Ethnicity is modeled through color tag. Agents with blue color represent the local population, agents with orange color represent the minority group. Value orientation through shape tag. 
@@ -91,59 +109,22 @@ Each agent hold a preference for the ethnic composition and the value compositio
 Neighborhoods are defined as a Moore distance.
 At each step, an agent randomly selected compares its current location to a number of alternative ones, calculates utility for each and decides which location they prefer.
 
-* Calculation utility and probability function
+$\beta^\Box_e \geq \beta^\circ_e$
 
-To explore what levels of $\beta$ should not be excluded, I made a specific model "beta-et.nlogo" (in "material/beta-diff"), with an uniform $\beta_{ie}$ for ethnic composition. The simulation was simplified with one slider $\beta_{ie}$ for all agents  (same as 4 subgroup with equal $\beta$), to simplify code and lift computational power. I run the simulation for 1000 ticks (not 1 tick 1 agent, as in NetLogo asynchronous behavior: all agents run the procedure and then repeat):
-* monotonic linear function: desired concentration ethnically similar $100 \%$ \par
-* density == $70 \%$ \par
-* $50 \%$ distribution of value orientation in each ethnic group \par
-* changing $beta_ie$ at each run $beta_ie \in[0,100]$
+# Experiments
 
-Collected ethnic segregation, here reported for different ticks (Fig: \ref{fig:onebeta}) \par
+Study 1: heterogeneity of ethnic preferences in agents \par
+* Tune $\beta_e$ for all agents, with condition $\beta^\Box_e \geq \beta^\circ_e$
+* Same conditions, increase $\beta_v$
 
-```{r onebeta, fig.cap="Comparison of ethnic segregation for one beta-ethnic, not interaction. Used one-beta.csv from simulation rum-eth.nlogo" , include=TRUE, echo=FALSE}
+The concept of heterogeneity is reflected into the experiments: \par
+* individual: $\beta^\Box_e \geq \beta^\Box_v$, $\beta^\circ_v \geq \beta^\circ_e$  \par
+* within ethnic group:  $\beta^\Box_e \geq \beta^\circ_e$, $\beta^\circ_v \geq \beta^\Box_v$, should specify the ethnic group  \par
+NO * between ethnic group: $\beta^{\Box B}_e \geq \beta^{\Box R}_e$ (and implying $\beta^{\Box B}_e \geq \beta^{\circ R}_e$  ) NO \par
 
-setwd("C:/Users/rocpa/OneDrive/Desktop/AF/ethnic-value_multinomial/material/beta-diff/")
+These are the conditions kept in the experiments, ranging $\beta \in{0,10}$  \par
 
-a <- read.csv("beta-et.csv",sep = ",",skip = 6)
-names(a)[names(a) == "mean..count..turtles.on.neighbors..with..ethnicity....ethnicity..of.myself....count..turtles.on.neighbors....of.turtles.with..count..turtles.on.neighbors.....1." ] <- "eth_seg"
-
-a %>% filter(ticks == 0  | ticks == 500  | ticks == 100 | ticks == 1000)  %>%  filter(beta.ie >= 0 & beta.ie <= 30) %>% ggplot(aes(x = beta.ie, y = eth_seg)) + geom_bar(stat="identity") + facet_wrap(~ ticks, labeller = label_both) 
-
-```
-
-
-
-
-To test if the effect of  $\beta_{ie}$ for ethnic composition would be different if interacting with $\beta_{iv}$, I run another
-
-what levels of $\beta$ should not be excluded, I made a specific model "beta-et-vl.nlogo" (in "material/beta-diff"), with uniform $\beta_{ie}$ for ethnic composition and $\beta_{iv}$ for value composition. The simulation was simplified with a slider $\beta_{ie}$ and a slider $\beta_{iv}$ for all agents (same as 4 subgroup with equal $\beta$), to simplify code and lift computational power. I run the simulation for 1000 ticks (not 1 agent 1 tick):
-* monotonic linear function: desired concentration ethnically similar $100 \%$, desired concentration value simular $100 \%$ \par
-* density == $70 \%$ \par
-* $50 \%$ distribution of value orientation in each ethnic group \par
-* changing $beta_ie$ at each run $\beta_{ie} \in[0,20]$ and $\beta_{iv} \in[0,20]$, with condition of $\beta_{ie} \geq \beta_{iv}$
-
-Collected ethnic segregation, here reported at ticks = 1000, and faceted $\beta_{ie}$ x $\beta_{iv}$ (Fig: \ref{fig:twobeta}). 
-
-
-
-```{r twobeta, fig.cap="Comparison of ethnic segregation for interaction beta-ethnic and beta-value. Used diff_10.csv from simulation rum_eth-val.nlogo. Histogram don't appear for conditions of b_iv > b_ie, which are excluded from BehaviorSpace.", include=TRUE, echo=FALSE}
-
-setwd("C:/Users/rocpa/OneDrive/Desktop/AF/ethnic-value_multinomial/material/beta-diff/")
-
-b  <-  read.csv("beta-et-vl.csv",sep = ",",skip = 6)
-names(b)[names(b) == "mean..count..turtles.on.neighbors..with..ethnicity....ethnicity..of.myself....count..turtles.on.neighbors...of.turtles.with..count..turtles.on.neighbors.....1." ] <- "eth_seg"
-names(b)[names(b) == "mean..count..turtles.on.neighbors..with..shape....shape..of.myself....count..turtles.on.neighbors...of.turtles.with..count..turtles.on.neighbors.....1."] <- "val_seg"
-
-c  <- b %>% filter(beta.ie >= beta.iv )
-
-diff_ev <- c$beta.ie - c$beta.iv
-c  <- cbind(c,diff_ev)
-
-c %>%  filter(ticks == 1000)  %>% ggplot(aes(x = beta.ie, y = eth_seg)) + geom_bar(stat = "identity") + facet_wrap(~  beta.iv, labeller = label_both) 
-
-```
-
+Think about it.
 
 
 
