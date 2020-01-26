@@ -72,10 +72,30 @@ library(dplyr)
 STRESS A LINEARITY APPROACH vs SYSTEMIC APPROACH. Residential segregation can be defined as the unequal and non random distribution of people  belonging to different groups within the spatial units of a city [@bruch2009segregation;@clark2008understanding]. The interest of the social sciences on the topic is due the consequences it can have on the chance of interaction and integration between groups [@bolt2010linking], with exclusion of minorities in deprived neighborhoods and perpetuation of inequalities through generations [@van2012understanding]. A key research question in literature is on the dynamics of emergence of residential segregation. Two hystorical hypothesis are the spatial assimilation theory and the place stratification theory. According to the former, spatial distance reflects the social distance between groups, and can change as effect of social moblity (@coulter2019ethnic), while the latter focuses on the strategies of gatekeepers, e.g. sellers, to prevent undesired newcomers to neighborhood (@horr2018ethnic). Both have in common the assumption that residential  segregation is the intended result of individual behavior. A third perspective can be that of social complexity and Schelling's agent-based model of residential segregation, which addresses residential segregation as a stable property of the aggregated behavior of people who seek to satisfy even mild homophily preferences within spatial constraints [@schelling1969;@schelling1971;@schelling1978]. The paper here presented follows this stream of literature and aims at contributing to Schelling's type dynamics. \par
 
 Diversity in cities: how to navigate the difference: Heterogeneity in ethnic preferences and competing preferences
+People can rank their preferences differently based on their value-orientation
+Still, ethnic groups can differ on their degree of ethnic, either value preferences
 
-Lead Question (ex):
-* how can we explain hybrid ethnic segregation patterns? (The Economist)
-* hybrid segregation on value and ethnic for different types of people
+
+
+
+
+Literature on Schelling's model on heterogeneity within group (between agents) [@xie2012modeling]. Check for heterogeneity between groups
+
+NEW: the competing homophily preference based on the value-orientation
+
+
+Lead Question (ex): \par
+* how can we explain hybrid ethnic segregation patterns (some members of the same ethnic group are ethnically integrated, others are ethnically segregated)? (The Economist) \par
+* how can we explain hybrid value segregation patterns (some members of the same ethnic group are ethnically integrated, others are ethnically segregated)? \par
+* what is the effect of value segregation on  ethnic segregation and vice versa? \par
+* Factors underlying the mechanism of interest:  \par
+- degree of parameter beta: how one dimension is important over the other in the relocation choice  \par
+- relative group size for both the ethnic and the value dimension, since they would have a direct effect on the utility of a location
+and on the number of agents defined as ethnicity-oriented and value-oriented
+- heterogeneity within same ethnic group and between ethnic groups
+* what is the role of heterogeneity in preferences within a group, and between groups? \par
+* hybrid segregation on value and ethnic for different types of people \par
+* What is the effect on such dynamics of relative group size \par
 
 Assumption: 
 * people differ in their degree of ethnic preferences (lit. @xie2012modeling, @hatna2015combining)
@@ -86,13 +106,20 @@ Assumption:
 In  the definition of competing preferences, stress that the value-orientation across ethnicity is defiant to Schelling's dichotomous definition of similarity (see @clark1991residential for a critical view)
 
 
-
 @clark1991residential old: for historical excursus
 @chen2005emergence: good perspective to position with value similarity (not in their paper). Update literature, consider heterogeneity within the same race
 
+We define the condition where people hold different ethnic and value preferences. We can impose at the individual level due by value-orientation that one group holds one preference higher than the other and that the degree of one preference is higher than the other one
+
+DOUBT: if an agent likes "diversity", then I would expect the peak to change, and it being at $50 \%$ for the ethnic dimension, so integrationist attitudes, and the peak of value concentration of these agents to change according  to the $100 \%$ similar others integrationists, but you are making a different reasoning, that people aim at ethnic diversity, and the dimension of ethnicity would be less/more important in the relocation choice
+
+The concept of heterogeneity is reflected into the experiments: \par
+* individual: $\beta^\Box_e \geq \beta^\Box_v$, $\beta^\circ_v \geq \beta^\circ_e$  \par
+* within ethnic group:  $\beta^\Box_e \geq \beta^\circ_e$, $\beta^\circ_v \geq \beta^\Box_v$, should specify the ethnic group  \par
+
+This does not prevent than between groups there might be difference in terms of ethnic preferences, and similarly on value preferences
+
 Define need of value similarity 
-
-
 Role of relative group size for both the ethnic and the value dimension
 
 ```{r model, fig.pos ='h!',out.width='50%',out.height='90%',fig.show='hold',fig.align='center', fig.cap= "Draft of agents attribution and emerging segregations, to revise.",  echo = FALSE, include=TRUE}
@@ -114,8 +141,12 @@ $\beta^\Box_e \geq \beta^\circ_e$
 # Experiments
 
 Study 1: heterogeneity of ethnic preferences in agents \par
-* Tune $\beta_e$ for all agents, with condition $\beta^\Box_e \geq \beta^\circ_e$
-* Same conditions, increase $\beta_v$
+* 1.1 Tune $\beta_e$ for all agents, with condition $\beta^\Box_e \geq \beta^\circ_e$, no difference between agents
+* 1.2 Change  $\beta_e$ between groups (supported by literature on which group is going to be more conservative, or anyway argumented).
+Observe the emergence of ethnic segregation first
+* Same conditions, increase $\beta_v$ Either with first 1.1 and then compar, either compare first the effect of ethnic preference heterogeneity between groups over within group
+In both cases, the effect of relative group sizes
+
 
 The concept of heterogeneity is reflected into the experiments: \par
 * individual: $\beta^\Box_e \geq \beta^\Box_v$, $\beta^\circ_v \geq \beta^\circ_e$  \par
@@ -126,7 +157,10 @@ These are the conditions kept in the experiments, ranging $\beta \in{0,10}$  \pa
 
 Think about it.
 
-
+If a society is "conservative", the less ethnic-oriented of that society/scenario would have high level as well. In the end, you could narrow down so to have 3 conditions for each low, medium, high beta (e.g. 1, 5, 10), and calculate the $\beta_e$ of less ethnicity-oriented agents out of a ratio, e.g. min $n/n$,  $n/(n:2)$ (check), max $n/1$ \par
+* 1 = 1,0.5,1 (check)
+* 5 = 1,2.5,5
+* 10 = 1,5,10
 
 # Results
 
