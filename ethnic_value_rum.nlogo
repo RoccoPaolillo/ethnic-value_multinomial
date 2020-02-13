@@ -87,9 +87,11 @@ to move-turtles          ; choice for each turtle. The agent makes a patch-set c
       set uti-val utility xv n similar_wanted_value
     ]
 
-    move-to rnd:weighted-one-of options [exp ((beta-ie * (uti-eth)) + (beta-iv * (uti-val)))]  ; roulette wheel: move to one option according to probability derived by expU,
+   move-to rnd:weighted-one-of options [exp ((beta-ie * (uti-eth)) + (beta-iv * (uti-val)))]  ; roulette wheel: move to one option according to probability derived by expU,
                                                                                                    ; U of each dimension = beta_ethnic*ethnic_utility + beta_value*value_utility
                                                                                                    ; RND roulette-wheel: sorts the options to move to according to expU/Sum(expU)
+
+
 
   ]
 
@@ -184,7 +186,7 @@ fraction_blue
 fraction_blue
 50
 100
-50.0
+80.0
 1
 1
 NIL
@@ -262,7 +264,7 @@ circle_blue
 circle_blue
 0
 100
-50.0
+80.0
 1
 1
 NIL
@@ -277,7 +279,7 @@ circle_orange
 circle_orange
 0
 100
-50.0
+20.0
 1
 1
 NIL
@@ -289,7 +291,7 @@ MONITOR
 336
 527
 circle_blue
-count turtles with [shape = \"circle\" and ethnicity = \"local\"] / count turtles with [ethnicity = \"local\"]
+count turtles with [shape = \"circle\" and ethnicity = \"local\"] / count turtles
 2
 1
 11
@@ -300,7 +302,7 @@ MONITOR
 412
 527
 square_bue
-count turtles with [shape = \"square\" and  ethnicity = \"local\"] / count turtles with [ethnicity = \"local\"]
+count turtles with [shape = \"square\" and  ethnicity = \"local\"] / count turtles
 2
 1
 11
@@ -311,7 +313,7 @@ MONITOR
 497
 523
 circle_orange
-count turtles with [shape = \"circle\" and ethnicity = \"minority\"] / count turtles with [ethnicity = \"minority\"]
+count turtles with [shape = \"circle\" and ethnicity = \"minority\"] / count turtles
 2
 1
 11
@@ -322,7 +324,7 @@ MONITOR
 499
 571
 square_orange
-count turtles with [shape = \"square\" and ethnicity = \"minority\"] / count turtles with [ethnicity = \"minority\"]
+count turtles with [shape = \"square\" and ethnicity = \"minority\"] / count turtles
 2
 1
 11
