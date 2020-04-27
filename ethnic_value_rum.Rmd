@@ -3,13 +3,14 @@ title: "Tolerant  to ethnic diversity, intolerant to intolerance"
 subtitle: "Title to define"
 author:  "Rocco Paolillo, Andreas Flache"
 date:  "`r  as.Date(Sys.time(), '%d %B %Y')`"
+output:
+  word_document:
+   # keep_tex: true
+
 # "`r  as.Date(Sys.time(), '%d %B %Y')`"
-language: en-GB
+#language: en-GB
 bibliography: "references.bib"
-always_allow_html: yes
-output: pdf_document
-    # toc: false
- #   keep_tex: false
+# always_allow_html: yes
 #fig_caption: yes
 header-includes:
 - \usepackage{float}
@@ -54,6 +55,31 @@ library(dplyr)
  }
  
 
+ nrml <- function(mx,mn,x,s){
+  
+  s <- ((x - mn) / (mx-mn))
+}
+
+ bt_10 <- for (x in seq(5,10,by=1)) {
+  
+  mx <- 10
+  mn <- 5
+  
+  s <- nrml(mx,mn,x,s)
+  print(c(x,s))
+  
+}
+
+ bt_5 <- for (x in seq(0,5,by=1)) {
+  
+  mx <- 5
+  mn <- 0
+  
+  s <- nrml(mx,mn,x,s)
+  print(c(x,s))
+  
+}
+ 
    
 
  # install.packages("tinytex", repos = "https://cloud.r-project.org" ) #, try if debug needed
@@ -63,185 +89,109 @@ library(dplyr)
 ```
 
 \newcommand{\rocco}[1]{\textcolor{red}{{Rocco:}#1}} 
+<!-- Read Laurie & Jaggi, 2003 -->
 
 \abstract{}
 
-# NOTES FOR March 5, to shuffle focusing on Schelling and from ethnicity to value/cosmopolitan
-
-* TO READ: D. J. Haw & S. J. Hogan (2020) A dynamical systems model of unorganized segregation in two neighborhoods, The Journal of Mathematical Sociology, DOI: 10.1080/0022250X.2019.1695608
-
-* We aim at Journal of Mathematical Sociology:
-- models and mathematical techniques useful to professional sociologist, connection between disciplines
-- emergent complex social structures
-- editor -> single-blind peer reviews
-- 200 words abstract, 3-5 keywords
-- color figures and format OK, fee if color on printed
-- DOI dataset, e.g. Zenodo
-
-Read Laurie & Jaggi, 2003
-
-<!-- instructors: https://authorservices.taylorandfrancis.com/tf_quick_guide/ -->
-
 # Introduction {-}
 
-
-Residential segregation can be defined as the unequal and non random distribution of people  belonging to different groups within the spatial units of a city [@bruch2009segregation;@clark2008understanding]. It is a critical topic due to the consequences on interaction between groups [@bolt2010linking] and perpetuation of inequalities for people living in deprived neighborhoods [@van2012understanding].
 <!-- X segregation is complex process, traditionally Schelling etc has been used to understand the complex micro-macro interaction involved-->
-@haw2018dynamical: difference between organized segregation and self-organized segregation as Schelling.
-@schelling1971dynamic: different threshold level (on x-axys fig. 8),not together,i.e. not heterogeneity, but never a function different than threshold and similarity twofold and binary. Many have focused on the different function, using a linear one, other on heterogeneity, we would blend this together.
-On the other side, linear function fully satisfy discrete choic methods that are central in segregation studies.
-
-
-Segregation is a complex process and researchers have long been interested in understanding the dynamics of segregation patterns. Two hystorical hypothesis are the spatial assimilation theory and the place stratification theory. According to the former, spatial distance reflects the social distance between groups, and can change as effect of social moblity (@coulter2019ethnic), while the latter focuses on the strategies of gatekeepers, e.g. sellers, to prevent undesired newcomers to neighborhood (@horr2018ethnic). Both have in common the assumption that residential  segregation is the intended result of individual behavior. A third perspective can be that of social complexity and Schelling's agent-based model of residential segregation, which addresses residential segregation as a stable property of the aggregated behavior of people who seek to satisfy even mild homophily preferences within spatial constraints [@schelling1969;@schelling1971;@schelling1978]. The paper here presented follows this stream of literature and aims at contributing to Schelling's type dynamics. Although not in its original intention, ethnic composition has been widely considered as main dimension of segregation, both as indicator of in-group/out-group relations and for its correlation with deprived neighborhoods [@VanHam2012]. A simple but long-standing mechanism used in literature to explain ethnic concentration is that of spatial sorting or homophily preferences [@magi2016types;@muller2018residential], i.e. the tendency to aggregate with people of the same ethnic group [@mcpherson2001birds] . 
-
 <!-- X however, Schelling typically assume that people only care for ethnic composition -->
+Residential segregation can be defined as the unequal and non random distribution of people  belonging to different groups within the spatial units of a city [@bruch2009segregation;@clark2008understanding]. Researhers are interested in the dynamics of this complex process and several theories have been elaborated. 
+\rocco{maybe here to supersynthetize and explain in detail in theory/modeling section} In a couple of influential papers, @schelling1969models [-@schelling1971dynamic] proposed an alternative explanation to racial discrimination as cause of residential segregation. His intention was to demonstrate how segregation can be an emergent property of the "interplay of individual choices" [@schelling1969models, p. 488] of people within the spatial constraints of a city. He proposed a model of individual behavior and preferences for neighborhood composition based on a threshold behavior: people would stay in a neighborhood as long as the ratio of the members of the other group to the members of the own group does not exceed a desired threshold. For instance, a threshold $\theta =0.50$ would mean that the in-group should not be in a condition of minority, a threshold of $\theta = 0.40$ would mean people would be happy until the minority does not exceed the $40 \%$ of neighborhood composition. Individual relocations of people trying to satisfy such preferences within the spatial constraints of a city would generate stable spatial combination that define residential segregation. The complexity of Schelling model is that this simple behavior can generate high level of segregation even for mild preferences for similar ones. Schelling so proposed a model of unorganized segregation [@haw2018dynamical], meaning that residential segregation would self-organize from the interplay of individual moves of citizens, and as a matter of fact, one of the first agent-based models [@epstein1996growing]. One condition that Schelling imposed to his reasoning was that similarity was defined as a "twofold, exhaustive and recognizable distinction" [@schelling1969models, p. 488]. Although not in his original intentions, this specification has caused many to interpret only ethnic segregation as dimension relevant to neighborhood preferences and spatial dynamics. Nevertheless, the model found wide application in understanding the complexity of residential segregation, not only in the field of complex systems, but also in empirical studies of spatial sorting [@magi2016types;@muller2018residential]. In detail, the focus on ethnic membership let Schelling model found an easy application to the hypothesis of homophily behavior, i.e. the tendency to aggregate and show a preference for those considered as similar, in this case based on the shared ascribed status of ethnic membership [@mcpherson2001birds]. However, only considering the dimension of ethnic similarity in Schelling dynamics might hinder its application to modern and diverse societies and contribution. Current trends in integration literature stress out how ethnicity is experiencing a constant decline [@alba2014twilight] as only dimension able to explain the integration processes and social composition of Western societies. As for residential segregation, there is quite unanimous agreement that despite ethnic segregation persists, it is generally decreased compared to levels in the 1970's in Europe and U.S. compared to otherd dimensions such as socio-economic segregation [@clark2015residential]. Members of the same ethnic group differing for other socio-demographic characteristics can experience different degree of segregation not only along ethnicity, and due to increased heteorogeneity of preferences and different access to resources [@clark2002residential]. In this paper we refer to this as "hybrid segregation" and we want to extend Schelling model to explain such a scenario.
+ \vspace{10pt}
+Literature provides different inputs to the causes of hybrid scenarios of segregation for members of the same ethnic group in modern and diverse societies. First of all, a common trait of Western societies is that of super-diversity. Originally formulated by @vertovec2007super in the UK context, the term now describes the complexity of most of Western receiving countries as effect of second and further generations of migrants, as well as ease of new migration flows from different parts of the world. As a consequence, much more than two ethnic groups will cohabit and influence the chances to segregate, along with change in the population due to new generations. A commonn trait of modern societies as  effect of mixed marriage is the rise of mixed households @ellis2012agents, plus the occurrence that the size of migrant population through generations equal the local populatin. The result is that the receiving context of new generations of migrants will not be a homogeneous ethnic majority, but an "amalgam" of ehtnic groups, in addition to different cohorts and social classes [@crul2016super, p.57]. Second, new generations can differ from previous ones in terms of residential preferences and resources to relocate. Although inequalities can depend on the degree of integration of parents, e.g. neighborhood where children live and capital to their social mobility [@Esser2010assimilation], societies who have long experienced migration became more resilient in adopting strategies to guarantee equal education [@crul2016super]. The result is that new generations are likely to reach higher level of educational attainment and professional success than their parents [@crul2017upcoming], so to have higher resources to relocate to more affluent neighborhoods and possibly different tastes. The consequence is that more evident differences in integration can occurr between cohorts of the same ethnic group rather than between ethnic groups, and in any case related to unequal access to resources to relocate [@crul2016super]. The differences in income can explain the different degree of integration for members of the same group: while well-off generations move to more affluent and more integrated neighborhoods, low-income members of the same ethnic group experience hyper-segregation in deprived neighborhoods @clark2002residential. Finally, the concept of super-diversity stresses out how people in diverse societies can differ and find similarities along many dimensions that add to ethnic membership, such as social class, cultural practices etc. In this multitude of definitions of the self and groups, people are more likely to use individual characteristics to navigate diversity and define similarity and inclusion, rather than a rigid division in ethnic categorizations [@crul2016super]. Ethnic boundaries become fluid and socially constructed, so that other criteria than ethnicity can mark the limit of in-group and out-group inclusion [@albeda2018symbolic]. Shared values, defined as common beliefs, preferences or expectations on acceptable behavior can become one of this criteria for the definition of acceptance and inclusion across the boundaries of ethnic membership [@wimmer2013ethnic]. This last point becomes critical to define how spatial sorting based on homophily behavior would work in diverse societies to explain scenarios of hybrid segregation. A growing number of studies confirm that people consider different dimensions of neighborhood composition, such as ethnic similarity and shared values, though each dimension can matter differently depending on individual characteristics. For instance, @van2019sociocultural use similarity for sociocultural dispositions (i.e. gender balance in household tenure) as predictor to leave the neighborhood, compared to ethnic membership and income similarity, with socio-cultural dispositions resulting the most influential. @blokland2010people, using survey methodology in The Netherlands, show how people who are attracted  by diversity in neighborhood selection tend to live close to other people who like diversity as well. @clark2018can estimate with census-track the preferences of mixed-race young generation in Los Angeles, who prefer ethnically integrated and well-off neighborhood.
 
-Nevertheless, in modern societies members of the same ethnic group can positionate differently on the continuum between integration and segregation, due to many reasons, and ethnicity per se can be only one of the many dimensions people segregate along.
+ \vspace{10pt}
+In sum, there is evidence that homophily behavior in spatial sorting in modern and diverse societies spans along different dimensions. Among these, the interplay of value similarity and ethnic similarity can intuitevely be useful in describing hybrid segregation of members of the same group. Although such complexity is addressed in empirical studies of segregation, it has been rarely considered in complexity models of segregation stemming from Schelling. We want to add to this line of research by proposing a model where agents assess neighborhood composition both for value and ethnic similarity in their relocation choice, and focusing on heterogeneous preferences for the two dimensions to explain hybrid segregation. To this aim, we collect from recent models that have  implemented discrete choice in Schelling dynamics along with heterogeneous preferences. \rocco{should the next part going into theory/modeling section?} Studies as  @bruch2009preferences  have tested the consequences of implementing not random relocation, but a discrete choice, implementing a different utility function than threshold. @xie2012modeling extended the updated model by @bruch2009preferences for discrete choice to reflect the heterogeneity in whites' tolerance towards blacks in U.S., both as categorical classes with different threshold preferences each, and continuous heterogenous preferences. In both cases heterogeneity between agents, and a class of agent indifferent to ethnic composition resulted in less segregated scenarios due to mutual adaptation of agents. Similarly, @haw2020dynamical conclude that integration can  be reached by structural conditions of small minority and large tolerant majority, and letting tolerance in each neighborhood increase linearly as function of the proportion of other race under the desired threshold. Though not with discrete choice models,  @hatna2014combining focused on heterogenous preferences between groups, using an increasing linear function until the desired proportion, and dividing each ethnic group in two subgroups of agents more tolerant and less tolerant due to difference in ethnic threshold. The results showed mixed patterns of integration and segregation rather than a dycothomous scenario. @paolillo2018 address specifically the interaction of different homophily preferences in Schelling. Keeping threshold behavior as in the original model, they split the population into intolerant ethnic-oriented agents, defining similarity based on shared ethnicity, and tolerant value-oriented agents defining similarity on shared values for tolerance towards diversity, and explored  their adaptation in different conditions of relative group sizes.  The intention of the authors was to introduce value similarity as a cross-ethnic category, investingating under what conditions this would have fostered or hindered ethnic spatial sorting. The introduction of value-oriented agents decreased ethnic segregation compared to the original model. The main discover was a spillover effect for ethnicity-oriented agents in the minority condition who found attractive ethnically mixed neighborhoods formed by value-oriented agents, because of availability of ethnically similar ones, until the point that their concentration caused value-oriented to leave.
 
-<!--  In recent decades western societies have come increasingly ethnically diverse and especially second+ generation migrants have assimilated in some ways but still remain different.-->
+In the next section, we extend the intuition of @paolillo2018 for different homophily dimensions to heterogeneous preferences as @xie2012modeling and @hatna2014combining within the framework of discrete choice, which allows us to calibrate the weight of value or ethnic similarity in the relocation choice for different types of agents.
 
-[@alba2014twilight]. First of all, a growing concept in literature is that of superdiversity that characterizes western societies [@crul2016super], as effect of social mobility, inner-neighborhoods migration flows and multicultural households [@neal2013multiculture; @albeda2018symbolic]. 
-
-Considering the context of multi-ethnic societies, difference between social groups are relevant. Some groups might be innerly more tolerant towards minorities, with consequences on inter-ethnic contacts [@bourhis1997towards] or they  might be likely to blur the boundaries towards specific groups as effect of their cultural similarities [@albeda2018symbolic]. On the other side, tolerance towards ehtnic minorities  of citizens can result from the multicultural or assimilationist policies adopted by different governments [@weldon2006institutional].
-
-Indeed, literature is most unanimous that in the last decades socio-economic segregation has increased at faster rates than racial-ethnic segregation which is generally decreased [@clark2002residential;@clark2015residential].
-
-
-<!-- X Similarly some parts of the population have become more modern / cosmopolitation. -->
-
-Finally, people within the same ethnic group or social class can vary in their preferences, and differences in affordability give rise to more variegated scenarios  [@andersson2007mix]. In sum, in super-diverse societies ethnic segregation has become a hybrid and complex phenomenon, where ethnicity correlates with other dimensions and people of the same ethnic membership can experience different degree of segregation/integration.
-
-
-<!-- X There is evidence that people consider both types of similarity when assessing composition of prospective neighborhoods they want to live in, but also that people differ in the extent to which ethnic or value similarity matters to them.  -->
-
-[@van2019sociocultural]
-Following this perspective, a taste for ethnic and cultural diversity can serve both to blur  ethnic boundaries and to define similarity with other people despite their ethnic membership. @blokland2010people show how people who like diversity tend to live in ethnically integrated neighborhoods with other people who like diversity as well. @van2019sociocultural use similarity for sociocultural dispositions (i.e. gender balance in household tenure) as predictor to leave the neighborhood, compared to ethnic membership and income similarity, with socio-cultural dispositions resulting the most influential. As people who like diversity can distinguish  ethnic diversity of neighborhood from the concentration of people who share the same tastes and show independent appreciation for both [@blokland2010people;@clark2018can], so people who prefer ethnically concentrated neighborhood can consider an additional value to live close to other ethnically conservative people.
-
-
-
-
-
-
-<!-- X -> this multidimensional homophily (Blok et al) has only rarely been considered in complexity models of segregation dynamics (few exceptions). We add to this line of research by proposing a new model that allows to assess how residential segregation patterns depend on the mix of preferences in a heterogeneous population. Unlike earlier models, we assume that everyone prefers both ethnic and value similarity, but different social groups in the population put different weight on each of the aspects of similarity. (in line with survey evidence?) -->
-
-
--> we study in this paper what are the consequences of this new form of preference heterogeneity in abm of residential segregation dynamics 
--> whether and under which conditions it can explain the empirical pattern of hybrid residential segregation ..
-
-<!-- goog point -->>
- It can be noteworthy to extend the intuition of @paolillo2018 for different homophily preferences to the scenarios of heterogeneity as presented by @xie2012modeling and  @hatna2014combining and within the framework of discrete choice and linear utility function as in @bruch2009preferences which is consistent with utility maximization. 
-
-<!-- goog point, empirical substain (last paragraph) -->>
-In sum, in this paper we propose a Schelling-type agent-based model to identify possible mechanisms that can explain hybrid segregation in modern and diverse societies, i.e. the scenario where some members of the same ethnic group are ethnically integrated while others are ethnically segregated. We focus on a discrete choice model of homophily preferences for spatial sorting to explain such a scenario. We include similarity based on ethnic membership and on shared values towards ethnic diversity or ethnic conservatism.
-
-
-
-<!-- In this paper we focus  on the possible mechanisms that underlying hybrid scenarios of residential segregation focusing on two factors, i.e. heterogeneity for ethnic preferences  within and between groups, and preferences for like-minded people who share the same conservative or integrationist attitudes. We advocate for usage of agent-based modeling and proceed by extending previous work on Schelling's model of residential segregation.--> 
-
-<!-- Residential segregation can be defined as the unequal and non random distribution of people  belonging to different groups within the spatial units of a city [@bruch2009segregation;@clark2008understanding]. The interest of the social sciences on the topic is due the consequences it can have on the chance of interaction and integration between groups [@bolt2010linking], with exclusion of minorities in deprived neighborhoods and perpetuation of inequalities through generations [@van2012understanding]. A key research question in literature is on the dynamics of emergence of residential segregation.  -->
-
-
-With a different focus of tolerance towards diversity, @paolillo2018 investigated the interaction of different homophily preferences in Schelling. Keeping threshold behavior as in the original model, they split the population into intolerant ethnic-oriented agents, defining similarity based on shared ethnicity, and tolerant value-oriented agents defining similarity on shared values for tolerance, and explored  their adaptation in different conditions of relative group sizes. The introduction of value-oriented agents decreased ethnic segregation compared to the original model. The main discover was a spillover effect for ethnicity-oriented agents in the minority condition who found attractive ethnically mixed neighborhoods formed by value-oriented agents, because of availability of ethnically similar ones, until the point that their concentration caused value-oriented to leave.
-
-
-<!-- The expected advantage of this choice is on the consequences it can have on inner cohesion of groups together with the blurry of boundaries between groups. That is, we model scenarios where both intolerant ethnicity-oriented agents and tolerant value-oriented agents share ethnic preferences and value preferences at some degree. While ethnic preferences would consider as similar members of the same ethnic group despite their value-orientation, members of the same ethnic group with different values would be excluded from the value spatial sorting of agents, in favor of members of the out-group with similar values. We will impose as condition that ethnicity-oriented agents hold higher ethnic preferences than value preferences and vice versa for value-oriented agents. We include relative group sizes for both categories of agents as constraints to neighborhood composition and heterogeneity for both preferences within groups and between groups. Additionally, the case of a more conservative group over another can be included.
-The contributions of the paper are that, compared to previous studies that focused on heterogeneous preferences for ethnic composition [@xie2012modeling:@hatna2014combining], the interplay of ethnicity and values introduced by @paolillo2018 may shed deeper insights on the continuum between integration and segregation at the spatial scale. Moreover, not only hybrid segregation would be explored, but also the new form of value segregation and its relation to ethnic segregation, which might serve to describe the sorting of people in diverse societies. The application of random utility models might facilitate the match with quantitative estimate parameters of preferences.-->
-
-
-<!-- NO Out of many ethnic groups cohabiting in the same city, segregation might imply more than a binary definition between in-group/out-group and tolerance toward diversity become critical to social cohesion [@DragolovIgnaczea2016SocialCohesionin;@clark2018can; @vervoort2011ethnic].  Furthermore, people belong to many and overlapping categories [@roccas2002social] that can prevail that of ethnicity in defining residential preferences as well as similarity in spatial sorting [@van2019sociocultural]. --> 
-
-
-<!-- NO In this paper, we focus on two concepts associated with ethnic segregation in diverse societies when considering relocation choice, i.e. heterogeneity in ethnic preferences, and preferences for other dimensions that can interact with ethnic membership. As for heterogeneity in preferences, it is intuitive that people of the same group might differ in their preferences [@hess2018revisiting], this can increase when other subdivisions as socio-economic class are taken into account [@bruch2014population;@friedman2019muslim].  As for different preferences that could interact with the dimension of ethnicity, the perspective of ethnic boundary making is relevant. This theoretical framework focuses on the dynamic and symbolic boundaries that distinguish between "us" and "them" [@bail2008configuration], built by individuals in the continuous and different forms of interaction between groups [@wimmer2013ethnic]. The core of ethnic boundary making is to understand how boundaries between in-group and out-group are socially constructed above the categories of ethnic membership, and not as a rigid consequence of them [@esser2010assimilation; @wimmer2013ethnic].  The overlap of these two preferences can have consequences on the different scenarios of segregation.--> 
 
 # Theory: Modeling Discrete Choice in Schelling Framework
 
-Fitting the homophily hypothesis, Schelling described a scenario where people stay  in a neighborhood as long as the proportion between similar ones and others is not less than a desired threshold, leaving to a random relocation otherwise  [@schelling1971;@schelling1969]. Given the spatial constraints to relocate, e.g. unavailability of empty places due to density of population, the interplay of people pursuing the same behavior can cause high level of segregation even for low thresholds. The original Schelling's model has received interest from scholars outside of computational methods due to its contribution to understanding segregation dynamics [@clark1991residential;@clark2008understanding], as well as numerous extensions and studies by complexity scholars. 
+Schelling described preferences for neighborhood composition and tolerance to the presence of outgroups as a threshold behavior representing the desired ratio between similar ones and not. For instance, a threshold $\theta =0.50$ would mean that the in-group should not be in a condition of minority, a threshold of $\theta = 0.40$ would mean people would be happy until the minority does not exceed the $40 \%$ of neighborhood composition. The space below such threshold $\theta$ constitutes the tolerance schedule of how many members of the other group would be tolerated until a person would randomly relocate to another neighborhood. Given the spatial constraints of  a city, only a few conditions might satisfy  most of the population, which become points of convergence [@schelling1971dynamic;@haw2020dynamical] and lead to stable equilibria in residential segregation. The key point of Schelling complexity is that even mild preferences expressed by low threshold would bring to high levels of residential segregation. Schelling proved his mathematical models through  graphical models of spatial proximity on a one-dimension linear distribution of agents [@schelling1971dynamic, p. 149], referred to as "dots and stars model" and on a bi-dimensional area distribution  [@schelling1971dynamic, p. 154] which is commonly know as "bounded neighborhood model" [@hatna2012schelling,@haw2018dynamical], which has become the common and most studied version of Schelling model in lattice models.
+\par
+From here, extensions to discrete choice and random utility models. Describing regression model and mathematical formulations of what we need to model: \par
+\par
+- utility function\par
+- heterogeneity\par
+- different preferences\par
+- relative group size -> probability of interaction\par
 
-- utility function
-- heterogeneity
-- different preferences
+A brief description of model to summarize\par
+Selection of cases to show interesting results of mixed segregation 
 
 
+Here discrete choice, to formulate more mathematically and use their explanation to describe the model \par
 
-We want to contribute to those studies focusing on random utility models for discrete choice in Schelling's dynamics and ethnically diverse scenarios. Simply stated, discrete choice models allow to deduce prerefernces in utility by observing the difference between neighoborhood chosen and alternative ones  [@train2009discrete;@frankhauser2016deciding]. Among regression models for the execution of random utility models, @mcfadden1973conditional's conditional logit allow to estimate the parameters of utility for different characteristics of neighborhoods ($\beta$ parameters) and sort them according to socio-demographic characteristics of movers [@boschman2015neighbourhood]. @zhang2004 was among the first to implement the conditional logit within Schelling's dynamics, although @bruch2006neighborhood moved forward by matching discrete choice of agents with parameters calculated from empirical data, along with a continuous linear function instead of Schelling's threshold. Despite pitfalls in the code implementation of their model [@van2009neighborhood] and consequent corrections [@bruch2009preferences], extensions resulted in agents being more sensitive to fine-grained change in neighborhood ethnic composition. Adopting a similar discrete choice method would benefit the chance of the model to disentangle the relative effect of different preferences. @xie2012modeling extended the model by @bruch2009preferences to reflect the heterogeneity in whites' tolerance towards blacks in US, both as categorical classes with different threshold preferences each, and continuous heterogenous preferences. In both cases heterogeneity between agents, and a class of agent indifferent to ethnic composition resulted in less segregated scenarios due to mutual adaptation of agents. Though not with discrete choice models,  @hatna2014combining focused on heterogenous preferences between groups, using an increasing linear function until the desired proportion, and dividing each ethnic group in two subgroups of agents more tolerant and less tolerant due to difference in ethnic threshold. 
+We want to contribute to those studies focusing on random utility models for discrete choice in Schelling's dynamics and ethnically diverse scenarios. Simply stated, discrete choice models allow to deduce prerefernces in utility by observing the difference between neighoborhood chosen and alternative ones  [@train2009discrete;@frankhauser2016deciding]. Among regression models for the execution of random utility models, @mcfadden1973conditional's conditional logit allow to estimate the parameters of utility for different characteristics of neighborhoods ($\beta$ parameters) and sort them according to socio-demographic characteristics of movers [@boschman2015neighbourhood]. @zhang2004 was among the first to implement the conditional logit within Schelling's dynamics, although @bruch2006neighborhood moved forward by matching discrete choice of agents with parameters calculated from empirical data, along with a continuous linear function instead of Schelling's threshold. Despite pitfalls in the code implementation of their model [@van2009neighborhood] and consequent corrections [@bruch2009preferences], extensions resulted in agents being more sensitive to fine-grained change in neighborhood ethnic composition. Adopting a similar discrete choice method would benefit the chance of the model to disentangle the relative effect of different preferences.
+
+Since we are focusing on a spatial sorting mechanism, relative group sizes remains a critical factor. @blau1977macrosociological defines relative group sizes as the structural conditions that can influence inter-ethnic relations, not matter what socio-psychological drivers guide such interactions. Minority groups are per definition more at risk of incorporation from the majority [@Esser2010assimilation]. Considering the overlap category between ethnicity and taste for ethnic diversity, the concept of relative group size becomes much complex. For instance, a person might belong to the ethnic minority group, but to the majority of tolerant people in the broad society. Different distributions of people along the categories of ethnic membership and preferences for diversity/homogeneity is noteworthy.
 
 
-Since we are focusing on a spatial sorting mechanism, relative group sizes remains a critical factor. @blau1977macrosociological defines relative group sizes as the structural conditions that can influence inter-ethnic relations, not matter what socio-psychological drivers guide such interactions. Minority groups are per definition more at risk of incorporation from the majority [@esser2010assimilation]. Considering the overlap category between ethnicity and taste for ethnic diversity, the concept of relative group size becomes much complex. For instance, a person might belong to the ethnic minority group, but to the majority of tolerant people in the broad society. Different distributions of people along the categories of ethnic membership and preferences for diversity/homogeneity is noteworthy.
-
-
-<!--
-```{r model, fig.pos ='h!',out.width='50%',out.height='90%',fig.show='hold',fig.align='center', fig.cap= "Draft of agents attribution and emerging segregations, to revise.",  echo = FALSE, include=TRUE}
-knitr::include_graphics("C:/Users/rocpa/OneDrive/Desktop/AF/ethnic-value_multinomial/material/model_pr.jpg")
+```{r model, fig.pos ='h!',out.width='50%',out.height='90%',fig.show='hold',fig.align='center', fig.cap= "Prototype of the model",  echo = FALSE, include=TRUE}
+knitr::include_graphics("C:/Users/rocpa/OneDrive/Desktop/AF/ethnic-value_multinomial-master/material/model_pr.jpg")
 ```
--->
-
-
-
-
-
-
-
 
 
 # Model
-
-
-
+\rocco{probably to include into modeling above}
 
 The model^[The model can be found here:https://github.com/RoccoPaolillo/ethnic-value_multinomial.git] was built in NetLogo 6.1.0 and extends work by @paolillo2018.
 Agents interact on a regular grid 51 times 51 with periodic boundary conditions (torus world). Each node of the grid can host 1 agent or being empty. Agents represents individuals who relocate and are  defined by two static and overlapping variables: ethnicity and value orientation. Ethnicity is modeled through color tag. Agents with blue color represent the local population, agents with orange color represent the minority group. Value orientation through shape tag. 
 
 We define value orientation as the common membership of agents sharing same beliefs, preferences etc. potentially subject to change and independent of their attributed ethnicity. As such value orientation relates to value homophily compared to ethncity related to ascribed status homophily.
-Each agent hold a preference for the ethnic composition and the value composition of each neighborhood.
+Each agent hold a preference for the ethnic similarity and the value similarity of each neighborhood.
 Neighborhoods are defined as a Moore distance.
 At each step, an agent randomly selected compares its current location to a number of alternative ones, calculates utility for each and decides which location they prefer.
 
 $\beta^\Box_e \geq \beta^\circ_e$
 
-# Experiments
+# Case studies
 
-Study 1: heterogeneity of ethnic preferences in agents \par
-* 1.1 Tune $\beta_e$ for all agents, with condition $\beta^\Box_e \geq \beta^\circ_e$, no difference between agents
-* 1.2 Change  $\beta_e$ between groups (supported by literature on which group is going to be more conservative, or anyway argumented).
-Observe the emergence of ethnic segregation first
-* Same conditions, increase $\beta_v$ Either with first 1.1 and then compar, either compare first the effect of ethnic preference heterogeneity between groups over within group
-In both cases, the effect of relative group sizes
-
-\vspace{10pt}
-
-@hatna2014combining: in previous studies, they had a "F critical", maybe we could use on the critical $\beta$?
-
-\vspace{10pt}
+```{r test-utility,  echo = FALSE, include=TRUE}
 
 
+ f_spk <- function(i_e,x,n){      # utility function as single-peaked
+  if (x > n){
+    U <- NA}else{
+    if (x < (n*i_e)){
+  U <- (x / (n*i_e))
+     }else if (x > (n*i_e)){
+        U <- i_e + (((1- (x/n))*(1-i_e))/(1-i_e))
+       }else{
+    U <- 1}
+       round(U,digits = 3)
+     }
+}
 
-The concept of heterogeneity is reflected into the experiments: \par
-* individual: $\beta^\Box_e \geq \beta^\Box_v$, $\beta^\circ_v \geq \beta^\circ_e$  \par
-* within ethnic group:  $\beta^\Box_e \geq \beta^\circ_e$, $\beta^\circ_v \geq \beta^\Box_v$, should specify the ethnic group  \par
-NO * between ethnic group: $\beta^{\Box B}_e \geq \beta^{\Box R}_e$ (and implying $\beta^{\Box B}_e \geq \beta^{\circ R}_e$  ) NO \par
 
-These are the conditions kept in the experiments, ranging $\beta \in{0,10}$  \par
+for (y in seq(0,8,by=1)) {
+  i_e = 0.9
+ p <- f_spk(i_e,y,8)
+  print(c(y,p))
+}
 
-Think about it.
 
-If a society is "conservative", the less ethnic-oriented of that society/scenario would have high level as well. In the end, you could narrow down so to have 3 conditions for each low, medium, high beta (e.g. 1, 5, 10), and calculate the $\beta_e$ of less ethnicity-oriented agents out of a ratio, e.g. min $n/n$,  $n/(n:2)$ (check), max $n/1$ \par
-* 1 = 1,0.5,1 (check)
-* 5 = 1,2.5,5
-* 10 = 1,5,10
 
-Dependent measure:
 
-* ethnic segregation exposure as Schelling (color)
-* value segregation exposure as Schelling (shape)
-* C index in @hatna2012schelling, to check
 
-**beta-binomial distribution? Discrete values deriving from beta distribution but not limit [0,1] @hatna2015combining** 
+
+
+
+```
+
+
+- heterogeneous ethnic preferences, value preferences and relative group sizes \par
+
+IDEA: Since generations have been introduced, what about including scenarios for each generations, manipulating relative group sizes and preferences between generations?\par
+
+
 
 # Results
 
 # Conclusions/ further ideas
-
-@van2019sociocultural introduction: social homophily as due to preferences and constraints' approach. They also use social class as proxy for  socio-cultural differentiation
 
 
 # References
