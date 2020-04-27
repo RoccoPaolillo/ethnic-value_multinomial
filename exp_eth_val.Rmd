@@ -40,6 +40,8 @@ library(magick)
 
 wd <- setwd("C:/Users/rocpa/OneDrive/Desktop/AF/")
 dataone <- read.csv("experiments/80_50_onebeta.csv",sep = ";",skip = 1)
+datatwo <- read.csv("experiments/two_beta.csv", sep = ";",skip = 1)
+
 
 
 ```
@@ -247,8 +249,6 @@ image_write(c, path = "circle80.png", format = "png")
 
 ```
 -->
-
-
 
 ```{r ethnicp, fig.pos="h!", out.width="98%",fig.align='center',fig.show="hold", fig.cap="prep fig ethnic population", echo=FALSE, include=FALSE}
 
@@ -574,11 +574,11 @@ maj_eth <- ggplot(data=subset(dataone,fraction_blue == 80 & step == 1000), aes( 
 
 maj_val <- ggplot(data=subset(dataone,fraction_blue == 80 & step == 1000), aes( beta_ie, beta_iv,fill= val_seg)) + geom_tile() +   facet_grid(circle_orange  ~  circle_blue,  space = "free_x", labeller = labeller(circle_blue = circle_local.labs,  circle_orange = circle_minority.labs )) + 
   scale_fill_distiller(name = "VALUE",palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) + 
-  scale_x_discrete(name = "ß ethnic", limits=seq(0,10 ,by = 1)) + 
+ scale_x_discrete(name = "ß ethnic", limits=seq(0,10 ,by = 1)) + 
   scale_y_discrete(name = "ß value", limits=c(0,3,5,7,10))  + 
   theme_bw() + theme(strip.text.x = element_text(), legend.position = "right", panel.grid.minor.x = element_blank(), plot.title=element_blank(),  legend.margin=margin(0,0,0,0)) +
   geom_rect(data=subset(dataone,fraction_blue == 80 & step == 1000 & circle_orange == 50 & circle_blue == 50),aes(xmin = -1,xmax = 12, ymin = -1, ymax = 11),colour="black",size =2,alpha = 0)
-
+maj_val
 
 maj_glb <- annotate_figure(ggarrange(maj_eth , ggarrange(maj_val), nrow = 2), top = text_grob("Global Segregation, Local:Minority = 0.8:0.2",face = "bold", size = 12))
 maj_glb
@@ -678,6 +678,87 @@ knitr::include_graphics("majo50.png")
 knitr::include_graphics("majo80.png")
 
 ```
+
+
+```{r betatwoethnic,out.width="96%", fig.pos="t",fig.show = "hold",fig.pos='t',fig.align='center',fig.show="hold", fig.cap="Difference segregation between value groups (equal ethnic group). X-axis: determinism ethnic utility circle.", echo=FALSE, include=TRUE }
+
+circle_frame <- datatwo %>% filter(step == 1000) %>% filter(beta_iv_circle == 0 |beta_iv_circle == 5 |beta_iv_circle == 10 ) %>% filter(beta_ie_circle == 0 | beta_ie_circle == 5 | beta_ie_circle == 10) 
+
+
+ v_circle.labs <- c("ß value circle 0", "ß value circle 5", "ß value circle 10")
+names(v_circle.labs) <- c("0", "5","10")
+e_circle.labs <- c("ß ethnic circle 0", "ß ethnic circle 5", "ß ethnic circle 10")
+names(e_circle.labs) <- c("0", "5","10")
+
+  
+ie_10 <- circle_frame %>%  filter(beta_ie_square == 10) %>% gather(key = subgroup, value = Segra, eth_sq_or,val_sq_or,eth_cl_or,val_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sq_or","eth_cl_or"), "value segregation" = c("val_sq_or","val_cl_or")), "ethnic segregation"), `group` = fct_relevel(fct_collapse(subgroup, "square minority" = c("eth_sq_or","val_sq_or"), "circle minority" = c("eth_cl_or","val_cl_or"), "square minority"))) %>%
+  ggplot(aes(x = (beta_ie_square - beta_iv_square), y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point() + facet_grid(beta_iv_circle ~  beta_ie_circle, labeller = labeller(beta_iv_circle = v_circle.labs,  beta_ie_circle = e_circle.labs )) +
+  geom_vline(xintercept = 5, color = "red") +
+  scale_x_discrete(name = "ß ethnic square 10 - ß value square", limits = seq(0,10, by = 1)) +  ylab("Segregation") +
+  scale_color_manual(values = c("dark violet","dark green"), guide = guide_legend(title="")) +
+  scale_shape_manual(values = c(16,15), guide = guide_legend(title="")) +
+    theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
+
+ie_5 <- circle_frame %>%  filter(beta_ie_square == 5) %>% gather(key = subgroup, value = Segra, eth_sq_or,val_sq_or,eth_cl_or,val_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sq_or","eth_cl_or"), "value segregation" = c("val_sq_or","val_cl_or")), "ethnic segregation"), `group` = fct_relevel(fct_collapse(subgroup, "square minority" = c("eth_sq_or","val_sq_or"), "circle minority" = c("eth_cl_or","val_cl_or"), "square minority"))) %>%
+  ggplot(aes(x = (beta_ie_square - beta_iv_square), y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point() + facet_grid(beta_iv_circle ~  beta_ie_circle, labeller = labeller(beta_iv_circle = v_circle.labs,  beta_ie_circle = e_circle.labs )) +
+  scale_x_discrete(name = "ß ethnic square 5 - ß value square", limits = seq(0,5, by = 1)) +  ylab("Segregation") +
+  scale_color_manual(values = c("dark violet","dark green"), guide = guide_legend(title="")) +
+  scale_shape_manual(values = c(16,15), guide = guide_legend(title="")) +
+    theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
+
+ie_5
+ie_10
+```
+
+
+```{r betatwovalue, out.width="96%", fig.pos="t",fig.show = "hold",fig.pos='t',fig.align='center',fig.show="hold", fig.cap="Difference segregation between value groups (equal ethnic group). X-axis: determinism value utility circle.", echo=FALSE, include=TRUE  }
+
+circle_frame <- datatwo %>% filter(step == 1000) %>% filter(beta_ie_square == 0 |beta_ie_square == 5 |beta_ie_square == 10 ) %>% filter(beta_iv_square == 0 | beta_iv_square == 5 | beta_iv_square == 10) 
+
+
+e_square.labs <- c("ß ethnic \nsquare 0", "ß ethnic \nsquare 5", "ß ethnic \nsquare 10")
+names(e_square.labs) <- c("0", "5","10")
+v_square.labs <- c("ß value square 0", "ß value square 5", "ß value square 10")
+names(v_square.labs) <- c("0", "5","10")
+ 
+  
+iv_10 <- circle_frame %>%  filter(beta_iv_circle == 10) %>% gather(key = subgroup, value = Segra, eth_sq_or,val_sq_or,eth_cl_or,val_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sq_or","eth_cl_or"), "value segregation" = c("val_sq_or","val_cl_or")), "ethnic segregation"), `group` = fct_relevel(fct_collapse(subgroup, "square minority" = c("eth_sq_or","val_sq_or"), "circle minority" = c("eth_cl_or","val_cl_or"), "square minority")))  %>%
+  ggplot(aes(x = (beta_iv_circle - beta_ie_circle), y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point() + facet_grid(beta_ie_square ~  beta_iv_square, labeller = labeller(beta_ie_square = e_square.labs, beta_iv_square = v_square.labs))  +
+  geom_vline(xintercept = 5, color = "red") +
+  scale_x_discrete(name = "ß value circle 10 - ß ethnic circle", limits = seq(0,10, by = 1)) +  ylab("Segregation") +
+  scale_color_manual(values = c("dark violet","dark green"), guide = guide_legend(title="")) +
+  scale_shape_manual(values = c(16,15), guide = guide_legend(title="")) +
+    theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
+
+iv_5 <- circle_frame %>%  filter(beta_iv_circle == 5) %>% gather(key = subgroup, value = Segra, eth_sq_or,val_sq_or,eth_cl_or,val_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sq_or","eth_cl_or"), "value segregation" = c("val_sq_or","val_cl_or")), "ethnic segregation"), `group` = fct_relevel(fct_collapse(subgroup, "square minority" = c("eth_sq_or","val_sq_or"), "circle minority" = c("eth_cl_or","val_cl_or"), "square minority")))  %>%
+  ggplot(aes(x = (beta_iv_circle - beta_ie_circle), y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point() + facet_grid(beta_ie_square ~  beta_iv_square, labeller = labeller(beta_ie_square = e_square.labs, beta_iv_square = v_square.labs))  +
+  scale_x_discrete(name = "ß value circle 5 - ß ethnic circle", limits = seq(0,5, by = 1)) +  ylab("Segregation") +
+  scale_color_manual(values = c("dark violet","dark green"), guide = guide_legend(title="")) +
+  scale_shape_manual(values = c(16,15), guide = guide_legend(title="")) +
+    theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
+
+
+iv_5
+iv_10
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -803,7 +884,6 @@ cl_org <- annotate_figure(ggarrange(eth_cl_org , ggarrange(val_cl_org), nrow = 2
 cl_org
 ```
 
-majority
 
 
 
@@ -971,20 +1051,20 @@ maj_cl_org
 -->
 
 
+<!--
+```{r testnormdelete, echo=FALSE, include= FALSE}
 
-```{r testnorm, echo=FALSE, include= FALSE}
-
-nrml <- function(mx,mn,x,s){
+nrml <- function(mx,mn,x){
   
-  s <- ((x - mn) / (mx-mn))
+  s <-  ((x - mn) / (mx-mn))
 }
 
- bt_10 <- for (x in seq(5,10,by=1)) {
+ bt_10 <- for (x in seq(0,5,by=1)) {
   
-  mx <- 10
-  mn <- 5
+  mx <- 5
+  mn <- 0
   
-  s <- nrml(mx,mn,x,s)
+  s <- nrml(mx,mn,x)
   print(c(x,s))
   
 }
@@ -994,7 +1074,7 @@ nrml <- function(mx,mn,x,s){
   mx <- 5
   mn <- 0
   
-  s <- nrml(mx,mn,x,s)
+  s <- nrml(mx,mn,x)
   print(c(x,s))
   
 }
@@ -1002,7 +1082,7 @@ nrml <- function(mx,mn,x,s){
 ```
 
 
-
+-->
 
 
 
