@@ -35,6 +35,8 @@ library(dplyr)
 library(reshape)
 library(ggpubr)
 library(magick)
+library(gridExtra)
+library(grid)
 
 #theme_set(theme_pubr())
 
@@ -47,209 +49,8 @@ datatwo <- read.csv("experiments/two_beta.csv", sep = ";",skip = 1)
 ```
 
 
-Fig: \ref{fig:squaret} Ethnic global segregation
+
  
-<!--
-```{r prep, fig.pos="h!", out.width="98%",fig.align='center',fig.show="hold", fig.cap="prep fig", echo=FALSE, include=FALSE }
-
-circle_local.labs <- c("20% Local Circle", "50% Local Circle","80% Local Circle")
-names(circle_local.labs) <- c("20", "50","80")
- circle_minority.labs <-  c("20% Minority Circle", "50% Minority Circle","80% Minority Circle")
-names(circle_minority.labs) <- c("20", "50","80")
-circle_minority.labs <-  c("20% \nMinority Circle", "50% \nMinority Circle","80% \nMinority Circle")
-names(circle_minority.labs) <- c("20", "50","80")
-
-
-pl_sq_e20 <- dataone %>% filter(step == 1000 & fraction_blue == 50 & circle_blue == 20) %>%  
-  gather(key = square, value = Segra, eth_sq_bl,val_sq_bl,eth_sq_or,val_sq_or) %>% 
-  mutate("segregation" = fct_relevel(fct_collapse(square,"ethnic segregation" = c("eth_sq_bl","eth_sq_or"), "value segregation" = c("val_sq_bl","val_sq_or")), "ethnic segregation"), "group" = fct_relevel(fct_collapse(square, "squared majority" = c("eth_sq_bl","val_sq_bl"), "squared minority" = c("eth_sq_or","val_sq_or")),"majority")) %>%  
-  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segra)) + geom_tile() + 
-  facet_grid(circle_orange ~ group + segregation, labeller = labeller(circle_orange = circle_minority.labs)) +
-  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
-  scale_x_discrete( limits=c(0,10, by = 5)) +
-  scale_y_discrete( limits=c(0,10, by = 5)) +
-  xlab("ß ethnic") + ylab("ß value") + ggtitle("Square population, Majority:Minority = .5:.5, 20% Majority Circle") + 
-  theme_bw() +  theme(legend.position = "right", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
-
-
-
-
-
-
-pl_sq_m20 <- dataone %>% filter(step == 1000 & fraction_blue == 80 & circle_blue == 20) %>%  
-  gather(key = square, value = Segra, eth_sq_bl,val_sq_bl,eth_sq_or,val_sq_or) %>% 
-  mutate("segregation" = fct_relevel(fct_collapse(square,"ethnic segregation" = c("eth_sq_bl","eth_sq_or"), "value segregation" = c("val_sq_bl","val_sq_or")), "ethnic segregation"), "group" = fct_relevel(fct_collapse(square, "squared majority" = c("eth_sq_bl","val_sq_bl"), "squared minority" = c("eth_sq_or","val_sq_or")),"majority")) %>%  
-  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segra)) + geom_tile() + 
-  facet_grid(circle_orange ~ group + segregation, labeller = labeller(circle_orange = circle_minority.labs)) +
-  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
-  scale_x_discrete( limits=c(0,10, by = 5)) +
-  scale_y_discrete( limits=c(0,10, by = 5)) +
-  xlab("ß ethnic") + ylab("ß value") + ggtitle("Square population, Majority:Minority = .8:.2, 20% Majority Circle") + 
-  theme_bw() +  theme(legend.position = "right", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
-
- ggsave("pl_sq_e20.png",pl_sq_e20)
- ggsave("pl_sq_m20.png",pl_sq_m20)
-# a <- image_read("pl_sq_e20.png")
-# b <- image_read("pl_sq_m20.png")
-
-#knitr::include_graphics(c("pl_sq_e20.png","pl_sq_m20.png"))
-
-img <-c(image_read("pl_sq_e20.png"),image_read("pl_sq_m20.png"))
-c <- image_append(img, stack = TRUE)
-image_write(c, path = "square20.png", format = "png")
-
-
-#  
-
-pl_sq_e50 <- dataone %>% filter(step == 1000 & fraction_blue == 50 & circle_blue == 50) %>%  
-  gather(key = square, value = Segra, eth_sq_bl,val_sq_bl,eth_sq_or,val_sq_or) %>% 
-  mutate("segregation" = fct_relevel(fct_collapse(square,"ethnic segregation" = c("eth_sq_bl","eth_sq_or"), "value segregation" = c("val_sq_bl","val_sq_or")), "ethnic segregation"), "group" = fct_relevel(fct_collapse(square, "squared majority" = c("eth_sq_bl","val_sq_bl"), "squared minority" = c("eth_sq_or","val_sq_or")),"majority")) %>%  
-  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segra)) + geom_tile() + 
-  facet_grid(circle_orange ~ group + segregation, labeller = labeller(circle_orange = circle_minority.labs)) +
-  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
-  scale_x_discrete( limits=c(0,10, by = 5)) +
-  scale_y_discrete( limits=c(0,10, by = 5)) +
-  xlab("ß ethnic") + ylab("ß value") + ggtitle("Square population, Majority:Minority = .5:.5, 50% Majority Circle") + 
-  theme_bw() +  theme(legend.position = "right", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
-
-
-pl_sq_m50 <- dataone %>% filter(step == 1000 & fraction_blue == 80 & circle_blue == 50) %>%  
-  gather(key = square, value = Segra, eth_sq_bl,val_sq_bl,eth_sq_or,val_sq_or) %>% 
-  mutate("segregation" = fct_relevel(fct_collapse(square,"ethnic segregation" = c("eth_sq_bl","eth_sq_or"), "value segregation" = c("val_sq_bl","val_sq_or")), "ethnic segregation"), "group" = fct_relevel(fct_collapse(square, "squared majority" = c("eth_sq_bl","val_sq_bl"), "squared minority" = c("eth_sq_or","val_sq_or")),"majority")) %>%  
-  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segra)) + geom_tile() + 
-  facet_grid(circle_orange ~ group + segregation, labeller = labeller(circle_orange = circle_minority.labs)) +
-  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
-  scale_x_discrete( limits=c(0,10, by = 5)) +
-  scale_y_discrete( limits=c(0,10, by = 5)) +
-  xlab("ß ethnic") + ylab("ß value") + ggtitle("Square population, Majority:Minority = .8:.2, 50% Majority Circle") + 
-  theme_bw() +  theme(legend.position = "right", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
-
-ggsave("pl_sq_e50.png",pl_sq_e50)
-ggsave("pl_sq_m50.png",pl_sq_m50)
-
-img <-c(image_read("pl_sq_e50.png"),image_read("pl_sq_m50.png"))
-c <- image_append(img, stack = TRUE)
-image_write(c, path = "square50.png", format = "png")
-
-#
-
-pl_sq_e80 <- dataone %>% filter(step == 1000 & fraction_blue == 50 & circle_blue == 80) %>%  
-  gather(key = square, value = Segra, eth_sq_bl,val_sq_bl,eth_sq_or,val_sq_or) %>% 
-  mutate("segregation" = fct_relevel(fct_collapse(square,"ethnic segregation" = c("eth_sq_bl","eth_sq_or"), "value segregation" = c("val_sq_bl","val_sq_or")), "ethnic segregation"), "group" = fct_relevel(fct_collapse(square, "squared majority" = c("eth_sq_bl","val_sq_bl"), "squared minority" = c("eth_sq_or","val_sq_or")),"majority")) %>%  
-  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segra)) + geom_tile() + 
-  facet_grid(circle_orange ~ group + segregation, labeller = labeller(circle_orange = circle_minority.labs)) +
-  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
-  scale_x_discrete( limits=c(0,10, by = 5)) +
-  scale_y_discrete( limits=c(0,10, by = 5)) +
-  xlab("ß ethnic") + ylab("ß value") + ggtitle("Square population, Majority:Minority = .5:.5, 80% Majority Circle") + 
-  theme_bw() +  theme(legend.position = "right", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
-
-pl_sq_m80 <- dataone %>% filter(step == 1000 & fraction_blue == 80 & circle_blue == 80) %>%  
-  gather(key = square, value = Segra, eth_sq_bl,val_sq_bl,eth_sq_or,val_sq_or) %>% 
-  mutate("segregation" = fct_relevel(fct_collapse(square,"ethnic segregation" = c("eth_sq_bl","eth_sq_or"), "value segregation" = c("val_sq_bl","val_sq_or")), "ethnic segregation"), "group" = fct_relevel(fct_collapse(square, "squared majority" = c("eth_sq_bl","val_sq_bl"), "squared minority" = c("eth_sq_or","val_sq_or")),"majority")) %>%  
-  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segra)) + geom_tile() + 
-  facet_grid(circle_orange ~ group + segregation, labeller = labeller(circle_orange = circle_minority.labs)) +
-  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
-  scale_x_discrete( limits=c(0,10, by = 5)) +
-  scale_y_discrete( limits=c(0,10, by = 5)) +
-  xlab("ß ethnic") + ylab("ß value") + ggtitle("Square population, Majority:Minority = .8:.2, 80% Majority Circle") + 
-  theme_bw() +  theme(legend.position = "right", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
-
-ggsave("pl_sq_e80.png",pl_sq_e80)
-ggsave("pl_sq_m80.png",pl_sq_m80)
-
-img <-c(image_read("pl_sq_e80.png"),image_read("pl_sq_m80.png"))
-c <- image_append(img, stack = TRUE)
-image_write(c, path = "square80.png", format = "png")
-
-# circle
-
-pl_cl_e20 <- dataone %>% filter(step == 1000 & fraction_blue == 50 & circle_blue == 20) %>%   gather(key = circlec, value = Segrac, eth_cl_bl,val_cl_bl,eth_cl_or,val_cl_or) %>% mutate("segregation" = fct_relevel(fct_collapse(circlec,"ethnic segregation" = c("eth_cl_bl","eth_cl_or"), "value segregation" = c("val_cl_bl","val_cl_or")), "ethnic segregation"), "group" = fct_relevel(fct_collapse(circlec, "cirle majority" = c("eth_cl_bl","val_cl_bl"), "circle minority" = c("eth_cl_or","val_cl_or")),"majority"))%>%  
-  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segrac)) + geom_tile() + 
-  facet_grid(circle_orange ~ group + segregation, labeller = labeller(circle_orange = circle_minority.labs)) +
-  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
-  scale_x_discrete( limits=c(0,10, by = 5)) +
-  scale_y_discrete( limits=c(0,10, by = 5)) +
-  xlab("ß ethnic") + ylab("ß value") + ggtitle("Circle population, Majority:Minority = .5:.5, 20% Majority Circle") + 
-  theme_bw() +  theme(legend.position = "right", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
-
-pl_cl_m20 <- dataone %>% filter(step == 1000 & fraction_blue == 80 & circle_blue == 20) %>%   gather(key = circlec, value = Segrac, eth_cl_bl,val_cl_bl,eth_cl_or,val_cl_or) %>% mutate("segregation" = fct_relevel(fct_collapse(circlec,"ethnic segregation" = c("eth_cl_bl","eth_cl_or"), "value segregation" = c("val_cl_bl","val_cl_or")), "ethnic segregation"), "group" = fct_relevel(fct_collapse(circlec, "cirle majority" = c("eth_cl_bl","val_cl_bl"), "circle minority" = c("eth_cl_or","val_cl_or")),"majority"))%>%  
-  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segrac)) + geom_tile() + 
-  facet_grid(circle_orange ~ group + segregation, labeller = labeller(circle_orange = circle_minority.labs)) +
-  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
-  scale_x_discrete( limits=c(0,10, by = 5)) +
-  scale_y_discrete( limits=c(0,10, by = 5)) +
-  xlab("ß ethnic") + ylab("ß value") + ggtitle("Circle population, Majority:Minority = .8:.2, 20% Majority Circle") + 
-  theme_bw() +  theme(legend.position = "right", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
-
-
-ggsave("pl_cl_e20.png",pl_cl_e20)
-ggsave("pl_cl_m20.png",pl_cl_m20)
-
-img <-c(image_read("pl_cl_e20.png"),image_read("pl_cl_m20.png"))
-c <- image_append(img, stack = TRUE)
-image_write(c, path = "circle20.png", format = "png")
-
-#
-
-pl_cl_e50 <- dataone %>% filter(step == 1000 & fraction_blue == 50 & circle_blue == 50) %>%   gather(key = circlec, value = Segrac, eth_cl_bl,val_cl_bl,eth_cl_or,val_cl_or) %>% mutate("segregation" = fct_relevel(fct_collapse(circlec,"ethnic segregation" = c("eth_cl_bl","eth_cl_or"), "value segregation" = c("val_cl_bl","val_cl_or")), "ethnic segregation"), "group" = fct_relevel(fct_collapse(circlec, "cirle majority" = c("eth_cl_bl","val_cl_bl"), "circle minority" = c("eth_cl_or","val_cl_or")),"majority"))%>%  
-  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segrac)) + geom_tile() + 
-  facet_grid(circle_orange ~ group + segregation, labeller = labeller(circle_orange = circle_minority.labs)) +
-  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
-  scale_x_discrete( limits=c(0,10, by = 5)) +
-  scale_y_discrete( limits=c(0,10, by = 5)) +
-  xlab("ß ethnic") + ylab("ß value") + ggtitle("Circle population, Majority:Minority = .5:.5, 50% Majority Circle") + 
-  theme_bw() +  theme(legend.position = "right", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
-
-pl_cl_m50 <- dataone %>% filter(step == 1000 & fraction_blue == 80 & circle_blue == 50) %>%   gather(key = circlec, value = Segrac, eth_cl_bl,val_cl_bl,eth_cl_or,val_cl_or) %>% mutate("segregation" = fct_relevel(fct_collapse(circlec,"ethnic segregation" = c("eth_cl_bl","eth_cl_or"), "value segregation" = c("val_cl_bl","val_cl_or")), "ethnic segregation"), "group" = fct_relevel(fct_collapse(circlec, "cirle majority" = c("eth_cl_bl","val_cl_bl"), "circle minority" = c("eth_cl_or","val_cl_or")),"majority"))%>%  
-  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segrac)) + geom_tile() + 
-  facet_grid(circle_orange ~ group + segregation, labeller = labeller(circle_orange = circle_minority.labs)) +
-  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
-  scale_x_discrete( limits=c(0,10, by = 5)) +
-  scale_y_discrete( limits=c(0,10, by = 5)) +
-  xlab("ß ethnic") + ylab("ß value") + ggtitle("Circle population, Majority:Minority = .8:.2, 50% Majority Circle") + 
-  theme_bw() +  theme(legend.position = "right", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
-
-
-ggsave("pl_cl_e50.png",pl_cl_e50)
-ggsave("pl_cl_m50.png",pl_cl_m50)
-
-img <-c(image_read("pl_cl_e50.png"),image_read("pl_cl_m50.png"))
-c <- image_append(img, stack = TRUE)
-image_write(c, path = "circle50.png", format = "png")
-
-#
-
-pl_cl_e80 <- dataone %>% filter(step == 1000 & fraction_blue == 50 & circle_blue == 80) %>%   gather(key = circlec, value = Segrac, eth_cl_bl,val_cl_bl,eth_cl_or,val_cl_or) %>% mutate("segregation" = fct_relevel(fct_collapse(circlec,"ethnic segregation" = c("eth_cl_bl","eth_cl_or"), "value segregation" = c("val_cl_bl","val_cl_or")), "ethnic segregation"), "group" = fct_relevel(fct_collapse(circlec, "cirle majority" = c("eth_cl_bl","val_cl_bl"), "circle minority" = c("eth_cl_or","val_cl_or")),"majority"))%>%  
-  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segrac)) + geom_tile() + 
-  facet_grid(circle_orange ~ group + segregation, labeller = labeller(circle_orange = circle_minority.labs)) +
-  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
-  scale_x_discrete( limits=c(0,10, by = 5)) +
-  scale_y_discrete( limits=c(0,10, by = 5)) +
-  xlab("ß ethnic") + ylab("ß value") + ggtitle("Circle population, Majority:Minority = .5:.5, 80% Majority Circle") + 
-  theme_bw() +  theme(legend.position = "right", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
-
-pl_cl_m80 <- dataone %>% filter(step == 1000 & fraction_blue == 80 & circle_blue == 80) %>%   gather(key = circlec, value = Segrac, eth_cl_bl,val_cl_bl,eth_cl_or,val_cl_or) %>% mutate("segregation" = fct_relevel(fct_collapse(circlec,"ethnic segregation" = c("eth_cl_bl","eth_cl_or"), "value segregation" = c("val_cl_bl","val_cl_or")), "ethnic segregation"), "group" = fct_relevel(fct_collapse(circlec, "cirle majority" = c("eth_cl_bl","val_cl_bl"), "circle minority" = c("eth_cl_or","val_cl_or")),"majority"))%>%  
-  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segrac)) + geom_tile() + 
-  facet_grid(circle_orange ~ group + segregation, labeller = labeller(circle_orange = circle_minority.labs)) +
-  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
-  scale_x_discrete( limits=c(0,10, by = 5)) +
-  scale_y_discrete( limits=c(0,10, by = 5)) +
-  xlab("ß ethnic") + ylab("ß value") + ggtitle("Circle population, Majority:Minority = .8:.2, 80% Majority Circle") + 
-  theme_bw() +  theme(legend.position = "right", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
-
-
-ggsave("pl_cl_e80.png",pl_cl_e80)
-ggsave("pl_cl_m80.png",pl_cl_m80)
-
-img <-c(image_read("pl_cl_e80.png"),image_read("pl_cl_m80.png"))
-c <- image_append(img, stack = TRUE)
-image_write(c, path = "circle80.png", format = "png")
-
-
-```
--->
-
 ```{r ethnicp, fig.pos="h!", out.width="98%",fig.align='center',fig.show="hold", fig.cap="prep fig ethnic population", echo=FALSE, include=FALSE}
 
 circle_local.labs <- c("20% Local Circle", "50% Local Circle","80% Local Circle")
@@ -487,9 +288,7 @@ mn_m80 <- dataone %>% filter(step == 1000 & fraction_blue == 80 & circle_blue ==
 
  ggsave("mn_e80.png",mn_e80)
  ggsave("mn_m80.png",mn_m80)
-# a <- image_read("pl_sq_e20.png")
-# b <- image_read("pl_sq_m20.png")
-
+# a <- image_r
 #knitr::include_graphics(c("pl_sq_e20.png","pl_sq_m20.png"))
 
 img <-c(image_read("mn_e80.png"),image_read("mn_m80.png"))
@@ -497,12 +296,75 @@ c <- image_append(img, stack = TRUE)
 image_write(c, path = "min80.png", format = "png")
 
 
+
+```
+
+# Recap
+
+- Research question: How the interplay of ethnic and value homophily preferences can explain difference in the degree of integration for the members of the same ethnic group (hybrid segregation) for both ethnic and value segregation.
+- Focus: different weight on the two dimensions, heterogeneity among agents, relative group size for both dimensions \par
+
+Utility of agents in Schelling relocation
+
+$$
+U= \beta_eX_v + \beta_vX_v + \epsilon
+$$
+
+```{r thheory, fig.pos="h", out.width="50%",out.width='\\textwidth',fig.align='left',fig.show="hold", fig.cap="Agents distinction and utility function", echo=FALSE, include=TRUE }
+
+knitr::include_graphics("recapp.png")
 ```
 
 
-# Global Results
 
-Global results with heatmap
+
+
+
+# First Section (effect of relative group size)
+
+* Aim:
+    + Effect of different homophily preferences: independent effect of $\beta_e$ on ethnic segregation, and direct effect of beta value $\beta_v$ on value segregation. 
+
+
+Table \ref{tab:first}
+
+\begin{table}[H]
+\begin{tabular}{llll}
+\midrule
+ Static agent variable                      & Range         &      &                \\ \midrule
+ Ethnicity  (\textit{color})         & Blue, Orange        \\
+ Value orientation (\textit{shape}) & Square, Circle &  &  \\
+ \midrule
+ 
+ Parameters kept constant    & Slider & Range   & Experiments  \\ 
+ \midrule
+ Population density    & density                 & $[0,0.99]$   & $0.7$          \\
+ Peak ethnic utility & similar\_wanted\_ethnic & $[0,1]$ & $1$ (linear function) \\
+ Peak value utility & similar\_wanted\_value & $[0,1]$ & $1$ (linear function) \\
+ \midrule
+ Parameters modified in experiment & Slider  & Range   & Experiments  \\ 
+ \midrule
+ Ethnic group ratio (local\/minority)  & fraction\_blue &  $[0,1]$      & $0.5,0.8$  \\
+ value ratio  blue population & circle\_blue & $[0,1]$      & $0.20,0.5,0.8$  \\
+ value ratio  orange population & circle\_blue & $[0,1]$      & $0.20,0.5,0.8$  \\
+ Determinism ethnic utility ($\beta_e$) & beta-ie for all agents & $[0,1]$ & $[0,10]$  \\
+ Determinism value utility ($\beta_v$) & beta-iv for all agents & $[0,1]$ & $[0,10]$ \\
+ \midrule
+ Global output measures    & Computation &   Range & \\ 
+ \midrule
+ Ethnic segregation  & same color neighborhood proportion & $0,\stackrel{+0.1}{\dots}, 1$ & global and subgroups\\
+ Value segregation  & same shape neighborhood proportion & $0,\stackrel{+0.1}{\dots}, 1$ & global and subgroups\\
+   \midrule
+\end{tabular}
+\label{tab:first}
+ \caption{Basic Model} 
+
+
+\end{table}
+
+
+
+
 
 ```{r global, fig.height=8.8, fig.pos="h", include=TRUE, fig.cap="Global Segregation with ethnic equal group size, baseline in boldline", echo=FALSE}
 
@@ -539,9 +401,10 @@ val_eq <- ggplot(data=subset(dataone,fraction_blue == 50 & step == 1000), aes( b
   geom_rect(data=subset(dataone,fraction_blue == 50 & step == 1000 & circle_orange == 50 & circle_blue == 50),aes(xmin = -1,xmax = 12, ymin = -1, ymax = 11),colour="black",size =2,alpha = 0)
 
 
-glb <- annotate_figure(ggarrange(eth_eq , ggarrange(val_eq), nrow = 2), top = text_grob("Global Segregation, Local:Minority = 0.5:0.5",face = "bold", size = 12))
+glb <- annotate_figure(ggarrange(eth_eq , ggarrange(val_eq), nrow = 2), top = text_grob("Global Segregation, Majority:Minority = 0.5:0.5",face = "bold", size = 12))
 
 glb
+
 ```
 
 
@@ -578,11 +441,187 @@ maj_val <- ggplot(data=subset(dataone,fraction_blue == 80 & step == 1000), aes( 
   scale_y_discrete(name = "ß value", limits=c(0,3,5,7,10))  + 
   theme_bw() + theme(strip.text.x = element_text(), legend.position = "right", panel.grid.minor.x = element_blank(), plot.title=element_blank(),  legend.margin=margin(0,0,0,0)) +
   geom_rect(data=subset(dataone,fraction_blue == 80 & step == 1000 & circle_orange == 50 & circle_blue == 50),aes(xmin = -1,xmax = 12, ymin = -1, ymax = 11),colour="black",size =2,alpha = 0)
-maj_val
 
-maj_glb <- annotate_figure(ggarrange(maj_eth , ggarrange(maj_val), nrow = 2), top = text_grob("Global Segregation, Local:Minority = 0.8:0.2",face = "bold", size = 12))
+
+maj_glb <- annotate_figure(ggarrange(maj_eth , ggarrange(maj_val), nrow = 2), top = text_grob("Global Segregation, Majority:Minority = 0.8:0.2",face = "bold", size = 12))
 maj_glb
+
+
 ```
+
+
+```{r sqro, fig.pos="t",out.width='\\textwidth',fig.show = "hold",fig.pos='t',fig.align='center',fig.show="hold", fig.cap="", echo=FALSE, include=TRUE  }
+
+ circle_local.labs <- c("20% Circle \nMajority", "50% Circle \nMajority","80% Circle \nMajority")
+names(circle_local.labs) <- c("20", "50","80")
+ circle_minority.labs <-  c("20% Circle \nMinority", "50% Circle \nMinority","80% Circle \nMinority")
+names(circle_minority.labs) <- c("20", "50","80")
+
+
+sqroeq <- dataone %>%  filter(fraction_blue == 50) %>%  gather(key = subgroup, value = Segra, eth_sq_or,val_sq_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Value" = "val_sq_or","Ethnic" = "eth_sq_or"), "Value"))  %>% 
+  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segra)) + geom_tile() + 
+  facet_grid(circle_orange ~ circle_blue + segregation, labeller = labeller(circle_orange = circle_minority.labs, circle_blue = circle_local.labs)) +
+  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
+  scale_x_discrete( limits=c(0,10, by = 5)) +
+  scale_y_discrete( limits=c(0,10, by = 5)) +
+  xlab("ß ethnic") + ylab("ß value") + ggtitle("Square orange, ethnic minority") + 
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0), 
+                      panel.spacing.x  = unit(0.2, "lines"),panel.spacing.y  = unit(0.1, "lines") )
+ 
+
+sqromj<- dataone %>%  filter(fraction_blue == 80) %>%  gather(key = subgroup, value = Segra, eth_sq_or,val_sq_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Value" = "val_sq_or","Ethnic" = "eth_sq_or"), "Value"))  %>% 
+  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segra)) + geom_tile() + 
+  facet_grid(circle_orange ~ circle_blue + segregation, labeller = labeller(circle_orange = circle_minority.labs, circle_blue = circle_local.labs)) +
+  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
+  scale_x_discrete( limits=c(0,10, by = 5)) +
+  scale_y_discrete( limits=c(0,10, by = 5)) +
+  xlab("ß ethnic") + ylab("ß value") + ggtitle("Square orange, ethnic minority") + 
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0), 
+                      panel.spacing.x  = unit(0.2, "lines"),panel.spacing.y  = unit(0.1, "lines") )
+
+
+#grid.arrange(grob(sqroeq),grob(sqromj), ncol =  1, common.legend = TRUE,legend = "bottom") 
+
+ sqroeq
+ sqromj
+```
+
+
+```{r crloA, fig.pos="t",out.width='\\textwidth',fig.show = "hold",fig.pos='t',fig.align='center',fig.show="hold", fig.cap="", echo=FALSE, include=TRUE  }
+
+dataone$rev_circle_orange <- fct_rev(factor(dataone$circle_orange))
+
+ circle_blue.labs <- c("20% Circle Blue", "50% Circle Blue","80% Circle Blue")
+names(circle_blue.labs) <- c("20", "50","80")
+ rev_circle_orange.labs <-  c("80% Circle \nOrange", "50% Circle \nOrange","20% Circle \nOrange")
+names(rev_circle_orange.labs) <- c("80", "50","20")
+
+crloeq <- dataone %>%  filter(fraction_blue == 50) %>%  gather(key = subgroup, value = Segra, eth_cl_or,val_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Value" = "val_cl_or","Ethnic" = "eth_cl_or"), "Value"))  %>% 
+  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segra)) + geom_tile() + 
+  facet_grid(rev_circle_orange ~ circle_blue + segregation, labeller = labeller(rev_circle_orange = rev_circle_orange.labs, circle_blue = circle_blue.labs), switch  = "y") +
+  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
+  scale_x_discrete( limits=c(0,10, by = 5)) +
+  scale_y_discrete( limits=c(0,10, by = 5), position = "right") +
+  xlab("ß ethnic") + ylab("ß value") + ggtitle("Circle orange, equal ethnic size") + 
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0), 
+                      panel.spacing.x  = unit(0.2, "lines"),panel.spacing.y  = unit(0.1, "lines") )
+ crloeq
+
+crlomj <- dataone %>%  filter(fraction_blue == 80) %>%  gather(key = subgroup, value = Segra, eth_cl_or,val_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Value" = "val_cl_or","Ethnic" = "eth_cl_or"), "Value"))  %>% 
+  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segra)) + geom_tile() + 
+  facet_grid(circle_orange ~ circle_blue + segregation, labeller = labeller(circle_orange = circle_minority.labs, circle_blue = circle_local.labs)) +
+  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
+  scale_x_discrete( limits=c(0,10, by = 5)) +
+  scale_y_discrete( limits=c(0,10, by = 5)) +
+  xlab("ß ethnic") + ylab("ß value") + ggtitle("Circle orange, ethnic minority") + 
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0), 
+                      panel.spacing.x  = unit(0.2, "lines"),panel.spacing.y  = unit(0.1, "lines") )
+
+
+#grid.arrange(grob(sqroeq),grob(sqromj), ncol =  1, common.legend = TRUE,legend = "bottom") 
+
+ crloeq
+ crlomj
+```
+
+```{r sqrb, fig.pos="t",out.width='\\textwidth',fig.show = "hold",fig.pos='t',fig.align='center',fig.show="hold", fig.cap="", echo=FALSE, include=TRUE  }
+
+ circle_local.labs <- c("20% Circle \nMajority", "50% Circle \nMajority","80% Circle \nMajority")
+names(circle_local.labs) <- c("20", "50","80")
+ circle_minority.labs <-  c("20% Circle \nMinority", "50% Circle \nMinority","80% Circle \nMinority")
+names(circle_minority.labs) <- c("20", "50","80")
+
+
+sqrbeq <- dataone %>%  filter(fraction_blue == 50) %>%  gather(key = subgroup, value = Segra, eth_sq_bl,val_sq_bl) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Value" = "val_sq_bl","Ethnic" = "eth_sq_bl"), "Value"))  %>% 
+  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segra)) + geom_tile() + 
+  facet_grid(circle_orange ~ circle_blue + segregation, labeller = labeller(circle_orange = circle_minority.labs, circle_blue = circle_local.labs)) +
+  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
+  scale_x_discrete( limits=c(0,10, by = 5)) +
+  scale_y_discrete( limits=c(0,10, by = 5)) +
+  xlab("ß ethnic") + ylab("ß value") + ggtitle("Square blue, equal ethnic size") + 
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0), 
+                      panel.spacing.x  = unit(0.2, "lines"),panel.spacing.y  = unit(0.1, "lines") )
+ 
+
+sqrbmj <- dataone %>%  filter(fraction_blue == 80) %>%  gather(key = subgroup, value = Segra, eth_sq_bl,val_sq_bl) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Value" = "val_sq_bl","Ethnic" = "eth_sq_bl"), "Value"))  %>% 
+  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segra)) + geom_tile() + 
+  facet_grid(circle_orange ~ circle_blue + segregation, labeller = labeller(circle_orange = circle_minority.labs, circle_blue = circle_local.labs)) +
+  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
+  scale_x_discrete( limits=c(0,10, by = 5)) +
+  scale_y_discrete( limits=c(0,10, by = 5)) +
+  xlab("ß ethnic") + ylab("ß value") + ggtitle("Square blue, ethnic majority") + 
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0), 
+                      panel.spacing.x  = unit(0.2, "lines"),panel.spacing.y  = unit(0.1, "lines") )
+
+
+#grid.arrange(grob(sqroeq),grob(sqromj), ncol =  1, common.legend = TRUE,legend = "bottom") 
+
+ sqrbeq
+ sqrbmj
+```
+
+
+
+
+```{r crlb, fig.pos="t",out.width='\\textwidth',fig.show = "hold",fig.pos='t',fig.align='center',fig.show="hold", fig.cap="", echo=FALSE, include=TRUE  }
+
+ circle_local.labs <- c("20% Circle \nMajority", "50% Circle \nMajority","80% Circle \nMajority")
+names(circle_local.labs) <- c("20", "50","80")
+ circle_minority.labs <-  c("20% Circle \nMinority", "50% Circle \nMinority","80% Circle \nMinority")
+names(circle_minority.labs) <- c("20", "50","80")
+
+
+crlbeq <- dataone %>%  filter(fraction_blue == 50) %>%  gather(key = subgroup, value = Segra, eth_cl_bl,val_cl_bl) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Value" = "val_cl_bl","Ethnic" = "eth_cl_bl"), "Value"))  %>% 
+  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segra)) + geom_tile() + 
+  facet_grid(circle_orange ~ circle_blue + segregation, labeller = labeller(circle_orange = circle_minority.labs, circle_blue = circle_local.labs)) +
+  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
+  scale_x_discrete( limits=c(0,10, by = 5)) +
+  scale_y_discrete( limits=c(0,10, by = 5)) +
+  xlab("ß ethnic") + ylab("ß value") + ggtitle("Circle blue, equal ethnic size") + 
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0), 
+                      panel.spacing.x  = unit(0.2, "lines"),panel.spacing.y  = unit(0.1, "lines") )
+
+
+crlbmj <- dataone %>%  filter(fraction_blue == 80) %>%  gather(key = subgroup, value = Segra, eth_cl_bl,val_cl_bl) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Value" = "val_cl_bl","Ethnic" = "eth_cl_bl"), "Value"))  %>% 
+  ggplot(aes(x = beta_ie,y = beta_iv, fill = Segra)) + geom_tile() + 
+  facet_grid(circle_orange ~ circle_blue + segregation, labeller = labeller(circle_orange = circle_minority.labs, circle_blue = circle_local.labs)) +
+  scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
+  scale_x_discrete( limits=c(0,10, by = 5)) +
+  scale_y_discrete( limits=c(0,10, by = 5)) +
+  xlab("ß ethnic") + ylab("ß value") + ggtitle("Cirle blue, ethnic majority") + 
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0), 
+                      panel.spacing.x  = unit(0.2, "lines"),panel.spacing.y  = unit(0.1, "lines") )
+
+
+#grid.arrange(grob(sqroeq),grob(sqromj), ncol =  1, common.legend = TRUE,legend = "bottom") 
+
+ crlbeq
+ crlbmj
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -596,48 +635,6 @@ maj_glb
 
 Each graph is one level of $\%$ circle (value 1) in the local population (majority = blue agents). Each condition panel refers to distribution of  circle agents in the minority population.
 
-
-<!--
-```{r squaret, fig.pos="h", out.width="98%",fig.align='center',fig.show="hold", fig.cap="Square population, 20\\% Majority Circle, equal ethnic (above), minority-majority (below)", echo=FALSE, include=TRUE }
-
-knitr::include_graphics("square20.png")
-
-```
-
-
-```{r squaref, fig.pos="h", out.width="98%",fig.align='center',fig.show="hold", fig.cap="Square population, 50\\% Majority Circle, equal ethnic (above), minority-majority (below)", echo=FALSE, include=TRUE }
-
-knitr::include_graphics("square50.png")
-
-```
-
-
-```{r squareg, fig.pos="h", out.width="98%",fig.align='center',fig.show="hold", fig.cap="Square population, 80\\% Majority Circle, equal ethnic (above), minority-majority (below)", echo=FALSE, include=TRUE }
-
-knitr::include_graphics("square80.png")
-
-```
-
-
-```{r circlet, fig.pos="h", out.width="98%",fig.align='center',fig.show="hold", fig.cap="Circle population, 20\\% Majority Circle, equal ethnic (above), minority-majority (below)", echo=FALSE, include=TRUE }
-
-knitr::include_graphics("circle20.png")
-
-```
-
-```{r circlef, fig.pos="h", out.width="98%",fig.align='center',fig.show="hold", fig.cap="Circle population, 50\\% Majority Circle, equal ethnic (above), minority-majority (below)", echo=FALSE, include=TRUE }
-
-knitr::include_graphics("circle50.png")
-
-```
-
-```{r circleg, fig.pos="h", out.width="98%",fig.align='center',fig.show="hold", fig.cap="Circle population, 80\\% Majority Circle, equal ethnic (above), minority-majority (below)", echo=FALSE, include=TRUE }
-
-knitr::include_graphics("circle80.png")
-
-```
-
--->
 
 
 ```{r mint, fig.pos="h", out.width="98%",fig.align='center',fig.show="hold", fig.cap="Minority population, 20\\% Majority Circle, equal ethnic (above), minority-majority (below)", echo=FALSE, include=TRUE }
@@ -743,346 +740,6 @@ iv_10
 
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!--
-```{r local_circle, fig.height=8.8, fig.pos="t", include=TRUE, fig.cap="Segregation of circle local equal ethnic, baseline in boldline", echo=FALSE}
-
-# gen_eq <- filter(dataone, fraction_blue == 50 & step == 1000)
-# gen_mj <- filter(dataone, fraction_blue == 80 & step == 1000)
-
-
- circle_local.labs <- c("20% Local Circle", "50% Local Circle","80% Local Circle")
-names(circle_local.labs) <- c("20", "50","80")
- circle_minority.labs <-  c("20% Minority Circle", "50% Minority Circle","80% Minority Circle")
-names(circle_minority.labs) <- c("20", "50","80")
-
-
-
-
-# eth_mj <- ggplot(gen_mj, aes( beta_iv, beta_ie,fill= eth_seg))
-# val_mj <- ggplot(gen_mj, aes( beta_iv, beta_ie,fill= val_seg))
-# 
-
-
-eth_cl_blue <- ggplot(data=subset(dataone,fraction_blue == 50 & step == 1000), aes( beta_ie, beta_iv,fill= eth_cl_bl)) + geom_tile() +   facet_grid(circle_orange  ~  circle_blue,  space = "free_x", labeller = labeller(circle_blue = circle_local.labs,  circle_orange = circle_minority.labs ))  +
-  scale_fill_distiller(name = "ETHNIC",palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) + 
-  scale_x_discrete(name = "ß ethnic", limits=seq(0,10 ,by = 1)) + 
-  scale_y_discrete(name = "ß value", limits=c(0,3,5,7,10)) + 
-  theme_bw() + theme(strip.text.x = element_text(), legend.position = "right", panel.grid.minor.x = element_blank(), plot.title=element_blank(),  legend.margin=margin(0,0,0,0)) +
-  geom_rect(data=subset(dataone,fraction_blue == 50 & step == 1000 & circle_orange == 50 & circle_blue == 50),aes(xmin = -1,xmax = 12, ymin = -1, ymax = 11),colour="black",size =2,alpha = 0)
-
-
-val_cl_blue <- ggplot(data=subset(dataone,fraction_blue == 50 & step == 1000), aes( beta_ie, beta_iv,fill= val_cl_bl)) + geom_tile() +   facet_grid(circle_orange  ~  circle_blue,  space = "free_x", labeller = labeller(circle_blue = circle_local.labs,  circle_orange = circle_minority.labs )) + 
-  scale_fill_distiller(name = "VALUE",palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) + 
-  scale_x_discrete(name = "ß ethnic", limits=seq(0,10 ,by = 1)) + 
-  scale_y_discrete(name = "ß value", limits=c(0,3,5,7,10))  + 
-  theme_bw() + theme(strip.text.x = element_text(), legend.position = "right", panel.grid.minor.x = element_blank(), plot.title=element_blank(),  legend.margin=margin(0,0,0,0)) +
-  geom_rect(data=subset(dataone,fraction_blue == 50 & step == 1000 & circle_orange == 50 & circle_blue == 50),aes(xmin = -1,xmax = 12, ymin = -1, ymax = 11),colour="black",size =2,alpha = 0)
-
-
-cl_bl <- annotate_figure(ggarrange(eth_cl_blue , ggarrange(val_cl_blue), nrow = 2), top = text_grob("Segregation circle local, Local:Minority = 0.5:0.5",face = "bold", size = 12))
-cl_bl
-```
-
-
-
-```{r min_square, fig.height=8.8, fig.pos="t", include=TRUE, fig.cap="Segregation of squared minority, baseline in boldline", echo=FALSE}
-
-# gen_eq <- filter(dataone, fraction_blue == 50 & step == 1000)
-# gen_mj <- filter(dataone, fraction_blue == 80 & step == 1000)
-
-
- circle_local.labs <- c("20% Local Circle", "50% Local Circle","80% Local Circle")
-names(circle_local.labs) <- c("20", "50","80")
- circle_minority.labs <-  c("20% Minority Circle", "50% Minority Circle","80% Minority Circle")
-names(circle_minority.labs) <- c("20", "50","80")
-
-
-
-
-# eth_mj <- ggplot(gen_mj, aes( beta_iv, beta_ie,fill= eth_seg))
-# val_mj <- ggplot(gen_mj, aes( beta_iv, beta_ie,fill= val_seg))
-# 
-
-
-eth_sq_org <- ggplot(data=subset(dataone,fraction_blue == 50 & step == 1000), aes( beta_ie, beta_iv,fill= eth_sq_or)) + geom_tile() +   facet_grid(circle_orange  ~  circle_blue,  space = "free_x", labeller = labeller(circle_blue = circle_local.labs,  circle_orange = circle_minority.labs ))  +
-  scale_fill_distiller(name = "ETHNIC",palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) + 
-  scale_x_discrete(name = "ß ethnic", limits=seq(0,10 ,by = 1)) + 
-  scale_y_discrete(name = "ß value", limits=c(0,3,5,7,10)) + 
-  theme_bw() + theme(strip.text.x = element_text(), legend.position = "right", panel.grid.minor.x = element_blank(), plot.title=element_blank(),  legend.margin=margin(0,0,0,0)) +
-  geom_rect(data=subset(dataone,fraction_blue == 50 & step == 1000 & circle_orange == 50 & circle_blue == 50),aes(xmin = -1,xmax = 12, ymin = -1, ymax = 11),colour="black",size =2,alpha = 0)
-
-
-val_sq_org <- ggplot(data=subset(dataone,fraction_blue == 50 & step == 1000), aes( beta_ie, beta_iv,fill= val_sq_or)) + geom_tile() +   facet_grid(circle_orange  ~  circle_blue,  space = "free_x", labeller = labeller(circle_blue = circle_local.labs,  circle_orange = circle_minority.labs )) + 
-  scale_fill_distiller(name = "VALUE",palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) + 
-  scale_x_discrete(name = "ß ethnic", limits=seq(0,10 ,by = 1)) + 
-  scale_y_discrete(name = "ß value", limits=c(0,3,5,7,10))  + 
-  theme_bw() + theme(strip.text.x = element_text(), legend.position = "right", panel.grid.minor.x = element_blank(), plot.title=element_blank(),  legend.margin=margin(0,0,0,0)) +
-  geom_rect(data=subset(dataone,fraction_blue == 50 & step == 1000 & circle_orange == 50 & circle_blue == 50),aes(xmin = -1,xmax = 12, ymin = -1, ymax = 11),colour="black",size =2,alpha = 0)
-
-
-sq_org <- annotate_figure(ggarrange(eth_sq_org , ggarrange(val_sq_org), nrow = 2), top = text_grob("Segregation squared minority, Local:Minority = 0.5:0.5",face = "bold", size = 12))
-sq_org
-```
-
-```{r min_circle, fig.height=8.8, fig.pos="t", include=TRUE, fig.cap="Segregation of circle local ethnic equal, baseline in boldline", echo=FALSE}
-
-# gen_eq <- filter(dataone, fraction_blue == 50 & step == 1000)
-# gen_mj <- filter(dataone, fraction_blue == 80 & step == 1000)
-
-
- circle_local.labs <- c("20% Local Circle", "50% Local Circle","80% Local Circle")
-names(circle_local.labs) <- c("20", "50","80")
- circle_minority.labs <-  c("20% Minority Circle", "50% Minority Circle","80% Minority Circle")
-names(circle_minority.labs) <- c("20", "50","80")
-
-
-
-
-# eth_mj <- ggplot(gen_mj, aes( beta_iv, beta_ie,fill= eth_seg))
-# val_mj <- ggplot(gen_mj, aes( beta_iv, beta_ie,fill= val_seg))
-# 
-
-
-eth_cl_org <- ggplot(data=subset(dataone,fraction_blue == 50 & step == 1000), aes( beta_ie, beta_iv,fill= eth_cl_or)) + geom_tile() +   facet_grid(circle_orange  ~  circle_blue,  space = "free_x", labeller = labeller(circle_blue = circle_local.labs,  circle_orange = circle_minority.labs ))  +
-  scale_fill_distiller(name = "ETHNIC",palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) + 
-  scale_x_discrete(name = "ß ethnic", limits=seq(0,10 ,by = 1)) + 
-  scale_y_discrete(name = "ß value", limits=c(0,3,5,7,10)) + 
-  theme_bw() + theme(strip.text.x = element_text(), legend.position = "right", panel.grid.minor.x = element_blank(), plot.title=element_blank(),  legend.margin=margin(0,0,0,0)) +
-  geom_rect(data=subset(dataone,fraction_blue == 50 & step == 1000 & circle_orange == 50 & circle_blue == 50),aes(xmin = -1,xmax = 12, ymin = -1, ymax = 11),colour="black",size =2,alpha = 0)
-
-
-val_cl_org <- ggplot(data=subset(dataone,fraction_blue == 50 & step == 1000), aes( beta_ie, beta_iv,fill= val_cl_or)) + geom_tile() +   facet_grid(circle_orange  ~  circle_blue,  space = "free_x", labeller = labeller(circle_blue = circle_local.labs,  circle_orange = circle_minority.labs )) + 
-  scale_fill_distiller(name = "VALUE",palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) + 
-  scale_x_discrete(name = "ß ethnic", limits=seq(0,10 ,by = 1)) + 
-  scale_y_discrete(name = "ß value", limits=c(0,3,5,7,10))  + 
-  theme_bw() + theme(strip.text.x = element_text(), legend.position = "right", panel.grid.minor.x = element_blank(), plot.title=element_blank(),  legend.margin=margin(0,0,0,0)) +
-  geom_rect(data=subset(dataone,fraction_blue == 50 & step == 1000 & circle_orange == 50 & circle_blue == 50),aes(xmin = -1,xmax = 12, ymin = -1, ymax = 11),colour="black",size =2,alpha = 0)
-
-
-cl_org <- annotate_figure(ggarrange(eth_cl_org , ggarrange(val_cl_org), nrow = 2), top = text_grob("Segregation circle minority, Local:Minority = 0.5:0.5",face = "bold", size = 12))
-cl_org
-```
-
-
-
-
-
-```{r maj_local_square, fig.height=8.8, fig.pos="t", include=TRUE, fig.cap="Segregation of squared local, baseline in boldline", echo=FALSE}
-
-# gen_eq <- filter(dataone, fraction_blue == 50 & step == 1000)
-# gen_mj <- filter(dataone, fraction_blue == 80 & step == 1000)
-
-
- circle_local.labs <- c("20% Local Circle", "50% Local Circle","80% Local Circle")
-names(circle_local.labs) <- c("20", "50","80")
- circle_minority.labs <-  c("20% Minority Circle", "50% Minority Circle","80% Minority Circle")
-names(circle_minority.labs) <- c("20", "50","80")
-
-
-
-
-# eth_mj <- ggplot(gen_mj, aes( beta_iv, beta_ie,fill= eth_seg))
-# val_mj <- ggplot(gen_mj, aes( beta_iv, beta_ie,fill= val_seg))
-# 
-
-
-maj_eth_sq_blue <- ggplot(data=subset(dataone,fraction_blue == 80 & step == 1000), aes( beta_ie, beta_iv,fill= eth_sq_bl)) + geom_tile() +   facet_grid(circle_orange  ~  circle_blue,  space = "free_x", labeller = labeller(circle_blue = circle_local.labs,  circle_orange = circle_minority.labs ))  +
-  scale_fill_distiller(name = "ETHNIC",palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) + 
-  scale_x_discrete(name = "ß ethnic", limits=seq(0,10 ,by = 1)) + 
-  scale_y_discrete(name = "ß value", limits=c(0,3,5,7,10)) + 
-  theme_bw() + theme(strip.text.x = element_text(), legend.position = "right", panel.grid.minor.x = element_blank(), plot.title=element_blank(),  legend.margin=margin(0,0,0,0)) +
-  geom_rect(data=subset(dataone,fraction_blue == 80 & step == 1000 & circle_orange == 50 & circle_blue == 50),aes(xmin = -1,xmax = 12, ymin = -1, ymax = 11),colour="black",size =2,alpha = 0)
-
-
-maj_val_sq_blue <- ggplot(data=subset(dataone,fraction_blue == 80 & step == 1000), aes( beta_ie, beta_iv,fill= val_sq_bl)) + geom_tile() +   facet_grid(circle_orange  ~  circle_blue,  space = "free_x", labeller = labeller(circle_blue = circle_local.labs,  circle_orange = circle_minority.labs )) + 
-  scale_fill_distiller(name = "VALUE",palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) + 
-  scale_x_discrete(name = "ß ethnic", limits=seq(0,10 ,by = 1)) + 
-  scale_y_discrete(name = "ß value", limits=c(0,3,5,7,10))  + 
-  theme_bw() + theme(strip.text.x = element_text(), legend.position = "right", panel.grid.minor.x = element_blank(), plot.title=element_blank(),  legend.margin=margin(0,0,0,0)) +
-  geom_rect(data=subset(dataone,fraction_blue == 80 & step == 1000 & circle_orange == 50 & circle_blue == 50),aes(xmin = -1,xmax = 12, ymin = -1, ymax = 11),colour="black",size =2,alpha = 0)
-
-
-maj_sq_bl <- annotate_figure(ggarrange(maj_eth_sq_blue , ggarrange(maj_val_sq_blue), nrow = 2), top = text_grob("Segregation squared local, Local:Minority = 0.8:0.2",face = "bold", size = 12))
-
-maj_sq_bl
-```
-
-```{r maj_local_circle, fig.height=8.8, fig.pos="t", include=TRUE, fig.cap="Segregation of circle local, baseline in boldline", echo=FALSE}
-
-# gen_eq <- filter(dataone, fraction_blue == 50 & step == 1000)
-# gen_mj <- filter(dataone, fraction_blue == 80 & step == 1000)
-
-
- circle_local.labs <- c("20% Local Circle", "50% Local Circle","80% Local Circle")
-names(circle_local.labs) <- c("20", "50","80")
- circle_minority.labs <-  c("20% Minority Circle", "50% Minority Circle","80% Minority Circle")
-names(circle_minority.labs) <- c("20", "50","80")
-
-
-
-
-# eth_mj <- ggplot(gen_mj, aes( beta_iv, beta_ie,fill= eth_seg))
-# val_mj <- ggplot(gen_mj, aes( beta_iv, beta_ie,fill= val_seg))
-# 
-
-
-maj_eth_cl_blue <- ggplot(data=subset(dataone,fraction_blue == 80 & step == 1000), aes( beta_ie, beta_iv,fill= eth_cl_bl)) + geom_tile() +   facet_grid(circle_orange  ~  circle_blue,  space = "free_x", labeller = labeller(circle_blue = circle_local.labs,  circle_orange = circle_minority.labs ))  +
-  scale_fill_distiller(name = "ETHNIC",palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) + 
-  scale_x_discrete(name = "ß ethnic", limits=seq(0,10 ,by = 1)) + 
-  scale_y_discrete(name = "ß value", limits=c(0,3,5,7,10)) + 
-  theme_bw() + theme(strip.text.x = element_text(), legend.position = "right", panel.grid.minor.x = element_blank(), plot.title=element_blank(),  legend.margin=margin(0,0,0,0)) +
-  geom_rect(data=subset(dataone,fraction_blue == 80 & step == 1000 & circle_orange == 50 & circle_blue == 50),aes(xmin = -1,xmax = 12, ymin = -1, ymax = 11),colour="black",size =2,alpha = 0)
-
-
-maj_val_cl_blue <- ggplot(data=subset(dataone,fraction_blue == 80 & step == 1000), aes( beta_ie, beta_iv,fill= val_cl_bl)) + geom_tile() +   facet_grid(circle_orange  ~  circle_blue,  space = "free_x", labeller = labeller(circle_blue = circle_local.labs,  circle_orange = circle_minority.labs )) + 
-  scale_fill_distiller(name = "VALUE",palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) + 
-  scale_x_discrete(name = "ß ethnic", limits=seq(0,10 ,by = 1)) + 
-  scale_y_discrete(name = "ß value", limits=c(0,3,5,7,10))  + 
-  theme_bw() + theme(strip.text.x = element_text(), legend.position = "right", panel.grid.minor.x = element_blank(), plot.title=element_blank(),  legend.margin=margin(0,0,0,0)) +
-  geom_rect(data=subset(dataone,fraction_blue == 80 & step == 1000 & circle_orange == 50 & circle_blue == 50),aes(xmin = -1,xmax = 12, ymin = -1, ymax = 11),colour="black",size =2,alpha = 0)
-
-
-maj_cl_bl <- annotate_figure(ggarrange(maj_eth_cl_blue , ggarrange(maj_val_cl_blue), nrow = 2), top = text_grob("Segregation circle local, Local:Minority = 0.8:0.2",face = "bold", size = 12))
-maj_cl_bl
-
-```
-
-
-
-```{r maj_min_square, fig.height=8.8, fig.pos="t", include=TRUE, fig.cap="Segregation of squared local, baseline in boldline", echo=FALSE}
-
-# gen_eq <- filter(dataone, fraction_blue == 50 & step == 1000)
-# gen_mj <- filter(dataone, fraction_blue == 80 & step == 1000)
-
-
- circle_local.labs <- c("20% Local Circle", "50% Local Circle","80% Local Circle")
-names(circle_local.labs) <- c("20", "50","80")
- circle_minority.labs <-  c("20% Minority Circle", "50% Minority Circle","80% Minority Circle")
-names(circle_minority.labs) <- c("20", "50","80")
-
-
-
-
-# eth_mj <- ggplot(gen_mj, aes( beta_iv, beta_ie,fill= eth_seg))
-# val_mj <- ggplot(gen_mj, aes( beta_iv, beta_ie,fill= val_seg))
-# 
-
-
-maj_eth_sq_org <- ggplot(data=subset(dataone,fraction_blue == 80 & step == 1000), aes( beta_ie, beta_iv,fill= eth_sq_or)) + geom_tile() +   facet_grid(circle_orange  ~  circle_blue,  space = "free_x", labeller = labeller(circle_blue = circle_local.labs,  circle_orange = circle_minority.labs ))  +
-  scale_fill_distiller(name = "ETHNIC",palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) + 
-  scale_x_discrete(name = "ß ethnic", limits=seq(0,10 ,by = 1)) + 
-  scale_y_discrete(name = "ß value", limits=c(0,3,5,7,10)) + 
-  theme_bw() + theme(strip.text.x = element_text(), legend.position = "right", panel.grid.minor.x = element_blank(), plot.title=element_blank(),  legend.margin=margin(0,0,0,0)) +
-  geom_rect(data=subset(dataone,fraction_blue == 80 & step == 1000 & circle_orange == 50 & circle_blue == 50),aes(xmin = -1,xmax = 12, ymin = -1, ymax = 11),colour="black",size =2,alpha = 0)
-
-
-maj_val_sq_org <- ggplot(data=subset(dataone,fraction_blue == 80 & step == 1000), aes( beta_ie, beta_iv,fill= val_sq_or)) + geom_tile() +   facet_grid(circle_orange  ~  circle_blue,  space = "free_x", labeller = labeller(circle_blue = circle_local.labs,  circle_orange = circle_minority.labs )) + 
-  scale_fill_distiller(name = "VALUE",palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) + 
-  scale_x_discrete(name = "ß ethnic", limits=seq(0,10 ,by = 1)) + 
-  scale_y_discrete(name = "ß value", limits=c(0,3,5,7,10))  + 
-  theme_bw() + theme(strip.text.x = element_text(), legend.position = "right", panel.grid.minor.x = element_blank(), plot.title=element_blank(),  legend.margin=margin(0,0,0,0)) +
-  geom_rect(data=subset(dataone,fraction_blue == 80 & step == 1000 & circle_orange == 50 & circle_blue == 50),aes(xmin = -1,xmax = 12, ymin = -1, ymax = 11),colour="black",size =2,alpha = 0)
-
-
-maj_sq_org <- annotate_figure(ggarrange(maj_eth_sq_org , ggarrange(maj_val_sq_org), nrow = 2), top = text_grob("Segregation squared minority, Local:Minority = 0.8:0.2",face = "bold", size = 12))
-maj_sq_org
-
-```
-
-```{r maj_min_circle, fig.height=8.8, fig.pos="t", include=TRUE, fig.cap="Segregation of circle local, baseline in boldline", echo=FALSE}
-
-# gen_eq <- filter(dataone, fraction_blue == 50 & step == 1000)
-# gen_mj <- filter(dataone, fraction_blue == 80 & step == 1000)
-
-
- circle_local.labs <- c("20% Local Circle", "50% Local Circle","80% Local Circle")
-names(circle_local.labs) <- c("20", "50","80")
- circle_minority.labs <-  c("20% Minority Circle", "50% Minority Circle","80% Minority Circle")
-names(circle_minority.labs) <- c("20", "50","80")
-
-
-
-
-# eth_mj <- ggplot(gen_mj, aes( beta_iv, beta_ie,fill= eth_seg))
-# val_mj <- ggplot(gen_mj, aes( beta_iv, beta_ie,fill= val_seg))
-# 
-
-
-maj_eth_cl_org <- ggplot(data=subset(dataone,fraction_blue == 80 & step == 1000), aes( beta_ie, beta_iv,fill= eth_cl_or)) + geom_tile() +   facet_grid(circle_orange  ~  circle_blue,  space = "free_x", labeller = labeller(circle_blue = circle_local.labs,  circle_orange = circle_minority.labs ))  +
-  scale_fill_distiller(name = "ETHNIC",palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) + 
-  scale_x_discrete(name = "ß ethnic", limits=seq(0,10 ,by = 1)) + 
-  scale_y_discrete(name = "ß value", limits=c(0,3,5,7,10)) + 
-  theme_bw() + theme(strip.text.x = element_text(), legend.position = "right", panel.grid.minor.x = element_blank(), plot.title=element_blank(),  legend.margin=margin(0,0,0,0)) +
-  geom_rect(data=subset(dataone,fraction_blue == 80 & step == 1000 & circle_orange == 50 & circle_blue == 50),aes(xmin = -1,xmax = 12, ymin = -1, ymax = 11),colour="black",size =2,alpha = 0)
-
-
-maj_val_cl_org <- ggplot(data=subset(dataone,fraction_blue == 80 & step == 1000), aes( beta_ie, beta_iv,fill= val_cl_or)) + geom_tile() +   facet_grid(circle_orange  ~  circle_blue,  space = "free_x", labeller = labeller(circle_blue = circle_local.labs,  circle_orange = circle_minority.labs )) + 
-  scale_fill_distiller(name = "VALUE",palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) + 
-  scale_x_discrete(name = "ß ethnic", limits=seq(0,10 ,by = 1)) + 
-  scale_y_discrete(name = "ß value", limits=c(0,3,5,7,10))  + 
-  theme_bw() + theme(strip.text.x = element_text(), legend.position = "right", panel.grid.minor.x = element_blank(), plot.title=element_blank(),  legend.margin=margin(0,0,0,0)) +
-  geom_rect(data=subset(dataone,fraction_blue == 80 & step == 1000 & circle_orange == 50 & circle_blue == 50),aes(xmin = -1,xmax = 12, ymin = -1, ymax = 11),colour="black",size =2,alpha = 0)
-
-
-maj_cl_org <- annotate_figure(ggarrange(maj_eth_cl_org , ggarrange(maj_val_cl_org), nrow = 2), top = text_grob("Segregation circle minority, Local:Minority = 0.8:0.2",face = "bold", size = 12))
-maj_cl_org
-```
--->
-
-
-<!--
-```{r testnormdelete, echo=FALSE, include= FALSE}
-
-nrml <- function(mx,mn,x){
-  
-  s <-  ((x - mn) / (mx-mn))
-}
-
- bt_10 <- for (x in seq(0,5,by=1)) {
-  
-  mx <- 5
-  mn <- 0
-  
-  s <- nrml(mx,mn,x)
-  print(c(x,s))
-  
-}
-
- bt_5 <- for (x in seq(0,5,by=1)) {
-  
-  mx <- 5
-  mn <- 0
-  
-  s <- nrml(mx,mn,x)
-  print(c(x,s))
-  
-}
-
-```
-
-
--->
 
 
 
