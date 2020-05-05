@@ -10,7 +10,7 @@ author: Rocco Paolillo
   
 # date: JU 
 #language: en-GB
-#bibliography: "references.bib"
+bibliography: "references.bib"
 # always_allow_html: yes
 
 # target: BIGSSS Research Day by September 15th, presented  on October 25th. 6000 words: around 12 pages.
@@ -24,7 +24,7 @@ header-includes:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, fig.lp="fig:",warning = FALSE)
+knitr::opts_chunk$set(echo = FALSE, fig.lp="fig:"  ,warning = FALSE)
 
 library(knitr)
 library(ggplot2)
@@ -96,14 +96,14 @@ knitr::include_graphics("recapp.png")
 * Assumption: 
     + not heterogeneity: all agents hold both ethnic preference (same color) and value preference (same shape)
     + ethnic size at global level: equal size (blue/orange: $0.50$), majority/minority (blue/orange: $0.80$)
-    + value size within each ethnic group: minority circle circle/square $0.20$, equal size circle/square $0.50$, majority circle circle/square $0.80$, imagining tolerant (circle) and intolerant (square),this means to move from more tolerant to less tolerant groups, both majority and minority. In this section there is not difference in preferences implied.
+    + value size within each ethnic group: minority circle circle/square $0.20$, equal size circle/square $0.50$, majority circle circle/square $0.80$, imagining tolerant (circle) and intolerant (square),this means to move from more tolerant to less tolerant groups, both majority and minority. In this section there is not difference in preferences implied Tab \ref{tab:a}
 * Figures:
     + Fig: \ref{fig:baselineone} represents how results are presented through the space of the model. Axis represent the ratio of $circle/square$ in each ethnic group, expressed as percentage: on y-axis the percentage of circle value in the orange ethnic group, on the x-axis the percentage of circle value in the blue ethnic group. The percentage of square agents can be calculated from it. The \textbf{baseline} condition is represented by the black dot, where each ethnicity is split equally into the two value groups ($0.50$ circle, $0.50$ square); following the diagonal, each ethnic group moves from minority circle to majority circle. Each obervation is repeated  for ethnic equal group sizes (blue/orange = $0.50$) and ethnic majority/minority condition (blue/orange = $0.80$). In the baseline condition for equal ethnic size, each group $valueXethnicity$ represents the $25 \%$ of the overall population. This means each agent in Fig: \ref{fig:thheory} has potentially probability $0.25$ to relocate close to someone who shares both ethnicity and value orientation.
-    + In all results $\beta = 5$ seems a threshold between area of high randomness and low randomness. I would use this as reference point in describing figures and change in conditions
+    + In all results $\beta = 5$ seems a threshold between area of high randomness and low randomness. I would use this as reference point in describing figures and change in conditions 
 
 
 
-Table \ref{tab:first}
+
 
 \begin{table}[H]
 \begin{tabular}{llll}
@@ -132,21 +132,22 @@ Table \ref{tab:first}
  Ethnic segregation  & same color neighborhood proportion & $0,\stackrel{+0.1}{\dots}, 1$ & global and subgroups\\
  Value segregation  & same shape neighborhood proportion & $0,\stackrel{+0.1}{\dots}, 1$ & global and subgroups\\
    \midrule
+Number of Runs   & 1 &  & \\ 
+ \midrule
 \end{tabular}
-\label{tab:first}
  \caption{Basic Model} 
-
-
+ \label{tab:a}
 \end{table}
 
-* Global Observations:
-    + Fig: \ref{fig:global} and  Fig: \ref{fig:global-maj} shows the global ethnic and value segregation, for equal ethnic group sizes in Fig: \ref{fig:global}  and majority/minority ethnic condition in Fig: \ref{fig:global-maj}  . The heatmaps report in each condition  $\beta_e$ on x-axis, and  $\beta_v$ on y-axis. 
-    + Ethnic segregation increases along the axis of $\beta_e$, while value segregation symmetrically along the axis of $\beta_v$. In both cases $\beta = 5$ shows a threshold between areas of integration and area of segregation.
-    + While area below $\beta = 5$ is linearly increasing, areas above $\beta = 5$ seem to show same degree of high segregation. Attributing this to randomness component, I would identify area $\beta < 5$ as low randomness, area  $\beta \geq 5$ high randomness, and focus on threshold of $\beta = 5$, this helps presenting figures later
-    + The direct effect of $\beta_e$ on ethnic segregation and  $\beta_v$ on value segregation seems unaffected by the other systemic component, both when  $\beta = 0$, so that agents relocate randomly for value or ethnic homophily, and when they increase the systemic utility for either ethnic (increase in  $\beta_e$) or value homophily (increase in $\beta_v$)
-    + Condition of ethnic majority/minority shows basically the same patterns, slighter high ethnic segregation for the area of high randomness, which is direct effect of unequal group sizes.
-    + Change in ethnic segregation compared to the baseline seem to occur only along the diagonal, where circle orientation represents the minority in one group and majority in the other, or vice versa. Similar slightly changes occur in the area of high randomness $\beta_e < 5$ with increase of $\beta_v$, which is counterintuitive. Circle of both ethnic group not care about ethnic composition of the neighborhood, but they care about the value composition. Since in one ethnic group circle represent the value majority, and in the other the circle minority, circle in the minority condition will result in ethnically mixed or majority out-group neighborhoods, circle in the majority in ethnically homogeneous neighborhoods, since they have more probability to find someone circle of the own ethnic group than the other. So, for these agents ethnic segregation is the more likely outcome, also if the systematic component of utility is for value segregation and ethnic utility random. The global results are influenced by the numeric superiority of these  agents.
-    + Next figures look at the behavior of specific subgroup in Fig. \ref{fig:thheory}
+## Global Observations
+* Fig: \ref{fig:global} and  Fig: \ref{fig:global-maj} shows the global ethnic and value segregation, for equal ethnic group sizes in Fig: \ref{fig:global}  and majority/minority ethnic condition in Fig: \ref{fig:global-maj}  . The heatmaps report in each condition  $\beta_e$ on x-axis, and  $\beta_v$ on y-axis. 
+* Ethnic segregation increases along the axis of $\beta_e$, while value segregation symmetrically along the axis of $\beta_v$. In both cases $\beta = 5$ shows a threshold between areas of integration and area of segregation.
+* While area below $\beta = 5$ is linearly increasing, areas above $\beta = 5$ seem to show same degree of high segregation. Attributing this to randomness component, I would identify area $\beta < 5$ as low randomness, area  $\beta \geq 5$ high randomness, and focus on threshold of $\beta = 5$, this helps presenting figures later
+* The threshold of $\beta = 5$ to me can relate to "sensitivity to change" in @van2009neighborhood: since the shape of utility is linearly increasing, each change in the composition of neighborhood will increase the difference between options. Once the difference is multiplied times $\beta$, the effect of utility difference is too high and soon the best option is taken. This means that only for very low levels of $\beta$ it is possible to see a linear increasing in the systematic utility. At $\beta = 5$ the systematic utility becomes too strong and agents highly sensitive to the change in neighborhood composition, moving to the best solution, increasing segregation of neighborhoods. This soon attires other agents and equilibria towards segregation are easily reached.
+* The direct effect of $\beta_e$ on ethnic segregation and  $\beta_v$ on value segregation seems unaffected by the other systemic component, both when  $\beta = 0$, so that agents relocate randomly for value or ethnic homophily, and when they increase the systemic utility for either ethnic (increase in  $\beta_e$) or value homophily (increase in $\beta_v$)
+* Condition of ethnic majority/minority shows basically the same patterns, slighter high ethnic segregation for the area of high randomness, which is direct effect of unequal group sizes.
+* Change in ethnic segregation compared to the baseline seem to occur only along the diagonal, where circle orientation represents the minority in one group and majority in the other, or vice versa. Similar slightly changes occur in the area of high randomness $\beta_e < 5$ with increase of $\beta_v$, which is counterintuitive. Circle of both ethnic group not care about ethnic composition of the neighborhood, but they care about the value composition. Since in one ethnic group circle represent the value majority, and in the other the circle minority, circle in the minority condition will result in ethnically mixed or majority out-group neighborhoods, circle in the majority in ethnically homogeneous neighborhoods, since they have more probability to find someone circle of the own ethnic group than the other. So, for these agents ethnic segregation is the more likely outcome, also if the systematic component of utility is for value segregation and ethnic utility random. The global results are influenced by the numeric superiority of these  agents.
+    * Next figures look at the behavior of specific subgroup in Fig. \ref{fig:thheory}
     
 
 ```{r baselineone,fig.pos='H',out.width='\\textwidth',fig.show = "hold",fig.align='center', fig.cap=" Baseline space", echo=FALSE, include=TRUE  }
@@ -240,18 +241,26 @@ maj_glb
 ```
 
 
-* Observations for group $ethnicityXvalue$:
-    + I report the results of circle orange in the condition of ethnic equal size, ethnic minority and ethnic majority. Since agents  follow the same homophily preferences, the only difference is due to the manipulation of relative group sizes for ethnicity and value orientation, so that the results here presented can be applied to all other group by rotating the axis on Fig: \ref{fig:baselineone} or results along the diagonal. I do this in the ANNEX as demonstration
+## Observations for group $ethnicityXvalue$:
+
+* Figures \ref{fig:crlo}, \ref{fig:crlominority} and \ref{fig:crlblmajority} replicate the behavior space in Fig: \ref{fig:baselineone} used in the previous section. For each condition the ethnic and value segregation are reported.
+* I report the results of circle orange in the condition of ethnic equal size, ethnic minority and ethnic majority. Since agents  follow the same homophily preferences, the only difference is due to the manipulation of relative group sizes for ethnicity and value orientation, so that the results here presented can be applied to all other group by rotating the axis on Fig: \ref{fig:baselineone} or results along the diagonal. I do this in the ANNEX as demonstration
+* 3 outcomes are evident, rather than 2 as in traditional assessment of Schelling: integration (filler white  0.5), segregation (filler red above 0.5), and assimilation (filler blue close to 0, only members outgroup). This can relate as measure of *hybrid segregation*
+
+### Equal ethnic group size (Fig: \ref{fig:crlo})
+
+* Given ethnic equal group size, at the baseline condition ($50 \%$ circle orange, $50 \%$ circle blue), each group replicates what observed for global segregation: high randomness close to integration for $\beta < 5$, low randomness high segregation for $\beta \geq 5$. For ethnic segregation this is the same along the diagonal, given equal ethnic sizes
+* On the top left corner,  where the value group represents majority in the own ethnic group, but minority in the other, integration is the most likely outcome  only for low levels of both $\beta_e$ and  $\beta_v$ (low left corner), with middle segregation in the rest of high randomness area. While the value becomes more represented in the other ethnic group, ethnic integration increases  with increase of  $\beta_v$ in the area of high randomness ($\beta_e < 5$), untouched in the area of low  randomess ($\beta_e \geq 5$). In the same conditions, high value segregation appears as direct effect of increase in the proportion of same value oriented circle in the other group
+* Low row, where the value group represents minority in the own group: value assimilation to square is the case when circle is the minority in both etnic groups. Still, comparing to ethnic segregation, area of high randomenss appears ethnically integrated, area of low randomness ethnically segregated. This implies that for  low $\beta_e$ and low $\beta_v$ value minority relocate in ethnically mixed neighborhoods, but where square is the majority. For high  $\beta_e$, circle live  in ethnically segregated neighborhoods, where still value represent the majority of the own ethnic group. Though low $\beta_e$ reproduces the  initial random ethnic distribution, this doesn't happen for value distribution due to effect of majority size of square in both groups.
+* Proceeding with increase of same  value in the other ethnic group (x-axis), value assimilation increases for high levels of $\beta_e$ and low levels of $\beta_v$, in the same conditions ethnic segregation. As before circle agents increase  ethnic utility, but still have more chance to relocate close to square co-ethnics. Along $\beta_v$, increase implies value segregation as expected,  but ethnic assimilation when $\beta_e$ is low: circle agents not care about ethnic utility, but maxize value orientation, so that most appealing neighborhoods are those inhabited by circle of the other group.
+* The last observation is noteworthy to me, though predictable: as alternative to assimilation due to being in the ethnic minority size, people can fall into ethnic (spatial) assimilation because of an other characteristic (value) which is unequally represented in two ethnic group numerically equal
+
+
+```{r crlo,fig.pos='H',out.width='\\textwidth',fig.show = "hold",fig.align='center', fig.cap="Circle orange, equal ethnic size", echo=FALSE, include=TRUE  }
 
 
 
-
-
-```{r crlo,fig.pos='H',out.width='\\textwidth',fig.show = "hold",fig.align='center', fig.cap="Circle orange, first section", echo=FALSE, include=TRUE  }
-
-
-
-crloeq <- dataone %>%  filter(fraction_blue == 50) %>%  gather(key = subgroup, value = Segra, eth_cl_or,val_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Value" = "val_cl_or","Ethnic" = "eth_cl_or"), "Value"))  %>% 
+dataone %>%  filter(fraction_blue == 50) %>%  gather(key = subgroup, value = Segra, eth_cl_or,val_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Value" = "val_cl_or","Ethnic" = "eth_cl_or"), "Value"))  %>% 
   ggplot(aes(x = beta_ie,y = beta_iv, fill = Segra)) + geom_tile() + 
   facet_grid(rev_circle_orange ~ circle_blue + segregation, labeller = labeller(rev_circle_orange = rev_circle_orange.labs, circle_blue = circle_blue.labs), switch  = "y") +
   scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
@@ -262,7 +271,21 @@ crloeq <- dataone %>%  filter(fraction_blue == 50) %>%  gather(key = subgroup, v
                       panel.spacing.x  = unit(0.2, "lines"),panel.spacing.y  = unit(0.1, "lines") )
 
 
-crlomj <- dataone %>%  filter(fraction_blue == 80) %>%  gather(key = subgroup, value = Segra, eth_cl_or,val_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Value" = "val_cl_or","Ethnic" = "eth_cl_or"), "Value"))  %>% 
+```
+
+
+### Ethnic minority (Fig: \ref{fig:crlominority})
+
+* Trends are generally similar to Fig: \ref{fig:crlo}
+* In the baseline, ethnic assimilation emerges instead of ethnic integration, becuase of the ethnic minority of the group.
+* Up left corner, where circle represent the majority value of ethnic  minority and the minority value of ethnic majority, compared to Fig: \ref{fig:crlo} ethnic assimilation rather than integration emerges for the area of high randomness for both dimensions, and ethnic integration rather than segregation for the increase of $\beta_v$ and low values of $\beta_e$. While for areas of high randomness agents fall into assimilation because of numeric inferiority, when they increase value utility $\beta_v$ they want to relocate close to other circle agents, regardless of their ethnicity. Since in this condition circle represent the minority value of the majority ethnic population (the opposite of circle orange in ethnic minority), the combination allows for the increase in value preference to make up for the ethnic numeric inferiority, so that both circle minority and circle majority end up in neighborhoods ethnically integrated and value circle homogeneous (cfr Fig: \ref{fig:crlbl}, right down corner).
+* Low row: the effect of increase in $\beta_e$ on value assimilation is similar as Fig: \ref{fig:crlo}, since circle here represents the minority in the own group. Increase of $\beta_v$ shows instead higher assimilation, because circle minority has more chance to relocate close to similar circle value of the other ethnic group, proportionally to value circle being the majority value in the majority ethnic group. Interestingly, given the area of high ethnic utility for $\beta_e \geq 5$, at the increase of $\beta_v$ less homogenous ethnic segregation emerges compared to the equal ethnic size.
+* The last two  points are noteworthy to me: the assumption that similar values can foster ethnic integration over ethnic segregation can work provided that an adjustement between distribution of values in both ethnic group and preferences for ethnic or value utility are  taken into account.
+
+```{r crlominority,fig.pos='H',out.width='\\textwidth',fig.show = "hold",fig.align='center', fig.cap="Circle orange, ethnic minority", echo=FALSE, include=TRUE  }
+
+
+dataone %>%  filter(fraction_blue == 80) %>%  gather(key = subgroup, value = Segra, eth_cl_or,val_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Value" = "val_cl_or","Ethnic" = "eth_cl_or"), "Value"))  %>% 
   ggplot(aes(x = beta_ie,y = beta_iv, fill = Segra)) + geom_tile() + 
   facet_grid(rev_circle_orange ~ circle_blue + segregation, labeller = labeller(rev_circle_orange = rev_circle_orange.labs, circle_blue = circle_blue.labs), switch  = "y") +
   scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
@@ -274,13 +297,16 @@ crlomj <- dataone %>%  filter(fraction_blue == 80) %>%  gather(key = subgroup, v
 
 #grid.arrange(grob(sqroeq),grob(sqromj), ncol =  1, common.legend = TRUE,legend = "bottom") 
 
- crloeq
- crlomj
 ```
 
+### Ethnic majority (Fig: \ref{fig:crlblmajority})
+* Low row where circle are the minority in the ethnic majority blue, show the same pattern for the circle in minority and equal ethnic size: increasing in ethnic utility implies value assimilation to square  members of the same ethnic group, because of value numeric minority
+* Value integration occurs in the upper row ($50 \% $ circle in blue majority ethnic) for random area of low $\beta_v$, because eqaul chance to relocate close to either circle or square, but in both cases of same ethnic group
+* Compared to the baseline in Fig: \ref{fig:crlo}, ethnic segregation emerges also in area of high randomness ($\beta_e < 5$), because of numeric superiority, also for the upper side of the diagonal
+* Low right corner, where circle are the minority in the blue ethnicity, but majority in the ethnic minority, ethnic integration emerges for high values of $\beta_v$, despite ethnic minority of orange. Same as in Fig: \ref{fig:crlominority}
 
 
-```{r crlblmajority, fig.pos='t',out.width='\\textwidth',fig.show = "hold",fig.align='center',fig.show="hold", fig.cap="Circle in majority condition.", echo=FALSE, include=TRUE}
+```{r crlblmajority, fig.pos='t',out.width='\\textwidth',fig.show = "hold",fig.align='center',fig.show="hold", fig.cap="Circle blue, ethnic majority", echo=FALSE, include=TRUE}
 
   rev_circle_blue.labs <- c("80% Circle \nBlue" ,"50% Circle \nBlue","20% Circle \nBlue")
 names(rev_circle_blue.labs) <- c("80", "50","20")
@@ -302,12 +328,59 @@ dataone %>%  filter(fraction_blue == 80) %>%  gather(key = subgroup, value = Seg
 
 
 
-# Effect of value distribution in group value differences
+# Second Section (heterogeneous preferences)
 
-Each graph is one level of $\%$ circle (value 1) in the local population (majority = blue agents). Each condition panel refers to distribution of  circle agents in the minority population.
+* Aim:
+    + Effect of different homophily preferences: direct effect of $\beta_e$ on ethnic segregation, and direct effect of beta value $\beta_v$ on value segregation, and reciprocal influences, i.e. how of $\beta_v$ influences effect of  $\beta_e$ on ethnic segregation and how $\beta_e$ influences effect of $\beta_v$ on value segregation
+* Focus: interaction between relative group size for each dimension with degree of $\beta$, since group size directly influence the probability to find similar ones and the systematic utility computed for each neighborhood
+* Assumption: 
+    + not heterogeneity: all agents hold both ethnic preference (same color) and value preference (same shape)
+    + ethnic size at global level: equal size (blue/orange: $0.50$), majority/minority (blue/orange: $0.80$)
+    + value size within each ethnic group: minority circle circle/square $0.20$, equal size circle/square $0.50$, majority circle circle/square $0.80$, imagining tolerant (circle) and intolerant (square),this means to move from more tolerant to less tolerant groups, both majority and minority. In this section there is not difference in preferences implied Tab \ref{tab:a}
+* Figures:
+    + Fig: \ref{fig:baselineone} represents how results are presented through the space of the model. Axis represent the ratio of $circle/square$ in each ethnic group, expressed as percentage: on y-axis the percentage of circle value in the orange ethnic group, on the x-axis the percentage of circle value in the blue ethnic group. The percentage of square agents can be calculated from it. The \textbf{baseline} condition is represented by the black dot, where each ethnicity is split equally into the two value groups ($0.50$ circle, $0.50$ square); following the diagonal, each ethnic group moves from minority circle to majority circle. Each obervation is repeated  for ethnic equal group sizes (blue/orange = $0.50$) and ethnic majority/minority condition (blue/orange = $0.80$). In the baseline condition for equal ethnic size, each group $valueXethnicity$ represents the $25 \%$ of the overall population. This means each agent in Fig: \ref{fig:thheory} has potentially probability $0.25$ to relocate close to someone who shares both ethnicity and value orientation.
+    + In all results $\beta = 5$ seems a threshold between area of high randomness and low randomness. I would use this as reference point in describing figures and change in conditions 
 
 
-```{r heatmapdsquare,fig.pos='t',out.width='\\textwidth',fig.show = "hold",fig.align='center', fig.cap="Square orange, heterogenous preferences", echo=FALSE, include=TRUE }
+
+
+
+\begin{table}[H]
+\begin{tabular}{llll}
+\midrule
+ Static agent variable                      & Range         &      &                \\ \midrule
+ Ethnicity  (\textit{color})         & Blue, Orange        \\
+ Value orientation (\textit{shape}) & Square, Circle &  &  \\
+ \midrule
+ 
+ Parameters kept constant    & Slider & Range   & Experiments  \\ 
+ \midrule
+ Population density    & density                 & $[0,0.99]$   & $0.7$          \\
+ Peak ethnic utility & similar\_wanted\_ethnic & $[0,1]$ & $1$ (linear function) \\
+ Peak value utility & similar\_wanted\_value & $[0,1]$ & $1$ (linear function) \\
+ \midrule
+ \textbf{Parameters modified in experiment} & \textbf{Slider} & \textbf{Range}   & \textbf{Experiments}  \\ 
+ \midrule
+ Ethnic group ratio (local\/minority)  & fraction\_blue &  $[0,1]$      & $0.5,0.8$  \\
+ value ratio  blue population & circle\_blue & $[0,1]$      & $0.20,0.5,0.8$  \\
+ value ratio  orange population & circle\_blue & $[0,1]$      & $0.20,0.5,0.8$  \\
+ Determinism ethnic utility ($\beta_e$) & beta-ie for all agents & $[0,1]$ & $[0,10]$  \\
+ Determinism value utility ($\beta_v$) & beta-iv for all agents & $[0,1]$ & $[0,10]$ \\
+ \midrule
+ Global output measures    & Computation &   Range & \\ 
+ \midrule
+ Ethnic segregation  & same color neighborhood proportion & $0,\stackrel{+0.1}{\dots}, 1$ & global and subgroups\\
+ Value segregation  & same shape neighborhood proportion & $0,\stackrel{+0.1}{\dots}, 1$ & global and subgroups\\
+   \midrule
+Number of Runs   & 1 &  & \\ 
+ \midrule
+\end{tabular}
+ \caption{Basic Model} 
+ \label{tab:a}
+\end{table}
+
+
+```{r heatmapdsquare,fig.pos='H',out.width='\\textwidth',fig.show = "hold",fig.align='center', fig.cap="Square orange, heterogenous preferences", echo=FALSE, include=TRUE }
 
 circle_frame <- datatwo %>% filter(step == 1000) %>% filter(beta_iv_circle == 0 |beta_iv_circle == 5 |beta_iv_circle == 10 ) %>% filter(beta_ie_circle == 0 | beta_ie_circle == 5 | beta_ie_circle == 10) 
 
@@ -327,7 +400,7 @@ circle_frame %>%   gather(key = subgroup, value = Segra, eth_sq_or,val_sq_or) %>
 
 ```
 
-```{r heatmapdcircle, fig.pos='t',out.width='\\textwidth',fig.show = "hold",fig.align='center', fig.cap="Circle orange, heterogeneous preferences", echo=FALSE, include=TRUE }
+```{r heatmapdcircle, fig.pos='H',out.width='\\textwidth',fig.show = "hold",fig.align='center', fig.cap="Circle orange, heterogeneous preferences", echo=FALSE, include=TRUE }
 
 circle_frame <- datatwo %>% filter(step == 1000) %>% filter(beta_ie_square == 0 |beta_ie_square == 5 |beta_ie_square == 10 ) %>% filter(beta_iv_square == 0 | beta_iv_square == 5 | beta_iv_square == 10) 
 
@@ -351,7 +424,7 @@ circle_frame %>%   gather(key = subgroup, value = Segra, eth_cl_or,val_cl_or) %>
 
 
 
-```{r betatwoethnic,fig.pos='t',out.width="96%",fig.show = "hold",fig.align='center',fig.cap="Difference segregation", echo=FALSE, include=TRUE }
+```{r betatwoethnic,fig.pos='H',out.width="96%",fig.show = "hold",fig.align='center',fig.cap="Difference segregation", echo=FALSE, include=TRUE }
 
 circle_frame <- datatwo %>% filter(step == 1000) %>% filter(beta_iv_circle == 0 |beta_iv_circle == 5 |beta_iv_circle == 10 ) %>% filter(beta_ie_circle == 0 | beta_ie_circle == 5 | beta_ie_circle == 10) 
 
@@ -388,7 +461,7 @@ ie_10
 ```
 
 
-```{r betatwovalue,  fig.pos="t",fig.show = "hold", fig.align='center',fig.show="hold", fig.cap="Difference segregation between", echo=FALSE, include=TRUE  }
+```{r betatwovalue,  fig.pos="H",fig.show = "hold", fig.align='center',fig.show="hold", fig.cap="Difference segregation between", echo=FALSE, include=TRUE  }
 
 circle_frame <- datatwo %>% filter(step == 1000) %>% filter(beta_ie_square == 0 |beta_ie_square == 5 |beta_ie_square == 10 ) %>% filter(beta_iv_square == 0 | beta_iv_square == 5 | beta_iv_square == 10) 
 
