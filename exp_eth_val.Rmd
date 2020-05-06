@@ -124,19 +124,19 @@ knitr::include_graphics("recapp.png")
  Ethnic group ratio (local\/minority)  & fraction\_blue &  $[0,1]$      & $0.5,0.8$  \\
  value ratio  blue population & circle\_blue & $[0,1]$      & $0.20,0.5,0.8$  \\
  value ratio  orange population & circle\_blue & $[0,1]$      & $0.20,0.5,0.8$  \\
- Determinism ethnic utility ($\beta_e$) & beta-ie for all agents & $[0,1]$ & $[0,10]$  \\
- Determinism value utility ($\beta_v$) & beta-iv for all agents & $[0,1]$ & $[0,10]$ \\
+ Determinism ethnic utility ($\beta_e$) & beta-ie for all agents & $[0,10]$ & $[0,10]$  \\
+ Determinism value utility ($\beta_v$) & beta-iv for all agents & $[0,10]$ & $[0,10]$ \\
  \midrule
  Global output measures    & Computation &   Range & \\ 
  \midrule
- Ethnic segregation  & same color neighborhood proportion & $0,\stackrel{+0.1}{\dots}, 1$ & global and subgroups\\
- Value segregation  & same shape neighborhood proportion & $0,\stackrel{+0.1}{\dots}, 1$ & global and subgroups\\
+ Ethnic segregation  & same color neighborhood $\%$ & $0,\stackrel{+0.1}{\dots}, 1$ & global and subgroups\\
+ Value segregation  & same shape neighborhood $\%$  & $0,\stackrel{+0.1}{\dots}, 1$ & global and subgroups\\
    \midrule
-Number of Runs   & 1 &  & \\ 
+Number of Runs   & 1 & Numer of steps & 1000 \\ 
  \midrule
 \end{tabular}
- \caption{Basic Model} 
- \label{tab:a}
+ \caption{First Section} 
+ \label{tab:First}
 \end{table}
 
 ## Global Observations
@@ -306,7 +306,7 @@ dataone %>%  filter(fraction_blue == 80) %>%  gather(key = subgroup, value = Seg
 * Low right corner, where circle are the minority in the blue ethnicity, but majority in the ethnic minority, ethnic integration emerges for high values of $\beta_v$, despite ethnic minority of orange. Same as in Fig: \ref{fig:crlominority}
 
 
-```{r crlblmajority, fig.pos='t',out.width='\\textwidth',fig.show = "hold",fig.align='center',fig.show="hold", fig.cap="Circle blue, ethnic majority", echo=FALSE, include=TRUE}
+```{r crlblmajority, fig.pos='H',out.width='\\textwidth',fig.show = "hold",fig.align='center',fig.show="hold", fig.cap="Circle blue, ethnic majority", echo=FALSE, include=TRUE}
 
   rev_circle_blue.labs <- c("80% Circle \nBlue" ,"50% Circle \nBlue","20% Circle \nBlue")
 names(rev_circle_blue.labs) <- c("80", "50","20")
@@ -328,18 +328,22 @@ dataone %>%  filter(fraction_blue == 80) %>%  gather(key = subgroup, value = Seg
 
 
 
-# Second Section (heterogeneous preferences)
+# Second Section (heterogeneous preferences for tolerant and intolerants)
 
 * Aim:
-    + Effect of different homophily preferences: direct effect of $\beta_e$ on ethnic segregation, and direct effect of beta value $\beta_v$ on value segregation, and reciprocal influences, i.e. how of $\beta_v$ influences effect of  $\beta_e$ on ethnic segregation and how $\beta_e$ influences effect of $\beta_v$ on value segregation
-* Focus: interaction between relative group size for each dimension with degree of $\beta$, since group size directly influence the probability to find similar ones and the systematic utility computed for each neighborhood
+    + Test the effect of heterogeneous preferences for two value groups, i.e. circle value-oriented care more about value than ethnic neighborhood composition, square ethnicity-oriented care more about ethnic than value composition
+    + This would relate to the difference between tolerant (circle) and intolerant (square) as in the ACS paper and that we discussed
+    + Observe how heterogeneity in agents' preferences along two value oriented groups will affect results in the previous section, through their mutual adaptation
+    + Interaction between heterogeneous preferences and relative group sizes for both dimensions (here only equal ethnic and value group)
 * Assumption: 
-    + not heterogeneity: all agents hold both ethnic preference (same color) and value preference (same shape)
-    + ethnic size at global level: equal size (blue/orange: $0.50$), majority/minority (blue/orange: $0.80$)
-    + value size within each ethnic group: minority circle circle/square $0.20$, equal size circle/square $0.50$, majority circle circle/square $0.80$, imagining tolerant (circle) and intolerant (square),this means to move from more tolerant to less tolerant groups, both majority and minority. In this section there is not difference in preferences implied Tab \ref{tab:a}
+    + Agents hold both ethnic and value preferences, but $\beta$ for each dimension depends on their value orientation, either circle or square. Not difference due to ethnic membership are taken into consideration
+    + Given the linear function, utility increases with value or ethnic homogeneity of neighborhood, but determinism component $\beta_e$ and $\beta_v$ are differently distributed to value groups: ethnic preferences of circle cannot be higher than value preferences ($\beta^{\circ}_e \leq \beta^{\circ}_v$) and value preferences of square cannot be higher than thier value preferences ($\beta^{\square}_v \leq \beta^{\square}_e$)
+    + Ideally also condition of ethnic majority/minority and circle majority/minority should be included. Here for matter of time it is reduced to equal ethnic group size (blue/orange $0.50$) and for each ethnic group equal value group (circle/square $0.50$). So, each of the four subgroup in Fig: \ref{fig:thheory} represents the $25 \%$ of the global agents' population
 * Figures:
-    + Fig: \ref{fig:baselineone} represents how results are presented through the space of the model. Axis represent the ratio of $circle/square$ in each ethnic group, expressed as percentage: on y-axis the percentage of circle value in the orange ethnic group, on the x-axis the percentage of circle value in the blue ethnic group. The percentage of square agents can be calculated from it. The \textbf{baseline} condition is represented by the black dot, where each ethnicity is split equally into the two value groups ($0.50$ circle, $0.50$ square); following the diagonal, each ethnic group moves from minority circle to majority circle. Each obervation is repeated  for ethnic equal group sizes (blue/orange = $0.50$) and ethnic majority/minority condition (blue/orange = $0.80$). In the baseline condition for equal ethnic size, each group $valueXethnicity$ represents the $25 \%$ of the overall population. This means each agent in Fig: \ref{fig:thheory} has potentially probability $0.25$ to relocate close to someone who shares both ethnicity and value orientation.
-    + In all results $\beta = 5$ seems a threshold between area of high randomness and low randomness. I would use this as reference point in describing figures and change in conditions 
+    + I compare the ethnic and value segregation of both circle and square agents
+    + Focus on the difference between ethnic and value segregation (being close to agents sharing both ethnicity and value)
+    + To reduce observations given the numbers of parameters, I jump on 3 critical points individualized in the previous section: $\beta = 0$: total randomness, $\beta = 5$: min. determinism, $\beta = 10$: max determinism
+    + For each value group, in the baseline I put on x-axis the difference between the highest reference $\beta$ of that group and the other one, i.e. $\beta_e - \beta_v$ for square, $\beta_v - \beta_e$ for circle. Considering the critical point, I repeat observation for reference $\beta = 5$: min. determinism, and $\beta = 10$: max determinism, $\beta = 0$ is included in bot. Thus, along the x-axis the group becomes more sensitive to the reference dimension, ethnicity for square group, value for circle group. I compare how the baseline condition changes for interaction of value and ethnic preferences of the other group faceting the 3 critical points $\beta = 0; \beta = 5;\beta = 10$
 
 
 
@@ -361,70 +365,43 @@ dataone %>%  filter(fraction_blue == 80) %>%  gather(key = subgroup, value = Seg
  \midrule
  \textbf{Parameters modified in experiment} & \textbf{Slider} & \textbf{Range}   & \textbf{Experiments}  \\ 
  \midrule
- Ethnic group ratio (local\/minority)  & fraction\_blue &  $[0,1]$      & $0.5,0.8$  \\
- value ratio  blue population & circle\_blue & $[0,1]$      & $0.20,0.5,0.8$  \\
- value ratio  orange population & circle\_blue & $[0,1]$      & $0.20,0.5,0.8$  \\
- Determinism ethnic utility ($\beta_e$) & beta-ie for all agents & $[0,1]$ & $[0,10]$  \\
- Determinism value utility ($\beta_v$) & beta-iv for all agents & $[0,1]$ & $[0,10]$ \\
+ Ethnic group ratio (local\/minority)  & fraction\_blue &  $[0,1]$      & $0.5$  \\
+ value ratio  blue population & circle\_blue & $[0,1]$      & $0.5$  \\
+ value ratio  orange population & circle\_blue & $[0,1]$      & $0.5$  \\
+ Determinism ethnic utility square ($\beta^{\square}_e$) & beta-ie-sqr & $[0,10]$ & $[0,10]$  \\
+ Determinism value utility square ($\beta^{\square}_v$) & beta-iv-sqr  & $[0,10]$ & $[0,10], if \beta^{\square}_v \leq \beta^{\square}_e$ \\
+ Determinism value utility circle ($\beta^{\circ}_v$) & beta-iv-crl  & $[0,10]$ & $[0,10]$  \\
+ Determinism ethnic utility circle ($\beta^{\circ}_e$) & beta-ie-crl & $[0,10]$ & $[0,10], if \beta^{\circ}_e \leq \beta^{\circ}_v$  \\
  \midrule
  Global output measures    & Computation &   Range & \\ 
  \midrule
- Ethnic segregation  & same color neighborhood proportion & $0,\stackrel{+0.1}{\dots}, 1$ & global and subgroups\\
- Value segregation  & same shape neighborhood proportion & $0,\stackrel{+0.1}{\dots}, 1$ & global and subgroups\\
+ Ethnic segregation  & same color neighborhood $\%$ & $0,\stackrel{+0.1}{\dots}, 1$ & global and subgroups\\
+ Value segregation  & same shape neighborhood $\%$ & $0,\stackrel{+0.1}{\dots}, 1$ & global and subgroups\\
    \midrule
-Number of Runs   & 1 &  & \\ 
+Number of Runs   & 1 & Number of steps & 1000 \\ 
  \midrule
 \end{tabular}
- \caption{Basic Model} 
- \label{tab:a}
+ \caption{Second section: heterogeneous preferences} 
+ \label{tab:Second}
 \end{table}
 
-
-```{r heatmapdsquare,fig.pos='H',out.width='\\textwidth',fig.show = "hold",fig.align='center', fig.cap="Square orange, heterogenous preferences", echo=FALSE, include=TRUE }
-
-circle_frame <- datatwo %>% filter(step == 1000) %>% filter(beta_iv_circle == 0 |beta_iv_circle == 5 |beta_iv_circle == 10 ) %>% filter(beta_ie_circle == 0 | beta_ie_circle == 5 | beta_ie_circle == 10) 
-
-rev_beta_iv_circle.labs <- c("Circle \nß value 10" ,"Circle \nß value 5", "Circle \nß value 0")
-names(rev_beta_iv_circle.labs) <- c("10", "5","0")
-beta_ie_circle.labs <- c("Circle \nß ethnic 0", "Circle \nß ethnic 5","Circle \nß ethnic 10")
-names(beta_ie_circle.labs) <- c("0", "5","10")
-
-  
-circle_frame %>%   gather(key = subgroup, value = Segra, eth_sq_or,val_sq_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ETHNIC" = "eth_sq_or", "VALUE" = "val_sq_or"), "ethnic segregation")) %>%
-  ggplot(aes(x = beta_iv_square, y = beta_ie_square, fill = Segra)) + geom_tile() + facet_grid(rev_beta_iv_circle ~  beta_ie_circle + segregation, labeller = labeller(rev_beta_iv_circle = rev_beta_iv_circle.labs, beta_ie_circle = beta_ie_circle.labs)) +
-   scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
-  scale_x_discrete( limits=c(0,10, by = 5)) +
-  scale_y_discrete( limits=c(0,10, by = 5)) +
- xlab("ß value square") + ylab("ß ethnic square") + ggtitle("Square orange, baseline") + 
-    theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
-
-```
-
-```{r heatmapdcircle, fig.pos='H',out.width='\\textwidth',fig.show = "hold",fig.align='center', fig.cap="Circle orange, heterogeneous preferences", echo=FALSE, include=TRUE }
-
-circle_frame <- datatwo %>% filter(step == 1000) %>% filter(beta_ie_square == 0 |beta_ie_square == 5 |beta_ie_square == 10 ) %>% filter(beta_iv_square == 0 | beta_iv_square == 5 | beta_iv_square == 10) 
+## Comparison different value orientation
+* Fig: \ref{fig:betatwoethnic}: x-axis $\beta^{\square}_e - \beta^{\square}_v$, on the top panel with $\beta^{\square}_e = 5$ (area of high randomness), on bottom panel  $\beta^{\square}_e = 10$ (area of low randomness). X-axis = 0,  ethnic and value utility have equal weight, along the x-axis ethnic weight prevails over value weight. the lower the distance between ethnic and value segregation, the more agents live close to others similar for both ethnicity and value.
+* Viewing at lower left panel, where behavior of circle is totally random, not only the distance between ethnic and value segregation of square is lower when $\beta^{\square}_e = \beta^{\square}_v$ (x-axis 0), but also higher for both dimensions, progressing towards x-axis (ethnic becomes higher than 10), value segregation decreases, with more linear slope for high determinism area (bottom panel).
+* It persists that each $\beta$ rules the reference dimension, but the random behavior of the other group decreases the segregation expected for that level of $\beta$, higher determinism of the other group increases  the level of segregation for that dimension. Demonstration, moving from $\beta^{\circ}_v = 5$ to  $\beta^{\circ}_v = 10$ 
+* As $\beta^{\square}_e$ becomes higher than  $\beta^{\square}_v$, moving on the x-axis, ethnic segregation persists constantly, while value segregation diminishes.
+* The threshold of $\beta = 5$ seen in the previous section is somehow replicated: in the top panel, max value and ethnic segregation are equal 1 when both  $\beta^{\square}_e = \beta^{\square}_v = 0$, on the x-axis 0, and value segregation declines once $\beta^{\square}_v$ comes close to 0. Looking at panel below (high determinism), the decline of value segregation occurs equally when $\beta^{\square}_v$ declines from 5 to 0 (on the right of red line 10-5:5 and so on)
+* Even though the direct effect of $\beta_v$ is assumed and same patterns are observed from low determinism (top panel) and high determinism (bottom panel), the high determinism of  $\beta^{\square}_e$ is associated with very slight increase in the value segregation of square, also for same level of $\beta^{\square}_v = 0$, though negligeable
+* The distance between ethnic and value segregation is higher in the middle panel, where circle hold same min utility preferences $\beta^{\circ}_e = \beta^{\circ}_v = 5$, and also square increase in ethnic over value preference (x-axis = 5). Basically the only random component is the value orientation of square agents, which has the same effect on both circle and square population patterns
+* Moving on the diagonal, where $\beta^{\circ}_e = \beta^{\circ}_v = 10$, the distance between ethnic and value decreases, meaning agents are more likely to live close to agents of both same ethnicity and value: the increase in utility at max level of circle ($\beta^{\circ}_e = \beta^{\circ}_v = 10$) compensates for random value behavior of square, since circle will avoid neighborhoods with square 
+* Fig: \ref{fig:betatwovalue} shows the similar trends, focusing on value segregation over ethnic segregation for the circle population. Nevertheless, in the middle panel ($\beta^{\square}_e = \beta^{\square}_v = 5$), I would expect symmetric scenario than in Fig: \ref{fig:betatwoethnic}, with ethnic segregation of circle being same as value segregatiion than square. Why here circle are completed ethnically integrared? There is a difference between the two dimensions? Think about.
 
 
 
-rev_beta_ie_square.labs <- c("Square \nß ethnic 10" ,"Square \nß ethnic 5","Square \nß ethnic 0")
-names(rev_beta_ie_square.labs) <- c("10", "5","0")
-beta_iv_square.labs <- c("Square \nß value 0", "Square \nß value 5","Square \nß value 10")
-names(beta_iv_square.labs) <- c("0", "5","10")
-
-  
-circle_frame %>%   gather(key = subgroup, value = Segra, eth_cl_or,val_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ETHNIC" = "eth_cl_or", "VALUE" = "val_cl_or"), "ethnic segregation")) %>%
-  ggplot(aes(x = beta_ie_circle, y = beta_iv_circle, fill = Segra)) + geom_tile() + facet_grid(rev_beta_ie_square ~  beta_iv_square + segregation, labeller = labeller(rev_beta_ie_square = rev_beta_ie_square.labs, beta_iv_square = beta_iv_square.labs)) +
-   scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
-  scale_x_discrete( limits=c(0,10, by = 5)) +
-  scale_y_discrete( limits=c(0,10, by = 5)) +
- xlab("ß ethnic circle") + ylab("ß value circle") + ggtitle("Circle orange, baseline") + 
-    theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
-
-```
 
 
 
-```{r betatwoethnic,fig.pos='H',out.width="96%",fig.show = "hold",fig.align='center',fig.cap="Difference segregation", echo=FALSE, include=TRUE }
+```{r betatwoethnic,fig.pos='H',fig.show = "hold",fig.align='center',fig.cap="Difference segregation, x-axis: difference ethnic and value preference square, faceting conditions: preferences of circle", echo=FALSE, include=TRUE }
 
 circle_frame <- datatwo %>% filter(step == 1000) %>% filter(beta_iv_circle == 0 |beta_iv_circle == 5 |beta_iv_circle == 10 ) %>% filter(beta_ie_circle == 0 | beta_ie_circle == 5 | beta_ie_circle == 10) 
 
@@ -442,7 +419,7 @@ names(e_circle.labs) <- c("0", "5","10")
 
   
 ie_10 <- circle_frame %>%  filter(beta_ie_square == 10) %>% gather(key = subgroup, value = Segra, eth_sq_or,val_sq_or,eth_cl_or,val_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sq_or","eth_cl_or"), "value segregation" = c("val_sq_or","val_cl_or")), "ethnic segregation"), `group` = fct_relevel(fct_collapse(subgroup, "square minority" = c("eth_sq_or","val_sq_or"), "circle minority" = c("eth_cl_or","val_cl_or"), "square minority"))) %>%
-  ggplot(aes(x = (beta_ie_square - beta_iv_square), y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point() + facet_grid(rev_beta_iv_circle ~  beta_ie_circle, labeller = labeller(rev_beta_iv_circle = rev_beta_iv_circle.labs,  beta_ie_circle = e_circle.labs )) +
+  ggplot(aes(x = (beta_ie_square - beta_iv_square), y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point( size = 2) + facet_grid(rev_beta_iv_circle ~  beta_ie_circle, labeller = labeller(rev_beta_iv_circle = rev_beta_iv_circle.labs,  beta_ie_circle = e_circle.labs )) +
   geom_vline(xintercept = 5, color = "red") +
   scale_x_discrete(name = "ß ethnic square 10 - ß value square", limits = seq(0,10, by = 1)) +  ylab("Segregation") +
   scale_color_manual(values = c("dark violet","dark green"), guide = guide_legend(title="")) +
@@ -450,7 +427,7 @@ ie_10 <- circle_frame %>%  filter(beta_ie_square == 10) %>% gather(key = subgrou
     theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
 
 ie_5 <- circle_frame %>%  filter(beta_ie_square == 5) %>% gather(key = subgroup, value = Segra, eth_sq_or,val_sq_or,eth_cl_or,val_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sq_or","eth_cl_or"), "value segregation" = c("val_sq_or","val_cl_or")), "ethnic segregation"), `group` = fct_relevel(fct_collapse(subgroup, "square minority" = c("eth_sq_or","val_sq_or"), "circle minority" = c("eth_cl_or","val_cl_or"), "square minority"))) %>%
-  ggplot(aes(x = (beta_ie_square - beta_iv_square), y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point() + facet_grid(rev_beta_iv_circle ~  beta_ie_circle, labeller = labeller(rev_beta_iv_circle = rev_beta_iv_circle.labs,  beta_ie_circle = e_circle.labs )) +
+  ggplot(aes(x = (beta_ie_square - beta_iv_square), y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point( size = 2) + facet_grid(rev_beta_iv_circle ~  beta_ie_circle, labeller = labeller(rev_beta_iv_circle = rev_beta_iv_circle.labs,  beta_ie_circle = e_circle.labs )) +
   scale_x_discrete(name = "ß ethnic square 5 - ß value square", limits = seq(0,5, by = 1)) +  ylab("Segregation") +
   scale_color_manual(values = c("dark violet","dark green"), guide = guide_legend(title="")) +
   scale_shape_manual(values = c(16,15), guide = guide_legend(title="")) +
@@ -476,7 +453,7 @@ names(v_square.labs) <- c("0", "5","10")
  
   
 iv_10 <- circle_frame %>%  filter(beta_iv_circle == 10) %>% gather(key = subgroup, value = Segra, eth_sq_or,val_sq_or,eth_cl_or,val_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sq_or","eth_cl_or"), "value segregation" = c("val_sq_or","val_cl_or")), "ethnic segregation"), `group` = fct_relevel(fct_collapse(subgroup, "square minority" = c("eth_sq_or","val_sq_or"), "circle minority" = c("eth_cl_or","val_cl_or"), "square minority")))  %>%
-  ggplot(aes(x = (beta_iv_circle - beta_ie_circle), y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point() + facet_grid(rev_beta_ie_square ~  beta_iv_square, labeller = labeller(rev_beta_ie_square = rev_beta_ie_square.labs, beta_iv_square = v_square.labs))  +
+  ggplot(aes(x = (beta_iv_circle - beta_ie_circle), y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point( size = 2) + facet_grid(rev_beta_ie_square ~  beta_iv_square, labeller = labeller(rev_beta_ie_square = rev_beta_ie_square.labs, beta_iv_square = v_square.labs))  +
   geom_vline(xintercept = 5, color = "red") +
   scale_x_discrete(name = "ß value circle 10 - ß ethnic circle", limits = seq(0,10, by = 1)) +  ylab("Segregation") +
   scale_color_manual(values = c("dark violet","dark green"), guide = guide_legend(title="")) +
@@ -484,7 +461,7 @@ iv_10 <- circle_frame %>%  filter(beta_iv_circle == 10) %>% gather(key = subgrou
     theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
 
 iv_5 <- circle_frame %>%  filter(beta_iv_circle == 5) %>% gather(key = subgroup, value = Segra, eth_sq_or,val_sq_or,eth_cl_or,val_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sq_or","eth_cl_or"), "value segregation" = c("val_sq_or","val_cl_or")), "ethnic segregation"), `group` = fct_relevel(fct_collapse(subgroup, "square minority" = c("eth_sq_or","val_sq_or"), "circle minority" = c("eth_cl_or","val_cl_or"), "square minority")))  %>%
-  ggplot(aes(x = (beta_iv_circle - beta_ie_circle), y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point() + facet_grid(rev_beta_ie_square ~  beta_iv_square, labeller = labeller(rev_beta_ie_square = rev_beta_ie_square.labs, beta_iv_square = v_square.labs))  +
+  ggplot(aes(x = (beta_iv_circle - beta_ie_circle), y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point( size = 2) + facet_grid(rev_beta_ie_square ~  beta_iv_square, labeller = labeller(rev_beta_ie_square = rev_beta_ie_square.labs, beta_iv_square = v_square.labs))  +
   scale_x_discrete(name = "ß value circle 10 - ß ethnic circle", limits = seq(0,5, by = 1)) +  ylab("Segregation") +
   scale_color_manual(values = c("dark violet","dark green"), guide = guide_legend(title="")) +
   scale_shape_manual(values = c(16,15), guide = guide_legend(title="")) +
@@ -497,7 +474,7 @@ iv_10
 
 
 
-# ANNEX
+# ANNEX A {-} 
 
 
 
@@ -603,10 +580,66 @@ sqrbomj
 ```
 
 
+# ANNEX B  {-} 
+
+
+```{r heatmapdsquare,fig.pos='H',out.width='\\textwidth',fig.show = "hold",fig.align='center', fig.cap="Square orange, heterogenous preferences", echo=FALSE, include=TRUE }
+
+circle_frame <- datatwo %>% filter(step == 1000) %>% filter(beta_iv_circle == 0 |beta_iv_circle == 5 |beta_iv_circle == 10 ) %>% filter(beta_ie_circle == 0 | beta_ie_circle == 5 | beta_ie_circle == 10) 
+
+rev_beta_iv_circle.labs <- c("Circle \nß value 10" ,"Circle \nß value 5", "Circle \nß value 0")
+names(rev_beta_iv_circle.labs) <- c("10", "5","0")
+beta_ie_circle.labs <- c("Circle \nß ethnic 0", "Circle \nß ethnic 5","Circle \nß ethnic 10")
+names(beta_ie_circle.labs) <- c("0", "5","10")
+
+  
+circle_frame %>%   gather(key = subgroup, value = Segra, eth_sq_or,val_sq_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ETHNIC" = "eth_sq_or", "VALUE" = "val_sq_or"), "ethnic segregation")) %>%
+  ggplot(aes(x = beta_iv_square, y = beta_ie_square, fill = Segra)) + geom_tile() + facet_grid(rev_beta_iv_circle ~  beta_ie_circle + segregation, labeller = labeller(rev_beta_iv_circle = rev_beta_iv_circle.labs, beta_ie_circle = beta_ie_circle.labs)) +
+   scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
+  scale_x_discrete( limits=c(0,10, by = 5)) +
+  scale_y_discrete( limits=c(0,10, by = 5)) +
+ xlab("ß value square") + ylab("ß ethnic square") + ggtitle("Square orange, baseline") + 
+    theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
+
+```
+
+
+```{r heatmapdcircle, fig.pos='H',out.width='\\textwidth',fig.show = "hold",fig.align='center', fig.cap="Circle orange, heterogeneous preferences", echo=FALSE, include=TRUE }
+
+circle_frame <- datatwo %>% filter(step == 1000) %>% filter(beta_ie_square == 0 |beta_ie_square == 5 |beta_ie_square == 10 ) %>% filter(beta_iv_square == 0 | beta_iv_square == 5 | beta_iv_square == 10) 
 
 
 
+rev_beta_ie_square.labs <- c("Square \nß ethnic 10" ,"Square \nß ethnic 5","Square \nß ethnic 0")
+names(rev_beta_ie_square.labs) <- c("10", "5","0")
+beta_iv_square.labs <- c("Square \nß value 0", "Square \nß value 5","Square \nß value 10")
+names(beta_iv_square.labs) <- c("0", "5","10")
 
+  
+circle_frame %>%   gather(key = subgroup, value = Segra, eth_cl_or,val_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ETHNIC" = "eth_cl_or", "VALUE" = "val_cl_or"), "ethnic segregation")) %>%
+  ggplot(aes(x = beta_ie_circle, y = beta_iv_circle, fill = Segra)) + geom_tile() + facet_grid(rev_beta_ie_square ~  beta_iv_square + segregation, labeller = labeller(rev_beta_ie_square = rev_beta_ie_square.labs, beta_iv_square = beta_iv_square.labs)) +
+   scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
+  scale_x_discrete( limits=c(0,10, by = 5)) +
+  scale_y_discrete( limits=c(0,10, by = 5)) +
+ xlab("ß ethnic circle") + ylab("ß value circle") + ggtitle("Circle orange, baseline") + 
+    theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
+
+```
+
+
+
+## Fig: \ref{fig:heatmapdsquare}
+*  Fig: \ref{fig:heatmapdsquare} reports in heatmaps $\beta^{\square}_e$ on y-axis $\beta^{\square}_v$ on x-axis for square agents, as such on y-axis is the most important preference for the value group square, the triangle shape is due to the condition $\beta^{\square}_v \leq \beta^{\square}_e$.
+* Faceted for the condition of the other group, focusin on 3 degree: total randomness $\beta^{\circ} = 0$, threshold between area of high and low randomness $\beta^{\circ} = 5$ and highest systematic component $\beta^{\circ} = 10$. For each condition ethnic and value segregation of squared population is calculated
+* Lower area, where the other group shows total random behavior ($\beta^{\circ} = 0$) for both ethnic and value utility, value integration emerges with low $\beta^{\square}_v$ regardless the increase in $\beta^{\square}_e$. Higher value segregation occurs only for the highest levels of $\beta^{\square}_v$ and $\beta^{\square}_e$. Ethnic segregation increases along the diagonal where $\beta^{\square}_v = \beta^{\square}_e$. Lower ethnic segregation compared to the other conditions in the area of high ethnic utility $\beta^{\square}_e$
+* Second row, first panel: for total random value behavior of square $\beta^{\square}_v = 0$, the ethnic segregation is linear to the increase of  $\beta^{\square}_e$, not showing the threshold difference as in Fig: \ref{fig:crlo}, this only with ethnic randomness of circle agents $\beta^{\circ}_e = 0$, but reach the critical point of $\beta^{\circ}_v = 5$ for value preferences. The sensitivity to change persists, but the sensitivity to chance decreases, because agents are split into two groups, for the same dimension that both share (ethnicity), one maximizes, the other not, and viceversa one doesn't care about value, while the other group maximizes value.
+* My guess: circle agents would gather together in ethnically mixed neighborhoods (cfr Fig: \ref{fig:heatmapdcircle}, ethnic integration along $\beta^{\circ}_v$), which attract square ethnicity-oriented at increase of  $\beta^{\square}_e$, they not care about the value orientation of the neighborhood. Compared to the previous section, $\beta^{\square}_e$ applies to $50\%$ of the population, so that the reduced amount of square agents entering the neighborhood would be tolerated by circle, but not when the $\beta^{\square}_e$ increases and too square agents enter the neighborhood, which would explain why value segregation persists rather than value integration as would be expected.
+* In the next panel where circle hold minimum threshold for both ethnic and value preferences $\beta^{\circ}_v = \beta^{\circ}_e = 5$, the demark between high randomness for $\beta^{\square}_e < 5$ and high utility $\beta^{\square}_e \geq 5$ returns and corresponds to value integration.
+* value segregation increases homogeneously when circle population maximizes  $\beta^{\circ}_v = 10$
+
+## Fig: \ref{fig:heatmapdsquare}
+* Fig: \ref{fig:heatmapdsquare}, for cirlce agents with higher value preferences than ethnic preferences, ethnic integration emerges for area of ethnic randomness with $\beta^{\circ}_e < 5$
+* Value segregation on the top right, where square agents show maximal ethnic and value utility  $\beta^{\square}_e = \beta^{\square}_v = 10$, full value segregation emerges for all conditions of $\beta$ levels, while in high ethnic utility area $\beta^{\square}_e \geq 5$ circle live in neighborhoods both value and ethnic homogeneous, for $\beta^{\square}_e <  5$ they live in ethnically mixed neighborhoods with circle of other ethnicity
 
 
 
