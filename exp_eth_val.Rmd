@@ -257,10 +257,10 @@ maj_glb
 ### Equal ethnic group size (Fig: \ref{fig:crlo})
 
 * Baseline reproduces the same as global observations. Ethnic segregation doesn't change along the diagonal; value segregation does, as effect of different value distribution (minority circle in the low left; majority circle in the upper right)
-* Top left corner, circle is majority value in the own ethnic group (orange), minority in the other group (blue): integration occurs in the high randomnessfor both preferences (low left corner); ethnic segregation in high random ethnic area increases with increase of $\beta_v$; increase also of value segregation for increase in $\beta_e$: Both results  are due to the majority value circle increasing both value and  ethnic preferences, in condition of equal ethnic size.
+* Top left corner, circle is majority value in the own ethnic group (orange), minority value in the other ethnicity (blue): integration occurs in the high randomnessfor both preferences (low left corner); ethnic segregation in high random ethnic area increases with increase of $\beta_v$; increase also of value segregation for increase in $\beta_e$: Both results  are due to the majority value circle increasing both value and  ethnic preferences, in condition of equal ethnic size.
 * Top row: proceding on x-axis with increase in percentage similar value in the other ethnic group: for area of ethnic randomness, ethnic integration more evident over ethnic segregation at increase of $\beta_v$, because more equal chance to satisfy value preferences with agents of both ethnic groups
 * Bottom left corner, circle value is minority value in both groups: value assimilation to square happens for all levels of $\beta_e$, as direct consequence of minority position. Ethnic integration emerges for high ethnic randomness ($\beta_e=5$)  also for increase in $\beta_v$, because agents need to cluster with value similars of the other ethnic group, which still are a minority. Value segregation results constantly high for all area  $\beta_v \geq 5$. Still, looking at overlap of ethnic and value space, moving from high ethnic randomness to low ethnic randomness area, ethnic integration shifts to ethnic segregation. This means that agents still manage to live in neighborhoods value homogeneous, but only with members of the own ethnic group. Maybe good to include density observation here, and compare with ACS.
-* Bottom row: proceding on x-axis with increase of circle in the other ethnic group: value assimilation for $\beta_v < 5$ narrows down to high $\beta_e$, since for random ethnic behavior there is more chance to find value similar in the other group being equally represented. When value preference increases, ethnic assimilation becomes more evident since circle have more chance to find similar value, though of the other ethnic group, which they don't care about.
+* Bottom row: proceding on x-axis with increase of circle in the other ethnic group: value assimilation for $\beta_v < 5$ narrows down to high $\beta_e$, since for random ethnic behavior there is more chance to find value similar circle in the other group. When value preference increases along $\beta_v$, ethnic assimilation becomes more evident since circle have more chance to find similar value, though of the other ethnic group, which they don't care about.
 * Middle row (circle are 50% value in ethnic group): transition in between observations above, not  different patters
 
 
@@ -284,11 +284,12 @@ dataone %>%  filter(fraction_blue == 50) %>%  gather(key = subgroup, value = Seg
 
 ### Ethnic minority (Fig: \ref{fig:crlominority})
 
-* Trends are generally similar to Fig: \ref{fig:crlo}
-* In the baseline, ethnic assimilation emerges instead of ethnic integration, becuase of the ethnic minority of the group.
-* Up left corner, where circle represent the majority value of ethnic  minority and the minority value of ethnic majority, compared to Fig: \ref{fig:crlo} ethnic assimilation rather than integration emerges for the area of high randomness for both dimensions, and ethnic integration rather than segregation for the increase of $\beta_v$ and low values of $\beta_e$. While for areas of high randomness agents fall into assimilation because of numeric inferiority, when they increase value utility $\beta_v$ they want to relocate close to other circle agents, regardless of their ethnicity. Since in this condition circle represent the minority value of the majority ethnic population (the opposite of circle orange in ethnic minority), the combination allows for the increase in value preference to make up for the ethnic numeric inferiority, so that both circle minority and circle majority end up in neighborhoods ethnically integrated and value circle homogeneous (cfr Fig: \ref{fig:crlbl}, right down corner).
-* Low row: the effect of increase in $\beta_e$ on value assimilation is similar as Fig: \ref{fig:crlo}, since circle here represents the minority in the own group. Increase of $\beta_v$ shows instead higher assimilation, because circle minority has more chance to relocate close to similar circle value of the other ethnic group, proportionally to value circle being the majority value in the majority ethnic group. Interestingly, given the area of high ethnic utility for $\beta_e \geq 5$, at the increase of $\beta_v$ less homogenous ethnic segregation emerges compared to the equal ethnic size.
-* The last two  points are noteworthy to me: the assumption that similar values can foster ethnic integration over ethnic segregation can work provided that an adjustement between distribution of values in both ethnic group and preferences for ethnic or value utility are  taken into account.
+* Baseline shows ethnic assimilation for the area of high ethnic randomness $\beta_e < 5$, direct effect of numeric minority
+* Top left corner, circle is majority value in the own ethnic minority (orange), minority value in the ethnic majority (blue): in both areas of high randomness (bottom left corner), strong ethnic assimilation and mild value assimilation emerge. Due to unbalance of circle in ethnic minority and ethnic majority, for random moves  circle orange have more chance to relocate close to an agent of ethnic majority, but the probability of this agent being value circle or square becomes slightly  similar. Increasing value preference for $\beta_v \geq 5$, tendence towards ethnic integration occurs rather than assimilation or segregation, still value segregation is almost complete. This because due to value and ethnic distribution, the probability of an agent being circle blue or circle orange is equally $\approx 0.15$, thus, increasing value preference and not caring for ethnicity, circle minority form neighborhoods value homogeneous but ethnically mixed
+* Top row: increasing circle value in the ethnic majority (along x-axis), at circle ethnic majority = $50 \%$, value integration occurs for high ethnic randomness.Increasing $\beta_v$, ethnic assimilation emerges along value segregation more evidently, since now circle is majority value in the ethnic minority, but equally represented at $0.50$ in the ethnic blue majority, thus the probability to find a circle blue is higher than finding a circle orange.
+* Bottom left corner, circle value is minority value in both groups: compared to Fig: \ref{fig:crlo}, ethnic and value assimilation for respective $\beta < 5$ and ethnic and value segregation for $\beta \geq 5$ remains, though less evident in particular for low randomness area $\beta \geq 5$, due to numeric minority.
+* Bottom row: increasing circle value in the ethnic majority (along x-axis), increase in $\beta_v$ for the area of ethnic randomness favors ethnic assimilation, which expands also to the area of high ehtnic utility ($\beta_e \geq 5$) as circle value are most represented in the ethnic majority. Here, to satisfy highest levels of value homophily, minority circle must reduce on ethnic homophily, which for the borderline area $\beta = 5$ allows for spillover of value preference on ethnic segregation. Increase in $\beta_e$ shows value assimilation narrowly for highest ethnic preferences $\beta \geq 5$ rather than uniformly as in Fig: \ref{fig:crlo}, because to maximize ethnic preference circle orange need to cluster to square who represent the majority value in their ethnic minority. The shift from value assimilation towards segregation for random ethnic moves $\beta_e < 5$ is because there is more probability now of a circle being from ethnic blue majority.
+
 
 ```{r crlominority,fig.pos='H',out.width='\\textwidth',fig.show = "hold",fig.align='center', fig.cap="Circle orange, ethnic minority", echo=FALSE, include=TRUE  }
 
@@ -308,13 +309,17 @@ dataone %>%  filter(fraction_blue == 80) %>%  gather(key = subgroup, value = Seg
 ```
 
 ### Ethnic majority (Fig: \ref{fig:crlblmajority})
-* Low row where circle are the minority in the ethnic majority blue, show the same pattern for the circle in minority and equal ethnic size: increasing in ethnic utility implies value assimilation to square  members of the same ethnic group, because of value numeric minority
-* Value integration occurs in the upper row ($50 \% $ circle in blue majority ethnic) for random area of low $\beta_v$, because eqaul chance to relocate close to either circle or square, but in both cases of same ethnic group
-* Compared to the baseline in Fig: \ref{fig:crlo}, ethnic segregation emerges also in area of high randomness ($\beta_e < 5$), because of numeric superiority, also for the upper side of the diagonal
-* Low right corner, where circle are the minority in the blue ethnicity, but majority in the ethnic minority, ethnic integration emerges for high values of $\beta_v$, despite ethnic minority of orange. Same as in Fig: \ref{fig:crlominority}
+
+* First column, where circle represent the value minority in the ethnic blue majority: value assimilation is homogeneous for $\beta_e$, due to value minority. Ethnic segregation for high ethnic randomness $\beta_e < 5$ moves from integration to segregation as the number of circle in the ethnic orange minority decreases: to maximize value preference, circle blue will form value homogeneous neighborhoods, and the higher percentage of value circle in ethnic minority allows to increase the random probability of circle value being blue either orange, causing ethnic integration. As the concentration of value orange decreases, the random probability of circle being co-ethnic blue increases, favoring ethnic segregation.
+
 
 
 ```{r crlblmajority, fig.pos='H',out.width='\\textwidth',fig.show = "hold",fig.align='center',fig.show="hold", fig.cap="Circle blue, ethnic majority", echo=FALSE, include=TRUE}
+
+ circle_blue.labs <- c("20% Circle \nBlue", "50% Circle \nBlue","80% Circle \nBlue")
+names(circle_blue.labs) <- c("20", "50","80")
+ circle_orange.labs <-  c("20% Circle \nOrange", "50% Circle \nOrange","80% Circle \nOrange")
+names(circle_orange.labs) <- c("20", "50","80")
 
   rev_circle_blue.labs <- c("80% Circle \nBlue" ,"50% Circle \nBlue","20% Circle \nBlue")
 names(rev_circle_blue.labs) <- c("80", "50","20")
@@ -324,7 +329,7 @@ names(rev_circle_orange.labs) <- c("80", "50","20")
 
 dataone %>%  filter(fraction_blue == 80) %>%  gather(key = subgroup, value = Segra, eth_cl_bl,val_cl_bl) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Value" = "val_cl_bl","Ethnic" = "eth_cl_bl"), "Value"))  %>% 
   ggplot(aes(x = beta_ie,y = beta_iv, fill = Segra)) + geom_tile() + 
-  facet_grid( rev_circle_blue  ~ circle_orange  + segregation, labeller = labeller(circle_orange =circle_orange.labs, rev_circle_blue = rev_circle_blue.labs), switch  = "y") +
+  facet_grid( rev_circle_orange   ~  circle_blue + segregation, labeller = labeller(rev_circle_orange =rev_circle_orange.labs, circle_blue = circle_blue.labs), switch  = "y") +
   scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1)) +
   scale_x_discrete( limits=c(0,10, by = 5)) +
   scale_y_discrete( limits=c(0,10, by = 5), position = "right") +
