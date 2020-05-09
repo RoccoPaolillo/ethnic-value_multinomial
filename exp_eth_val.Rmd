@@ -354,7 +354,7 @@ dataone %>%  filter(fraction_blue == 80) %>%  gather(key = subgroup, value = Seg
     + No difference due to ethnic membership
     + \textbf{NOTE: Here only baseline} for question of time/computation server (Tab: \ref{tab:Second}). I'd collect conditions of majority and minority circle or square in ethnic different group sizes.
 * Figures
-    + Circle orange and square orange is taken as prototype (in the legend circle, square), since any subgroup in Fig: \ref{fig:thheory} has same probability $0.25$ to relocate close similar one and behavior would be symmetrical \textbf{-> agree? I would test otherwise}
+    + Circle orange and square orange is taken as prototype (in the legend circle, square), since any subgroup in Fig: \ref{fig:thheory} has same probability $0.25$ to relocate close to agents of same ethnicity and same value. Proof in ANNEX B, reporting behavior of circle blue and square blue
     + Need to find trade off between 4 parameters (see Tab: \ref{tab:Second}) and behavior of 2 type of agents (circle and blue) in conditions of relative group size
     + Considering the critical levels of $\beta = 5$ between high randomness and low randomness (space model Fig: \ref{fig:baselineone}), I jump here directly to critical points $\beta = 0$: total ranomness,  $\beta = 5$: min determinism, $\beta = 10$: max determinism, this for each dimensions and faceting for circle and value group.
     + ANNEX B heatmaps: ethnic and value segregation for all preferences of square faceted for the 3 critical points of circle (Fig: \ref{fig:heatmapdsquare}); ethinic and value segregation for all preferences of circle faceted for the 3 critical points of square (Fig: \ref{fig:heatmapdcircle})
@@ -422,7 +422,7 @@ Number of Runs   & 1 & Number of steps & 1000 \\
 
 
 
-```{r betatwoethnic,fig.pos='H',fig.out="96%",fig.show = "hold",fig.align='center',fig.cap="Difference segregation, x-axis: difference ethnic and value preference square, faceting conditions: preferences of circle", echo=FALSE, include=TRUE }
+```{r betatwoethnic,fig.pos='H',fig.out="94%",fig.show = "hold",fig.align='center',fig.cap="Difference segregation, x-axis: difference ethnic and value square preference, faceting: circle preference", echo=FALSE, include=TRUE }
 
 circle_frame <- datatwo %>% filter(step == 1000) %>% filter(beta_iv_circle == 0 |beta_iv_circle == 5 |beta_iv_circle == 10 ) %>% filter(beta_ie_circle == 0 | beta_ie_circle == 5 | beta_ie_circle == 10) 
 
@@ -463,7 +463,7 @@ ie_10
 
 
 
-```{r betatwovalue,  fig.pos="H",fig.out="96%",fig.show = "hold", fig.align='center',fig.show="hold", fig.cap="Difference segregation between", echo=FALSE, include=TRUE  }
+```{r betatwovalue,  fig.pos="H",fig.out="94%",fig.show = "hold", fig.align='center',fig.show="hold", fig.cap="Difference segregation, x-axis: difference ethnic and value circle preference, faceting: square preference", echo=FALSE, include=TRUE  }
 
 circle_frame <- datatwo %>% filter(step == 1000) %>% filter(beta_ie_square == 0 |beta_ie_square == 5 |beta_ie_square == 10 ) %>% filter(beta_iv_square == 0 | beta_iv_square == 5 | beta_iv_square == 10) 
 
@@ -473,7 +473,7 @@ names(rev_beta_ie_square.labs) <- c("10", "5","0")
 
 e_square.labs <- c("ß ethnic \nsquare 0", "ß ethnic \nsquare 5", "ß ethnic \nsquare 10")
 names(e_square.labs) <- c("0", "5","10")
-v_square.labs <- c("ß value square 0", "ß value square 5", "ß value square 10")
+v_square.labs <- c("Square ß value 0", "Square ß value 5", "Square ß value 10")
 names(v_square.labs) <- c("0", "5","10")
  
   
@@ -651,7 +651,75 @@ circle_frame %>%   gather(key = subgroup, value = Segra, eth_cl_or,val_cl_or) %>
 
 ```
 
+```{r betatwoethnicblue,fig.pos='H',fig.out="94%",fig.show = "hold",fig.align='center',fig.cap="Testing blue: Difference segregation, x-axis: difference ethnic and value square preference, faceting: circle preference", echo=FALSE, include=TRUE }
 
+circle_frame <- datatwo %>% filter(step == 1000) %>% filter(beta_iv_circle == 0 |beta_iv_circle == 5 |beta_iv_circle == 10 ) %>% filter(beta_ie_circle == 0 | beta_ie_circle == 5 | beta_ie_circle == 10) 
+
+
+rev_beta_iv_circle.labs <- c("Circle ß value 10" ,"Circle ß value 5", "Circle ß value 0")
+names(rev_beta_iv_circle.labs) <- c("10", "5","0")
+beta_ie_circle.labs <- c("Circle \nß ethnic 0", "Circle \nß ethnic 5","Circle \nß ethnic 10")
+names(beta_ie_circle.labs) <- c("0", "5","10")
+
+
+#  v_circle.labs <- c("ß value circle 0", "ß value circle 5", "ß value circle 10")
+# names(v_circle.labs) <- c("0", "5","10")
+e_circle.labs <- c("Circle ß ethnic 0", "Circle ß ethnic 5", "Circle ß ethnic 10")
+names(e_circle.labs) <- c("0", "5","10")
+
+  
+ibe_10 <- circle_frame %>%  filter(beta_ie_square == 10) %>% gather(key = subgroup, value = Segra, eth_sq_bl,val_sq_bl,eth_cl_bl,val_cl_bl) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sq_bl","eth_cl_bl"), "value segregation" = c("val_sq_bl","val_cl_bl")), "ethnic segregation"), `group` = fct_relevel(fct_collapse(subgroup, "square" = c("eth_sq_bl","val_sq_bl"), "circle" = c("eth_cl_bl","val_cl_bl"), "square"))) %>%
+  ggplot(aes(x = (beta_ie_square - beta_iv_square), y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point( size = 2) + facet_grid(rev_beta_iv_circle ~  beta_ie_circle, labeller = labeller(rev_beta_iv_circle = rev_beta_iv_circle.labs,  beta_ie_circle = e_circle.labs )) +
+  geom_vline(xintercept = 5, color = "red") +
+  scale_x_discrete(name = "ß ethnic square 10 - ß value square", limits = seq(0,10, by = 1)) +  ylab("Segregation") +
+  scale_color_manual(values = c("dark violet","dark green"), guide = guide_legend(title="")) +
+  scale_shape_manual(values = c(16,15), guide = guide_legend(title="")) +
+    theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
+
+ibe_5 <- circle_frame %>%  filter(beta_ie_square == 5) %>% gather(key = subgroup, value = Segra, eth_sq_bl,val_sq_bl,eth_cl_bl,val_cl_bl) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sq_bl","eth_cl_bl"), "value segregation" = c("val_sq_bl","val_cl_bl")), "ethnic segregation"), `group` = fct_relevel(fct_collapse(subgroup, "square" = c("eth_sq_bl","val_sq_bl"), "circle" = c("eth_cl_bl","val_cl_bl"), "square"))) %>%
+  ggplot(aes(x = (beta_ie_square - beta_iv_square), y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point( size = 2) + facet_grid(rev_beta_iv_circle ~  beta_ie_circle, labeller = labeller(rev_beta_iv_circle = rev_beta_iv_circle.labs,  beta_ie_circle = e_circle.labs )) +
+  scale_x_discrete(name = "ß ethnic square 10 - ß value square", limits = seq(0,5, by = 1)) +  ylab("Segregation") +
+  scale_color_manual(values = c("dark violet","dark green"), guide = guide_legend(title="")) +
+  scale_shape_manual(values = c(16,15), guide = guide_legend(title="")) +
+    theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
+
+ibe_5
+ibe_10
+```
+
+```{r betatwovalueblue,  fig.pos="H",fig.out="94%",fig.show = "hold", fig.align='center',fig.show="hold", fig.cap="Testing blue: Difference segregation, x-axis: difference ethnic and value circle preference, faceting: square preference", echo=FALSE, include=TRUE  }
+
+circle_frame <- datatwo %>% filter(step == 1000) %>% filter(beta_ie_square == 0 |beta_ie_square == 5 |beta_ie_square == 10 ) %>% filter(beta_iv_square == 0 | beta_iv_square == 5 | beta_iv_square == 10) 
+
+
+rev_beta_ie_square.labs <- c("Square \nß ethnic 10" ,"Square \nß ethnic 5", "Square \nß ethnic 0")
+names(rev_beta_ie_square.labs) <- c("10", "5","0")
+
+e_square.labs <- c("ß ethnic \nsquare 0", "ß ethnic \nsquare 5", "ß ethnic \nsquare 10")
+names(e_square.labs) <- c("0", "5","10")
+v_square.labs <- c("ß value square 0", "ß value square 5", "ß value square 10")
+names(v_square.labs) <- c("0", "5","10")
+ 
+  
+ibv_10 <- circle_frame %>%  filter(beta_iv_circle == 10) %>% gather(key = subgroup, value = Segra, eth_sq_bl,val_sq_bl,eth_cl_bl,val_cl_bl) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sq_bl","eth_cl_bl"), "value segregation" = c("val_sq_bl","val_cl_bl")), "ethnic segregation"), `group` = fct_relevel(fct_collapse(subgroup, "square" = c("eth_sq_bl","val_sq_bl"), "circle" = c("eth_cl_bl","val_cl_bl"), "square")))  %>%
+  ggplot(aes(x = (beta_iv_circle - beta_ie_circle), y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point( size = 2) + facet_grid(rev_beta_ie_square ~  beta_iv_square, labeller = labeller(rev_beta_ie_square = rev_beta_ie_square.labs, beta_iv_square = v_square.labs))  +
+  geom_vline(xintercept = 5, color = "red") +
+  scale_x_discrete(name = "ß value circle 10 - ß ethnic circle", limits = seq(0,10, by = 1)) +  ylab("Segregation") +
+  scale_color_manual(values = c("dark violet","dark green"), guide = guide_legend(title="")) +
+  scale_shape_manual(values = c(16,15), guide = guide_legend(title="")) +
+    theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
+
+ibv_5 <- circle_frame %>%  filter(beta_iv_circle == 5) %>% gather(key = subgroup, value = Segra, eth_sq_bl,val_sq_bl,eth_cl_bl,val_cl_bl) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sq_bl","eth_cl_bl"), "value segregation" = c("val_sq_bl","val_cl_bl")), "ethnic segregation"), `group` = fct_relevel(fct_collapse(subgroup, "square" = c("eth_sq_bl","val_sq_bl"), "circle" = c("eth_cl_bl","val_cl_bl"), "square")))  %>%
+  ggplot(aes(x = (beta_iv_circle - beta_ie_circle), y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point( size = 2) + facet_grid(rev_beta_ie_square ~  beta_iv_square, labeller = labeller(rev_beta_ie_square = rev_beta_ie_square.labs, beta_iv_square = v_square.labs))  +
+  scale_x_discrete(name = "ß value circle 5 - ß ethnic circle", limits = seq(0,5, by = 1)) +  ylab("Segregation") +
+  scale_color_manual(values = c("dark violet","dark green"), guide = guide_legend(title="")) +
+  scale_shape_manual(values = c(16,15), guide = guide_legend(title="")) +
+    theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
+
+ibv_5
+ibv_10
+
+```
 
 
 
