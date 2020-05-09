@@ -354,6 +354,7 @@ dataone %>%  filter(fraction_blue == 80) %>%  gather(key = subgroup, value = Seg
     + No difference due to ethnic membership
     + \textbf{NOTE: Here only baseline} for question of time/computation server (Tab: \ref{tab:Second}). I'd collect conditions of majority and minority circle or square in ethnic different group sizes.
 * Figures
+    + Circle orange and square orange is taken as prototype (in the legend circle, square), since any subgroup in Fig: \ref{fig:thheory} has same probability $0.25$ to relocate close similar one and behavior would be symmetrical \textbf{-> agree? I would test otherwise}
     + Need to find trade off between 4 parameters (see Tab: \ref{tab:Second}) and behavior of 2 type of agents (circle and blue) in conditions of relative group size
     + Considering the critical levels of $\beta = 5$ between high randomness and low randomness (space model Fig: \ref{fig:baselineone}), I jump here directly to critical points $\beta = 0$: total ranomness,  $\beta = 5$: min determinism, $\beta = 10$: max determinism, this for each dimensions and faceting for circle and value group.
     + ANNEX B heatmaps: ethnic and value segregation for all preferences of square faceted for the 3 critical points of circle (Fig: \ref{fig:heatmapdsquare}); ethinic and value segregation for all preferences of circle faceted for the 3 critical points of square (Fig: \ref{fig:heatmapdcircle})
@@ -411,7 +412,13 @@ Number of Runs   & 1 & Number of steps & 1000 \\
 
 
 
-
+## Focus on circle preferences (Fig: \ref{fig:betatwovalue})
+* x-axis: difference preferences for circle $\beta^{\circ}_v - \beta^{\circ}_e$. x-axis: 0: ethnic and value matter equally with same high $\beta$ to square ($\beta^{\circ}_v - \beta^{\circ}_e = 5$ top panel, $\beta^{\circ}_v - \beta^{\circ}_e = 510$ lower panel); proceding on x-axis, value matters more to circle than value ($\beta^{\circ}_v$ is constant, while $\beta^{\circ}_e$ decreases to 0)
+* y-axis: ethnic and value segregation for circle and square
+* bottom left box, where all square relocate randomly ($\beta$ circle = 0):
+* Basically the extreme of the pictures can be deduced from Fig: \ref{fig:betatwovalue}, inverting circle and value positions
+* along the x-axis, as $\beta^{\circ}_e$ decreases, ethnic segregation decreases linearly, though it reaches always complete ethnic integration compared to Fig: \ref{fig:betatwoethnic}. This happens for $\beta^{\circ}_e < 5$ (all conditions top panel and right side of bottom panel), and for all levels  of $\beta^{\circ}_e$ when square moves randomly for value homophily (first column in bottom panel). This last note is the same as bottom left box in bottom panel in Fig: \ref{fig:betatwoethnic}. The random relocation of square favors  the complete ethnic integration
+* first column, along the x-axis, where value homophily becomes more important to circle and ethnicity moves  to 0, and square don't care about value, but more on ethnicity (from  $\beta^{\square}_e = 5$ to $\beta^{\square}_e = 10$ ). Distance between value and ethnic segregation shows that circle live in value homogeneous but ethnically mixed neighborhoods, square in both ethnically and value homogeneous neighborhoods (i.e. with square of same ethncity). My guess: square would be attracted by neighborhoods of circle, because there is more chance to find a co-ethnic, though they would be refused because of their value by circle who maximize value homophily. In the condition of lower determinism $\beta^{\square}_e = 5$, square would still relocate randomly in the world, not threating the value composition of circle neighborhoods. When ethnic square determinism increases to $\beta^{\square}_e = 10$, then ethnically mixed neighborhoods of circle become highly appealing and try to move there. At next step, circle would refuse square because of  value homophily and would move to value homogeneous neighborhoods (playing with simulations, seems to less dense neighborhoods, might be included). As for square of different ethncity, clearly they would not live close to each other for direct effect of increase in ethnic determinism. Due to reinforce in value homophily for circle and ethnic homophily for square, equilibria emerge with 3 clusters: circle live in complete ethnically mixed, but complete value segregated neighborhoods, square in both ethnically and value segregated neighborhoods (i.e. square with the same ethncity). The value segregation of square is  basically emerging un-intended consequence of adaptation between ethnic homophily of square  and value homophily of circle. 
 
 
 
@@ -452,16 +459,6 @@ ie_10
 ```
 
 
-## Focus on circle preferences (Fig: \ref{fig:betatwovalue})
-* x-axis: difference preferences for circle $\beta^{\circ}_v - \beta^{\circ}_e$. x-axis: 0: ethnic and value matter equally with same high $\beta$ to square ($\beta^{\circ}_v - \beta^{\circ}_e = 5$ top panel, $\beta^{\circ}_v - \beta^{\circ}_e = 510$ lower panel); proceding on x-axis, value matters more to circle than value ($\beta^{\circ}_v$ is constant, while $\beta^{\circ}_e$ decreases to 0)
-* y-axis: ethnic and value segregation for circle and square
-* bottom left box, where all square relocate randomly ($\beta$ circle = 0):
-
-
-
-
-
-
 
 
 
@@ -490,7 +487,7 @@ iv_10 <- circle_frame %>%  filter(beta_iv_circle == 10) %>% gather(key = subgrou
 
 iv_5 <- circle_frame %>%  filter(beta_iv_circle == 5) %>% gather(key = subgroup, value = Segra, eth_sq_or,val_sq_or,eth_cl_or,val_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sq_or","eth_cl_or"), "value segregation" = c("val_sq_or","val_cl_or")), "ethnic segregation"), `group` = fct_relevel(fct_collapse(subgroup, "square" = c("eth_sq_or","val_sq_or"), "circle" = c("eth_cl_or","val_cl_or"), "square")))  %>%
   ggplot(aes(x = (beta_iv_circle - beta_ie_circle), y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point( size = 2) + facet_grid(rev_beta_ie_square ~  beta_iv_square, labeller = labeller(rev_beta_ie_square = rev_beta_ie_square.labs, beta_iv_square = v_square.labs))  +
-  scale_x_discrete(name = "ß value circle 10 - ß ethnic circle", limits = seq(0,5, by = 1)) +  ylab("Segregation") +
+  scale_x_discrete(name = "ß value circle 5 - ß ethnic circle", limits = seq(0,5, by = 1)) +  ylab("Segregation") +
   scale_color_manual(values = c("dark violet","dark green"), guide = guide_legend(title="")) +
   scale_shape_manual(values = c(16,15), guide = guide_legend(title="")) +
     theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0))
@@ -655,19 +652,6 @@ circle_frame %>%   gather(key = subgroup, value = Segra, eth_cl_or,val_cl_or) %>
 ```
 
 
-
-## Fig: \ref{fig:heatmapdsquare}
-*  Fig: \ref{fig:heatmapdsquare} reports in heatmaps $\beta^{\square}_e$ on y-axis $\beta^{\square}_v$ on x-axis for square agents, as such on y-axis is the most important preference for the value group square, the triangle shape is due to the condition $\beta^{\square}_v \leq \beta^{\square}_e$.
-* Faceted for the condition of the other group, focusin on 3 degree: total randomness $\beta^{\circ} = 0$, threshold between area of high and low randomness $\beta^{\circ} = 5$ and highest systematic component $\beta^{\circ} = 10$. For each condition ethnic and value segregation of squared population is calculated
-* Lower area, where the other group shows total random behavior ($\beta^{\circ} = 0$) for both ethnic and value utility, value integration emerges with low $\beta^{\square}_v$ regardless the increase in $\beta^{\square}_e$. Higher value segregation occurs only for the highest levels of $\beta^{\square}_v$ and $\beta^{\square}_e$. Ethnic segregation increases along the diagonal where $\beta^{\square}_v = \beta^{\square}_e$. Lower ethnic segregation compared to the other conditions in the area of high ethnic utility $\beta^{\square}_e$
-* Second row, first panel: for total random value behavior of square $\beta^{\square}_v = 0$, the ethnic segregation is linear to the increase of  $\beta^{\square}_e$, not showing the threshold difference as in Fig: \ref{fig:crlo}, this only with ethnic randomness of circle agents $\beta^{\circ}_e = 0$, but reach the critical point of $\beta^{\circ}_v = 5$ for value preferences. The sensitivity to change persists, but the sensitivity to chance decreases, because agents are split into two groups, for the same dimension that both share (ethnicity), one maximizes, the other not, and viceversa one doesn't care about value, while the other group maximizes value.
-* My guess: circle agents would gather together in ethnically mixed neighborhoods (cfr Fig: \ref{fig:heatmapdcircle}, ethnic integration along $\beta^{\circ}_v$), which attract square ethnicity-oriented at increase of  $\beta^{\square}_e$, they not care about the value orientation of the neighborhood. Compared to the previous section, $\beta^{\square}_e$ applies to $50\%$ of the population, so that the reduced amount of square agents entering the neighborhood would be tolerated by circle, but not when the $\beta^{\square}_e$ increases and too square agents enter the neighborhood, which would explain why value segregation persists rather than value integration as would be expected.
-* In the next panel where circle hold minimum threshold for both ethnic and value preferences $\beta^{\circ}_v = \beta^{\circ}_e = 5$, the demark between high randomness for $\beta^{\square}_e < 5$ and high utility $\beta^{\square}_e \geq 5$ returns and corresponds to value integration.
-* value segregation increases homogeneously when circle population maximizes  $\beta^{\circ}_v = 10$
-
-## Fig: \ref{fig:heatmapdsquare}
-* Fig: \ref{fig:heatmapdsquare}, for cirlce agents with higher value preferences than ethnic preferences, ethnic integration emerges for area of ethnic randomness with $\beta^{\circ}_e < 5$
-* Value segregation on the top right, where square agents show maximal ethnic and value utility  $\beta^{\square}_e = \beta^{\square}_v = 10$, full value segregation emerges for all conditions of $\beta$ levels, while in high ethnic utility area $\beta^{\square}_e \geq 5$ circle live in neighborhoods both value and ethnic homogeneous, for $\beta^{\square}_e <  5$ they live in ethnically mixed neighborhoods with circle of other ethnicity
 
 
 
