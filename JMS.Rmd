@@ -1,0 +1,2025 @@
+---
+title: "JMS"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.lp="fig:"  ,warning = FALSE)
+ 
+# install.packages("tinytex", repos = "https://cloud.r-project.org" )
+
+library(knitr)
+library(ggplot2)
+library(forcats)
+library(reshape2)
+library(tidyr)
+library(dplyr)
+library(reshape)
+library(gtable)
+library(explore)
+library(gridExtra)
+library(xtable)
+library(ggpubr)
+
+#  This was to simplify dataset of basic conditions
+# a <- read.csv("basic_equal.csv", sep = ",", skip = 6)
+# names(a) <- pull(read.csv("legend.csv"))
+# B <- a %>% filter(dominant >= 0, secondary_circle  <= dominant, secondary_square <= dominant) %>% filter(ticks == 1000)
+# write.csv(B, file = "basic_exp.csv", row.names = FALSE)
+
+setwd("C:/Users/rocpa/OneDrive/Desktop/AF/experiments/JMS/")
+
+hc_hc_dis <- read.csv("hc_hc_dis.csv")
+# names(test_mj80) <- pull(read.csv("legend_test.csv"))
+
+
+base_eq <-  read.csv("basic/basic_exp.csv", sep = ",")
+
+majority_bs <- read.csv("maj/majority_bs.csv", sep = ",", skip = 6)
+names(majority_bs) <- pull(read.csv("basic/legend_bas.csv"))
+
+
+
+majority_bsa <- read.csv("maj/majority_bsa.csv", sep = ",", skip = 6)
+names(majority_bsa) <- pull(read.csv("basic/legend_bas.csv"))
+names(majority_bsa)[names(majority_bsa) == "circle_orange"] <- "dmnt"
+names(majority_bsa)[names(majority_bsa) == "dominant"] <- "circle_orange"
+names(majority_bsa)[names(majority_bsa) == "dmnt"] <- "dominant"
+
+
+
+
+majority_bs <- majority_bs %>% filter(ticks == 1000)
+
+# majlib <- read.csv("maj/maj_lib.csv", sep = ",", skip = 6)
+# names(majlib) <- pull(read.csv("maj/legend_maj.csv"))
+
+
+
+
+test_5_20 <- read.csv("result5_20.csv", sep = ",", skip = 6)
+names(test_5_20) <- pull(read.csv("legend_test.csv"))
+test_5_20 <- test_5_20[,-(35:42)]
+
+test_20_5 <- read.csv("result20_5.csv", sep = ",", skip = 6)
+names(test_20_5) <- pull(read.csv("legend_test.csv"))
+
+
+
+b <- test_20_5 %>% filter(fraction_blue == 60)
+
+a <- test_5_20 %>% filter(fraction_blue == 80)
+ftable(xtabs(~ a$circle_orange + a$eth_loc_lib + a$eth_min_lib, data = a))
+
+levels(as.factor(a$eth_loc_con))
+levels(as.factor(b$eth_loc_con))
+
+```
+
+
+
+```{r onebeta, fig.pos="H",  fig.width=10, fig.cap="Same parameter for ethnic and value homophily for all agents", echo=FALSE}
+
+base_eq %>% filter(dominant == secondary_square & dominant == secondary_circle & secondary_circle == secondary_square)  %>%  gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic\nsegregation" = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value\nsegregation" = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic segregation"), `group` = fct_relevel(fct_collapse(subgroup, "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min"), "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative")), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "minority" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"local" )) %>% 
+  
+  
+  ggplot( aes(x = dominant, y = Segra, color = `ethnia`, shape = `group`, linetype = `segregation`  )) + geom_line() + geom_point() +     
+  scale_x_discrete(limits=c(seq(0,20 ,by = 1))) +
+scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.25)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+  geom_hline(yintercept = 0.5, color = "red", linetype = 2) +
+  scale_color_manual(values = c("blue","orange"), guide = guide_legend(title="",override.aes = list(size = 2))) +
+  scale_linetype_manual(values = c("solid","dashed"), guide = guide_legend(title="",override.aes = list(size = 1))) +
+  scale_shape_manual(values = c("circle","square"), guide = guide_legend(title="",override.aes = list(size = 3))) + xlab("ß dominant = ß secondary") + ylab("Segregation") +   
+  theme_bw() +  theme( legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 19),axis.title.x = (element_text(size = 20)), axis.title.y = (element_text(size = 20)), axis.text.x =  (element_text(size = 18)),axis.text.y =  (element_text(size = 18)),
+                      plot.title=element_text(hjust = 0.5),  legend.margin=margin(2,2,2,2)) +
+  theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+
+ggsave("one_beta.jpg",plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 11,
+  height = 5,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+
+```
+
+
+
+
+
+
+
+```{r heatmap,fig.pos="H",  include=TRUE,fig.height=11, fig.width=11, fig.cap="Comparison dominant vs secondary", echo=FALSE}
+
+base_eq  %>% filter(secondary_circle == secondary_square) %>% gather(key = subgroup, value = Segra, eth_sqr,val_sqr,eth_crl,val_crl) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sqr","eth_crl"),"value segregation" = c("val_sqr","val_crl")), "ethnic segregation"),  `group` = fct_relevel(fct_collapse(subgroup,"liberal" = c("eth_crl","val_crl"), "conservative" = c("eth_sqr","val_sqr")),"liberal")) %>% 
+  
+  
+  ggplot( aes(x = secondary_circle , y = dominant , fill = Segra)) + geom_tile() + 
+ facet_grid( group ~  segregation) +
+  xlab("Secondary Beta") + ylab("Dominant Beta") +
+scale_x_discrete(limits=seq(0, 20 ,by = 1)) +
+  scale_y_discrete(limits=seq(0,20 ,by = 1)) + 
+  geom_text(aes(label=round(Segra,2)), size=3) +
+   scale_fill_distiller(palette = "RdBu", limits=c(0,1), breaks=c(0,0.2,0.5,0.8,1), name = "Segregation") + 
+    theme_bw() +  
+  theme(legend.position = "bottom", legend.title = element_text(size = 12,vjust = 0.8), legend.text = element_text(size = 15),  legend.key.width  = unit(1, "inch"), 
+                        legend.key.height  = unit(0.3, "inch"), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0),
+                        axis.title.x = (element_text(size = 18)), axis.title.y = (element_text(size = 18)), axis.text.x =  (element_text(size = 13)),axis.text.y =  (element_text(size = 13)),strip.text.x = element_text(size = 15),
+                        strip.text.y = element_text(size = 15))
+
+
+ggsave("heatmapbase.jpg",plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = NA,
+  height = NA,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+
+```{r secondary_zero,fig.pos="H",  include=TRUE, fig.width=11,  fig.cap="Secondary preference set to 0. Here only circle minority, patterns are the same", echo=FALSE}
+
+  base_eq  %>% filter(secondary_circle == 0 & secondary_square == 0) %>% gather(key = subgroup, value = Segra, eth_sqr,val_sqr,eth_crl,val_crl) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sqr","eth_crl"),"value segregation" = c("val_sqr","val_crl")), "ethnic segregation"),  `group` = fct_relevel(fct_collapse(subgroup,"liberal" = c("eth_crl","val_crl"), "conservative" = c("eth_sqr","val_sqr")),"liberal")) %>%
+  
+  ggplot( aes(x = dominant, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size=3) + scale_x_discrete(limits=seq(0,20 ,by = 1)) +
+ scale_y_continuous(breaks=seq(0,1,by = 0.1)) +
+  scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.25)) +
+        geom_vline(xintercept = c(1,5,10,20), color = "red") +
+  geom_hline(yintercept = 0.5, color = "red", linetype = 2) +
+    scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title="")) +
+  scale_linetype_manual(values = c("solid","dashed"), guide = guide_legend(title="")) +
+  scale_shape_manual(values = c("circle","square"), guide = guide_legend(title="")) + xlab("ß dominant") + ylab("Segregation") +   
+ theme_bw() +  theme(
+   legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 18), axis.title.x = (element_text(size = 20)), axis.title.y = (element_text(size = 20)), axis.text.x =  (element_text(size = 18)),axis.text.y =  (element_text(size = 18)),
+                      plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0),
+                     plot.caption = element_text(hjust= 0.5, size = 12)) +
+  labs( caption = "Secondary ß for all agents = 0") +
+  theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+   
+
+ggsave("secondary_zero.jpg",plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 11,
+  height = 5,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+
+ 
+```
+
+```{r bas_dom_crl, pos="H",  include=TRUE, fig.width=10,  fig.cap="Sensitivity dominant liberal",    echo=FALSE}
+
+basic_dom <- read.csv("basic/equal_dom_sens.csv", sep = ",", skip = 6)
+names(basic_dom) <- pull(read.csv("basic/legend_bas_sens.csv"))
+
+
+  basic_dom  %>% filter(secondary_circle == 0, secondary_square == 0, dominant_square == 0) %>% gather(key = subgroup, value = Segra, eth_sqr,val_sqr,eth_crl,val_crl) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sqr","eth_crl"),"value segregation" = c("val_sqr","val_crl")), "ethnic segregation"),  `group` = fct_relevel(fct_collapse(subgroup,"liberal" = c("eth_crl","val_crl"), "conservative" = c("eth_sqr","val_sqr")),"liberal")) %>%
+  
+  ggplot( aes(x = dominant_circle, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size=3) + scale_x_discrete(limits=seq(0,20 ,by = 1)) +
+scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.25)) +
+      geom_hline(yintercept = 0.5, color = "red", linetype = 2) +
+
+  scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title="")) +
+  scale_linetype_manual(values = c("solid","dashed"), guide = guide_legend(title="")) +
+  scale_shape_manual(values = c("circle","square"), guide = guide_legend(title=""))   +
+    xlab("ß value liberal") + ylab("Segregation") +   
+      geom_vline(xintercept = c(1,5,10,20), color = "red") +
+ theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 18), axis.title.x = (element_text(size = 20)), axis.title.y = (element_text(size = 20)), axis.text.x =  (element_text(size = 18)),axis.text.y =  (element_text(size = 18)),
+                      plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0),
+                     plot.caption = element_text(hjust= 0.5, size = 12)) +
+labs( caption = "ß ethnic liberal = 0\n ß value and ethnic conservative = 0") +
+  theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+
+
+ggsave("bas_dom_crl.jpg",plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 11,
+  height = 7,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+
+ 
+```
+
+```{r bas_dom_sqr, pos="H",  include=TRUE, fig.width=10,  fig.cap="Sensitivity dominant conservative", echo=FALSE}
+
+basic_dom <- read.csv("basic/equal_dom_sens.csv", sep = ",", skip = 6)
+names(basic_dom) <- pull(read.csv("basic/legend_bas_sens.csv"))
+
+
+  basic_dom  %>% filter(secondary_circle == 0, secondary_square == 0, dominant_circle == 0) %>% gather(key = subgroup, value = Segra, eth_sqr,val_sqr,eth_crl,val_crl) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sqr","eth_crl"),"value segregation" = c("val_sqr","val_crl")), "ethnic segregation"),  `group` = fct_relevel(fct_collapse(subgroup,"liberal" = c("eth_crl","val_crl"), "conservative" = c("eth_sqr","val_sqr")),"liberal")) %>%
+  
+  ggplot( aes(x = dominant_square, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size=3) + scale_x_discrete(limits=seq(0,20 ,by = 1)) +
+scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.25)) +
+  scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title="")) +
+  scale_linetype_manual(values = c("solid","dashed"), guide = guide_legend(title="")) +
+  scale_shape_manual(values = c("circle","square"), guide = guide_legend(title="")) +
+      geom_vline(xintercept = c(1,5,10,20), color = "red") +
+      geom_hline(yintercept = 0.5, color = "red", linetype = 2) +
+    xlab("ß ethnic conservative") + ylab("Segregation") +   
+
+ theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 18), axis.title.x = (element_text(size = 20)), axis.title.y = (element_text(size = 20)), axis.text.x =  (element_text(size = 18)),axis.text.y =  (element_text(size = 18)),
+                      plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0),
+                     plot.caption = element_text(hjust= 0.5, size = 12)) +
+  labs( caption = "ß value conservative = 0\n ß value and ethnic liberal = 0") +
+  theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+
+
+ggsave("bas_dom_sqr.jpg",plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 11,
+  height = 7,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+
+
+ 
+```
+
+
+```{r random_circle, pos="H",  include=TRUE, fig.width=10,  fig.cap="Sensitivity secondary circle", echo=FALSE}
+
+basic_rand <- read.csv("basic/equal_rand_sens.csv", sep = ",", skip = 6)
+names(basic_rand) <- pull(read.csv("basic/legend_bas_sens.csv"))
+
+
+  basic_rand  %>% filter(secondary_square == 0) %>% gather(key = subgroup, value = Segra, eth_sqr,val_sqr,eth_crl,val_crl) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sqr","eth_crl"),"value segregation" = c("val_sqr","val_crl")), "ethnic segregation"),  `group` = fct_relevel(fct_collapse(subgroup,"liberal" = c("eth_crl","val_crl"), "conservative" = c("eth_sqr","val_sqr")),"liberal")) %>%
+  
+  ggplot( aes(x = secondary_circle, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size=3) + scale_x_discrete(limits=seq(0,20 ,by = 1)) +
+scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.25)) +
+  scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title="")) +
+  scale_linetype_manual(values = c("solid","dashed"), guide = guide_legend(title="")) +
+  scale_shape_manual(values = c("circle","square"), guide = guide_legend(title="")) + 
+      geom_vline(xintercept = c(1,5,10,20), color = "red") +
+      geom_hline(yintercept = 0.5, color = "red", linetype = 2) +
+    xlab("ß ethnic liberal") + ylab("Segregation") +   
+ theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 18), axis.title.x = (element_text(size = 20)), axis.title.y = (element_text(size = 20)), axis.text.x =  (element_text(size = 18)),axis.text.y =  (element_text(size = 18)),
+                      plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0),
+                     plot.caption = element_text(hjust= 0.5, size = 12)) +
+  labs( caption = "ß value liberal = 20; ß ethnic conservative = 20\n ß value conservative = 0") +
+  theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+
+
+
+ggsave("bas_sec_crl.jpg",plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 11,
+  height = 6,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+
+
+ 
+```
+
+
+
+```{r random_square, pos="H",  include=TRUE, fig.width=10,  fig.cap="Sensitivity secondary circle", echo=FALSE}
+
+basic_rand <- read.csv("basic/equal_rand_sens.csv", sep = ",", skip = 6)
+names(basic_rand) <- pull(read.csv("basic/legend_bas_sens.csv"))
+
+
+  basic_rand  %>% filter(secondary_circle == 0) %>% gather(key = subgroup, value = Segra, eth_sqr,val_sqr,eth_crl,val_crl) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic segregation" = c("eth_sqr","eth_crl"),"value segregation" = c("val_sqr","val_crl")), "ethnic segregation"),  `group` = fct_relevel(fct_collapse(subgroup,"liberal" = c("eth_crl","val_crl"), "conservative" = c("eth_sqr","val_sqr")),"liberal")) %>%
+  
+  ggplot( aes(x = secondary_square, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size=3) + scale_x_discrete(limits=seq(0,20 ,by = 1)) +
+scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.25)) +
+  scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title="")) +
+  scale_linetype_manual(values = c("solid","dashed"), guide = guide_legend(title="")) +
+  scale_shape_manual(values = c("circle","square"), guide = guide_legend(title="")) + xlab("ß value conservative") + ylab("Segregation") +   
+      geom_vline(xintercept = c(1,5,10,20), color = "red") +
+       geom_hline(yintercept = 0.5, color = "red", linetype = 2) +
+ theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 18), axis.title.x = (element_text(size = 20)), axis.title.y = (element_text(size = 20)), axis.text.x =  (element_text(size = 18)),axis.text.y =  (element_text(size = 18)),
+                      plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0),
+                     plot.caption = element_text(hjust= 0.5, size = 12)) +
+  labs( caption = "ß value liberal = 20, ß ethnic conservative = 20\n ß ethnic liberal = 0") +
+  theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+
+
+ggsave("bas_sec_sqr.jpg",plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 11,
+  height = 6,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+
+
+ 
+```
+
+
+
+
+# Asymmetric CONDITIONS
+
+```{r asymmetricmech5050, fig.pos="H", include=TRUE,fig.cap="Ethnic asymmetric condition. 80% local, 20% minority. Both 50% liberal", echo=FALSE}
+# 
+# ethnia.labs <- c("Local: 80% population", "Minority: 20% population")
+# names(ethnia.labs) <- c("aaaaa", "minority")
+
+
+majority_bsa %>%   filter(circle_orange == 50, secondary_circle == 0, secondary_square == 0)  %>%  gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min"), "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative")), 
+    `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals: 80% population | 50% liberals" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% population | 50% liberals" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals: 80% population | 50% liberals" )) %>% 
+  
+  
+  
+  ggplot( aes(x = dominant, y = Segra, color = `segregation`, shape = `group`)) + 
+  geom_line() + geom_point(size = 3) +           scale_x_discrete(limits= seq(0,20 ,by = 1)) +
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+ #  scale_y_continuous(limits=c(0,1), breaks = c(0.2,0.5,0.8),position = "right") +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+# sec.axis = sec_axis( trans=~.*10, name="Second Axis")
+
+  facet_wrap(~ `ethnia`,nrow =2 , dir = "v") +
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   xlab("ß Dominant all agents\n ß Secondary all agents = 0") + 
+  ylab("Segregation") +   
+   theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y = (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x = (element_text(size = 12)), #   element_blank(), # 
+                      axis.text.x = (element_text(size = 11)),
+                      axis.text.y =  (element_text(size = 11)),
+                      plot.title=element_text(hjust = 0.5),  
+                      legend.margin=margin(0,2,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+ggsave("diffsize.jpg",plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 5.5,
+  height = 5,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+```
+
+
+
+```{r asymmetricmech5020, fig.pos="H", include=TRUE,fig.cap="Ethnic asymmetric condition. 80% local, 20% minority. Both 80% liberal", echo=FALSE}
+# 
+# ethnia.labs <- c("Local: 80% population", "Minority: 20% population")
+# names(ethnia.labs) <- c("aaaaa", "minority")
+
+majority_bsa %>%   filter(circle_orange == 20, secondary_circle == 0, secondary_square == 0)  %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min"), "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative")), 
+    `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals: 80% population | 50% liberals" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% population | 20% liberals" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals: 80% population | 50% liberals" )) %>% 
+  
+  
+  
+  ggplot( aes(x = dominant, y = Segra, color = `segregation`, shape = `group`)) + 
+  geom_line() + geom_point(size = 3) +           scale_x_discrete(limits= seq(0,20 ,by = 1)) +
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+ #  scale_y_continuous(limits=c(0,1), breaks = c(0.2,0.5,0.8),position = "right") +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+# sec.axis = sec_axis( trans=~.*10, name="Second Axis")
+
+  facet_wrap(~ `ethnia`,nrow =2 , dir = "v") +
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   xlab("ß Dominant all agents\n ß Secondary all agents = 0") + 
+  ylab("Segregation") +   
+   theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y = (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x = (element_text(size = 12)), #   element_blank(), # 
+                      axis.text.x = (element_text(size = 11)),
+                      axis.text.y =  (element_text(size = 11)),
+                      plot.title=element_text(hjust = 0.5),  
+                      legend.margin=margin(0,2,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+
+ggsave("diffsize20.jpg",plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 5.5,
+  height = 5,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+# +
+#  scale_shape_manual(values = c(16,15), guide = guide_legend(title="")) +
+
+```
+
+
+
+```{r asymmetricmech5080, fig.pos="H", include=TRUE,fig.cap="Ethnic asymmetric condition. 80% local, 20% minority. Both 50% liberal", echo=FALSE}
+# 
+# ethnia.labs <- c("Local: 80% population", "Minority: 20% population")
+# names(ethnia.labs) <- c("aaaaa", "minority")
+
+majority_bsa %>%   filter(circle_orange == 80, secondary_circle == 0, secondary_square == 0)  %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min"), "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative")), 
+    `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals: 80% population | 50% liberals" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% population | 80% liberals" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals: 80% population | 50% liberals" )) %>% 
+  
+  
+  
+  ggplot( aes(x = dominant, y = Segra, color = `segregation`, shape = `group`)) + 
+  geom_line() + geom_point(size = 3) +           scale_x_discrete(limits= seq(0,20 ,by = 1)) +
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+# sec.axis = sec_axis( trans=~.*10, name="Second Axis")
+
+  facet_wrap(~ `ethnia`,nrow =2 , dir = "v") +
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+    xlab("ß Dominant all agents\n ß Secondary all agents = 0") + 
+  ylab("Segregation") +   
+   theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y = (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x = (element_text(size = 12)), #   element_blank(), # 
+                      axis.text.x = (element_text(size = 11)),
+                      axis.text.y =  (element_text(size = 11)),
+                      plot.title=element_text(hjust = 0.5),  
+                      legend.margin=margin(0,2,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+ggsave("diffsize80.jpg",plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 5.5,
+  height = 5,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+# +
+#  scale_shape_manual(values = c(16,15), guide = guide_legend(title="")) +
+
+```
+
+## Asymmetric dominant = secondary
+
+
+
+
+
+```{r asym_sens database, fig.pos="H",include=TRUE,fig.cap="Dominant = Secondary; Migrants change", echo=FALSE}
+
+# Change only in Migrants
+
+domsec_min <- read.csv("maj/sens_asym_min.csv")
+ID <- rep("min", length(domsec_min$run))
+domsec_min <- cbind(ID,domsec_min)
+
+domsec_maj <- read.csv("maj/sens_asym_maj.csv")
+ID <- rep("maj", length(domsec_min$run))
+domsec_maj <- cbind(ID,domsec_maj)
+
+dataset_maj <- rbind(domsec_min,domsec_maj)
+  
+dominant_locals.labs <- c("ß Dominant Locals: 0", "ß Dominant Locals: 5","ß Dominant Locals: 10")
+names(dominant_locals.labs) <- c("0", "5", "10")
+circle_orange_labs <- c("20% Liberal Migrants", "50% Liberal Migrants","80% Liberal Migrants")
+names(circle_orange_labs) <- c("20", "50", "80")
+dominant_migrants.labs <- c("ß Dominant Migrants: 0", "ß Dominant Migrants: 5","ß Dominant Migrants: 10")
+names(dominant_migrants.labs) <- c("0", "5", "10")
+dominant_locals.labs <- c("ß Dominant Locals: 0", "ß Dominant Locals: 5","ß Dominant Locals: 10")
+names(dominant_locals.labs) <- c("0", "5", "10")
+
+```
+
+
+
+
+```{r asym_dom_min, fig.pos="H",include=TRUE,fig.cap="Sensitivity assymetry", echo=FALSE}
+
+
+## Comparison
+
+
+loc_0 <- dataset_maj  %>% filter(ID == "min") %>% filter(circle_orange == 50) %>% filter(dominant_locals == 0) 
+loc_5 <- dataset_maj  %>% filter(ID == "min") %>% filter(circle_orange == 50) %>% filter(dominant_locals == 5) 
+loc_10 <- dataset_maj  %>% filter(ID == "min") %>% filter(circle_orange == 50) %>% filter(dominant_locals == 10) 
+
+df <- loc_10
+name_min <- paste0("loc_10",".jpg")
+
+df %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."),`group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic population | 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic population | 50% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic population | 50% liberal" ))  %>%
+  
+  ggplot( aes(x = dominant_migrants, y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= seq(0,20 ,by = 1)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_wrap( ~ `ethnia`,
+             nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("ß Dominat Migrants\n ß secondary all agents:0") + 
+#  guides(color = FALSE, shape = FALSE) +
+  ggtitle(paste0("ß dominant locals: ", df$dominant_locals)) +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y = (element_text(size = 12)), #     
+                      axis.title.x = (element_text(size = 12)), #   element_blank(),  
+                      
+                     #  axis.title.y = element_blank(),
+                     #  axis.title.x = element_blank(),
+                      
+                      axis.text.x = (element_text(size = 11)),
+                      axis.text.y =  (element_text(size = 11)),
+                      plot.title=element_text(hjust = 0.5),  
+                      legend.margin=margin(0,2,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+
+ggsave(name_min,plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 5.5,
+  height = 5,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+
+
+
+```{r asym_dom_min_dislib, fig.pos="H",include=TRUE,fig.cap="Sensitivity assymetry minority, effect distribution liberal minority", echo=FALSE}
+
+
+loc_0 <- dataset_maj  %>% filter(ID == "min") %>% filter(circle_orange == 50) %>% filter(dominant_locals == 0) 
+loc_5 <- dataset_maj  %>% filter(ID == "min") %>% filter(circle_orange == 20|circle_orange == 50 | circle_orange == 80) %>% filter(dominant_locals == 5)
+loc_10 <- dataset_maj  %>% filter(ID == "min") %>% filter(circle_orange == 20|circle_orange == 50 | circle_orange == 80) %>% filter(dominant_locals == 10) 
+
+df <- loc_10
+name_min <- paste0("loc_10","_dislib.jpg")
+
+df %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."),`group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = dominant_migrants, y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= seq(0,20 ,by = 1)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid( `ethnia` ~ circle_orange, labeller = labeller(circle_orange = circle_orange_labs)) + 
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("ß Dominat Migrants\n ß secondary all agents:0") + 
+# guides(color = FALSE, shape = FALSE) +
+ ggtitle(paste0("ß dominant locals: ", df$dominant_locals)) +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                     axis.title.y = (element_text(size = 12)), #     
+                     axis.title.x = (element_text(size = 12)), #   element_blank(),  
+                      
+                      #  axis.title.y = element_blank(),
+                      #  axis.title.x = element_blank(),
+                      
+                      axis.text.x = (element_text(size = 9)),
+                      axis.text.y =  (element_text(size = 9)),
+                      plot.title=element_text(hjust = 0.5),  
+                      legend.margin=margin(0,2,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+
+ggsave(name_min,plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 1.5,
+  width = 8, #7.3,
+  height = 4, #3.8,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+
+```{r asym_dom_maj, fig.pos="H",include=TRUE,fig.cap="Sensitivity assymetry majority locals", echo=FALSE}
+
+
+mig_0 <- dataset_maj  %>% filter(ID == "maj") %>% filter(circle_orange == 50) %>% filter(dominant_migrants == 0) 
+mig_5 <- dataset_maj  %>% filter(ID == "maj") %>% filter(circle_orange == 50) %>% filter(dominant_migrants == 5) 
+mig_10 <- dataset_maj  %>% filter(ID == "maj") %>% filter(circle_orange == 50) %>% filter(dominant_migrants == 10) 
+
+dfm <- mig_5
+name_maj <- paste0("mig_5",".jpg")
+
+dfm %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic population | 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic population | 50% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic population | 50% liberal" ))  %>%
+  
+  ggplot( aes(x = dominant_locals, y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= seq(0,20 ,by = 1)) +
+  
+scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_wrap( ~ `ethnia`,
+             nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("ß Dominat Locals\n ß secondary all agents:0") + 
+# guides(color = FALSE, shape = FALSE) +
+  ggtitle(paste0("ß dominant migrants: ", dfm$dominant_migrants)) +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                     # axis.title.y = (element_text(size = 12)), #     
+                     #  axis.title.x = (element_text(size = 12)), #   element_blank(),  
+                      
+                     axis.title.y = element_blank(),
+                      axis.title.x = element_blank(),
+                      axis.text.x = (element_text(size = 11)),
+                      axis.text.y =  (element_text(size = 11)),
+                      plot.title=element_text(hjust = 0.5),  
+                      legend.margin=margin(0,2,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+
+ggsave(name_maj,plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 5.5,
+  height = 5,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+
+```
+
+
+```{r asym_dom_maj_dislib, fig.pos="H",include=TRUE,fig.cap="Sensitivity assymetry majority locals, effect liberal migrants distribution", echo=FALSE}
+
+
+# mig_0 <- dataset_maj  %>% filter(ID == "maj") %>% filter(circle_orange == 50) %>% filter(dominant_migrants == 0) 
+mig_5 <- dataset_maj  %>% filter(ID == "maj") %>% filter(circle_orange == 20 | circle_orange == 50 |circle_orange == 80) %>% filter(dominant_migrants == 5) 
+mig_10 <- dataset_maj  %>% filter(ID == "maj") %>% filter(circle_orange == 20 | circle_orange == 50 |circle_orange == 80) %>% filter(dominant_migrants == 10) 
+
+dfm <- mig_5
+name_maj <- paste0("mig_5","_dislib.jpg")
+
+dfm %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."),`group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = dominant_locals, y = Segra, color = `segregation`, shape = `group`)) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= seq(0,20 ,by = 1)) +
+  
+scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid( `ethnia` ~ circle_orange, labeller = labeller(circle_orange = circle_orange_labs)) + 
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("ß Dominat Locals\n ß secondary all agents:0") + 
+# guides(color = FALSE, shape = FALSE) +
+  ggtitle(paste0("ß dominant migrants: ", dfm$dominant_migrants)) +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y = (element_text(size = 12)), #     
+                      axis.title.x = (element_text(size = 12)), #   element_blank(),  
+                      
+                    # axis.title.y = element_blank(),
+                    #   axis.title.x = element_blank(),
+                      axis.text.x = (element_text(size = 11)),
+                      axis.text.y =  (element_text(size = 11)),
+                      plot.title=element_text(hjust = 0.5),  
+                      legend.margin=margin(0,2,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+
+
+ggsave(name_maj, plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 1.5,
+  width = 8,
+  height = 4,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+
+
+# Increase in ethnnic liberal
+
+```{r libethn database, fig.width= 7,fig.height= 6, fig.pos="H",include=TRUE,fig.cap="Increase in  ethnic liberal", echo=FALSE}
+
+hc_hc <- read.csv("maj/maj_min_20-20-table.csv", sep = ",", skip = 6)
+names(hc_hc) <- pull(read.csv("maj/leg_maj_sens.csv"))
+ID <- rep("hc_hc", length(hc_hc$run))
+hc_hc <- cbind(ID,hc_hc)
+
+hc_lc <- read.csv("maj/maj_min_20-5-table.csv", sep = ",", skip = 6)
+names(hc_lc) <- pull(read.csv("maj/leg_maj_sens.csv"))
+ID <- rep("hc_lc", length(hc_lc$run))
+hc_lc <- cbind(ID,hc_lc)
+
+lc_hc <- read.csv("maj/maj_min_5-20-table.csv", sep = ",", skip = 6)
+names(lc_hc) <- pull(read.csv("maj/leg_maj_sens.csv"))
+ID <- rep("lc_hc",length(lc_hc$run))
+lc_hc <- cbind(ID,lc_hc)
+
+lc_lc <- read.csv("maj/maj_min_5-5-table.csv", sep = ",", skip = 6)
+names(lc_lc) <- pull(read.csv("maj/leg_maj_sens.csv"))
+ID <- rep("lc_lc",length(lc_lc$run))
+lc_lc <- cbind(ID,lc_lc)
+
+df_eth_loc <- rbind(hc_hc,hc_lc,lc_hc,lc_lc)
+#rm(hc_hc,hc_lc,lc_hc,lc_lc)
+
+
+```
+
+
+# Final
+
+
+```{r rand50, fig.width= 8,fig.height= 7, fig.pos="H",include=TRUE,fig.cap="Individual comparison rand 50", echo=FALSE}
+
+
+
+eth_min_lib.labs <- c("ß Ethnic liberal migrants: 0", "ß Ethnic liberal migrants: 1", "ß Ethnic liberal migrants: 2","ß Ethnic liberal migrants: 3","ß Ethnic liberal migrants: 4","ß Ethnic liberal migrants: 5","ß Ethnic liberal migrants: 10","ß Ethnic liberal migrants: 15","ß Ethnic liberal migrants: 20")
+names(eth_min_lib.labs) <- c("0","1","2","3","4", "5","10","15","20")
+eth_loc_lib.labs <- c("ß Ethnic liberal locals: 0", "ß Ethnic liberal locals: 1", "ß Ethnic liberal locals: 2","ß Ethnic liberal locals: 3","ß Ethnic liberal locals: 4","ß Ethnic liberal locals: 5","ß Ethnic liberal locals: 10","ß Ethnic liberal locals: 15","ß Ethnic liberal locals: 20")
+names(eth_loc_lib.labs) <-  c("0","1","2","3","4", "5","10","15","20")
+
+
+
+# Intermediate randomness Migrants x-axys
+
+ df_eth_loc  %>% filter(ID == "lc_hc") %>% filter(circle_orange == 50)  %>% filter(eth_loc_lib == 0 | eth_loc_lib == 1 | eth_loc_lib == 3 | eth_loc_lib == 5) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic\n 50% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_min_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ eth_loc_lib, labeller = labeller(eth_loc_lib = eth_loc_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("Ethnic liberal migrants") + 
+#  guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant migrants: 20\nß dominant locals: 5") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+
+
+
+ggsave("lc_hc5_min.jpg",last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 2,
+  width = 6,
+  height = 3,
+ # units = ("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+# Intermediate randomness Locals x-axys
+
+df_eth_loc  %>% filter(ID == "hc_lc") %>% filter(circle_orange == 50)  %>% filter(eth_min_lib == 0 | eth_min_lib == 1 | eth_min_lib == 3 |   eth_min_lib == 5) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic\n 50% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_loc_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ eth_min_lib, labeller = labeller(eth_min_lib = eth_min_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+xlab("Ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant locals: 20\nß dominant migrants: 5") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+# 
+# comb <- ggarrange(mig,loc, nrow =  2, common.legend = TRUE, legend = "bottom")
+# annotate_figure(comb, 
+#                # top = text_grob("Dominant ß: 5",  face = "bold", size = 12),
+#                left = text_grob("Segregation", rot = 90, size = 12),
+#                 bottom = text_grob("ß value conservative both group: 0", hjust = 1, x = 1, size = 12),
+#                 )
+
+
+ggsave("lc_hc5_maj.jpg",last_plot(),
+  device = NULL,
+  path = NULL,
+   scale = 2,
+  width = 6,
+  height = 3,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+
+
+
+```{r det50, fig.width= 8,fig.height= 7, fig.pos="H",include=TRUE,fig.cap="Individual comparison determinism beta 20", echo=FALSE}
+
+
+
+eth_min_lib.labs <- c("ß Ethnic liberal migrants: 0", "ß Ethnic liberal migrants: 1", "ß Ethnic liberal migrants: 2","ß Ethnic liberal migrants: 3","ß Ethnic liberal migrants: 4","ß Ethnic liberal migrants: 5","ß Ethnic liberal migrants: 10","ß Ethnic liberal migrants: 15","ß Ethnic liberal migrants: 20")
+names(eth_min_lib.labs) <- c("0","1","2","3","4", "5","10","15","20")
+eth_loc_lib.labs <- c("ß Ethnic liberal locals: 0", "ß Ethnic liberal locals: 1", "ß Ethnic liberal locals: 2","ß Ethnic liberal locals: 3","ß Ethnic liberal locals: 4","ß Ethnic liberal locals: 5","ß Ethnic liberal locals: 10","ß Ethnic liberal locals: 15","ß Ethnic liberal locals: 20")
+names(eth_loc_lib.labs) <-  c("0","1","2","3","4", "5","10","15","20")
+
+
+
+# Intermediate randomness Migrants x-axys
+
+ df_eth_loc  %>% filter(ID == "hc_hc") %>% filter(circle_orange == 50)  %>% filter(eth_loc_lib == 0 | eth_loc_lib == 5 | eth_loc_lib == 10 | eth_loc_lib == 20) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic\n 50% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_min_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ eth_loc_lib, labeller = labeller(eth_loc_lib = eth_loc_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("Ethnic liberal migrants") + 
+# guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant migrants: 20\nß dominant locals: 20") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+
+
+
+ggsave("hc_hc5_min.jpg",last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 2,
+  width = 6,
+  height = 3,
+ # units = ("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+# Intermediate randomness Locals x-axys
+
+df_eth_loc  %>% filter(ID == "hc_hc") %>% filter(circle_orange == 50)  %>%  filter(eth_min_lib == 0 | eth_min_lib == 5 | eth_min_lib == 10 | eth_min_lib == 20)  %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic\n 50% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_loc_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ eth_min_lib, labeller = labeller(eth_min_lib = eth_min_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+xlab("Ethnic liberal locals") + 
+ guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant locals: 20\nß dominant migrants: 20") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+
+ggsave("hc_hc5_maj.jpg",last_plot(),
+  device = NULL,
+  path = NULL,
+   scale = 2,
+  width = 6,
+  height = 3,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+
+#######
+#######
+
+
+# Intermediate randomness Migrants x-axys
+
+ df_eth_loc  %>% filter(ID == "lc_lc") %>% filter(circle_orange == 50)  %>% filter(eth_loc_lib == 0 | eth_loc_lib == 1 | eth_loc_lib == 3 | eth_loc_lib == 5) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic\n 50% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_min_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ eth_loc_lib, labeller = labeller(eth_loc_lib = eth_loc_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("Ethnic liberal migrants") + 
+# guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant migrants: 5\nß dominant locals: 5") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+
+
+
+ggsave("lc_lc5_min.jpg",last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 2,
+  width = 6,
+  height = 3,
+ # units = ("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+# Intermediate randomness Locals x-axys
+
+df_eth_loc  %>% filter(ID == "lc_lc") %>% filter(circle_orange == 50)  %>%  filter(eth_min_lib == 0 | eth_min_lib == 1 | eth_min_lib == 3 | eth_min_lib == 5)  %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic\n 50% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_loc_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ eth_min_lib, labeller = labeller(eth_min_lib = eth_min_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+xlab("Ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant migrants: 5\nß dominant locals: 5") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+
+ggsave("lc_lc5_maj.jpg",last_plot(),
+  device = NULL,
+  path = NULL,
+   scale = 2,
+  width = 6,
+  height = 3,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+##### RANDOM dislib
+
+ df_eth_loc  %>% filter(ID == "lc_lc")   %>% filter(eth_loc_lib == 5) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_min_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ circle_orange, labeller = labeller(eth_loc_lib = eth_loc_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+ ylab("Segregation") +   
+ xlab("ß ethnic liberal migrants") + 
+# guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant migrants: 5; ß dominant locals: 5\nß ethnic liberal locals: 5") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+ggsave("lc_lc_dis_min.jpg",last_plot(),
+  device = NULL,
+  path = NULL,
+   scale = 2,
+  width = 5,
+  height = 3,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+# maj
+
+df_eth_loc  %>% filter(ID == "lc_lc")   %>% filter(eth_min_lib == 5) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_loc_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ circle_orange, labeller = labeller(eth_loc_lib = eth_loc_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+ ylab("Segregation") +   
+ xlab("ß ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant locals: 5; ß dominant migrants: 5\nß ethnic liberal migrants: 5") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+ggsave("lc_lc_dis_maj.jpg",last_plot(),
+  device = NULL,
+  path = NULL,
+   scale = 2,
+  width = 5,
+  height = 3,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+
+
+
+
+```
+
+
+
+```{r comparison baseline asym, fig.width= 8,fig.height= 7, fig.pos="H",include=TRUE,fig.cap="50% lib migrant", echo=FALSE}
+
+
+
+eth_min_lib.labs <- c("ß Ethnic liberal migrants: 0", "ß Ethnic liberal migrants: 1", "ß Ethnic liberal migrants: 2","ß Ethnic liberal migrants: 3","ß Ethnic liberal migrants: 4","ß Ethnic liberal migrants: 5","ß Ethnic liberal migrants: 10","ß Ethnic liberal migrants: 15","ß Ethnic liberal migrants: 20")
+names(eth_min_lib.labs) <- c("0","1","2","3","4", "5","10","15","20")
+eth_loc_lib.labs <- c("ß Ethnic liberal locals: 0", "ß Ethnic liberal locals: 1", "ß Ethnic liberal locals: 2","ß Ethnic liberal locals: 3","ß Ethnic liberal locals: 4","ß Ethnic liberal locals: 5","ß Ethnic liberal locals: 10","ß Ethnic liberal locals: 15","ß Ethnic liberal locals: 20")
+names(eth_loc_lib.labs) <-  c("0","1","2","3","4", "5","10","15","20")
+
+
+lc_hc_dis_min <-  df_eth_loc  %>% filter(ID == "hc_lc")   %>% filter(eth_loc_lib == 20) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_min_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ circle_orange, labeller = labeller(eth_loc_lib = eth_loc_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+ ylab("Segregation") +   
+ xlab("ß ethnic liberal migrants") + 
+# guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant migrants: 20; ß dominant locals: 5\nß ethnic liberal locals: 5") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+ggsave("lc_hc_dis_min.jpg",lc_hc_dis_min,
+  device = NULL,
+  path = NULL,
+   scale = 2,
+  width = 5,
+  height = 3,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+
+
+
+hc_lc_dis_maj <-  df_eth_loc  %>% filter(ID == "hc_lc")   %>% filter(eth_min_lib == 5) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_loc_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ circle_orange, labeller = labeller(eth_loc_lib = eth_loc_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+ ylab("Segregation") +   
+ xlab("ß ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant locals: 20; ß dominant migrants: 5\nß ethnic liberal migrants: 5") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+ggsave("hc_lc_dis_maj.jpg",hc_lc_dis_maj,
+  device = NULL,
+  path = NULL,
+   scale = 2,
+  width = 5,
+  height = 3,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+# Determinism
+
+
+hc_hc_dis_min <-  df_eth_loc  %>% filter(ID == "hc_hc")   %>% filter(eth_loc_lib == 20) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_min_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ circle_orange, labeller = labeller(eth_loc_lib = eth_loc_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+ ylab("Segregation") +   
+ xlab("ß ethnic liberal migrants") + 
+guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant migrants: 20; ß dominant locals: 20\nß ethnic liberal locals: 20") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+
+
+ggsave("hc_hc_dis_min.jpg",hc_hc_dis_min,
+  device = NULL,
+  path = NULL,
+   scale = 2,
+  width = 5,
+  height = 3,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+hc_hc_dis_maj <-  df_eth_loc  %>% filter(ID == "hc_hc")   %>% filter(eth_min_lib == 20) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_loc_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ circle_orange, labeller = labeller(eth_loc_lib = eth_loc_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+ ylab("Segregation") +   
+ xlab("ß ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant locals: 20; ß dominant migrants: 20\nß ethnic liberal migrants: 20") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+
+
+ggsave("hc_hc_dis_maj.jpg",hc_hc_dis_maj,
+  device = NULL,
+  path = NULL,
+   scale = 2,
+  width = 5,
+  height = 3,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+```
+
+
+
+
+
+
+
+```{r rand20, fig.width= 8,fig.height= 7, fig.pos="H",include=TRUE,fig.cap="Individual comparison rand 20", echo=FALSE}
+
+
+
+eth_min_lib.labs <- c("ß Ethnic liberal migrants: 0", "ß Ethnic liberal migrants: 1", "ß Ethnic liberal migrants: 2","ß Ethnic liberal migrants: 3","ß Ethnic liberal migrants: 4","ß Ethnic liberal migrants: 5","ß Ethnic liberal migrants: 10","ß Ethnic liberal migrants: 15","ß Ethnic liberal migrants: 20")
+names(eth_min_lib.labs) <- c("0","1","2","3","4", "5","10","15","20")
+eth_loc_lib.labs <- c("ß Ethnic liberal locals: 0", "ß Ethnic liberal locals: 1", "ß Ethnic liberal locals: 2","ß Ethnic liberal locals: 3","ß Ethnic liberal locals: 4","ß Ethnic liberal locals: 5","ß Ethnic liberal locals: 10","ß Ethnic liberal locals: 15","ß Ethnic liberal locals: 20")
+names(eth_loc_lib.labs) <-  c("0","1","2","3","4", "5","10","15","20")
+
+
+
+# Intermediate randomness Migrants x-axys
+
+ df_eth_loc  %>% filter(ID == "lc_hc") %>% filter(circle_orange == 20)  %>% filter(eth_loc_lib == 0 | eth_loc_lib == 1 | eth_loc_lib == 3 | eth_loc_lib == 5) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic\n 20% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_min_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ eth_loc_lib, labeller = labeller(eth_loc_lib = eth_loc_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("Ethnic liberal migrants") + 
+ guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant migrants: 20\nß dominant locals: 5") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+
+
+
+ggsave("lc_hc2_min.jpg",last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 2,
+  width = 6,
+  height = 3,
+ # units = ("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+# Intermediate randomness Locals x-axys
+
+df_eth_loc  %>% filter(ID == "hc_lc") %>% filter(circle_orange == 20)  %>% filter(eth_min_lib == 0 | eth_min_lib == 1 | eth_min_lib == 3 |   eth_min_lib == 5) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic\n 20% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_loc_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ eth_min_lib, labeller = labeller(eth_min_lib = eth_min_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+xlab("Ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant locals: 20\nß dominant migrants: 5") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+# 
+# comb <- ggarrange(mig,loc, nrow =  2, common.legend = TRUE, legend = "bottom")
+# annotate_figure(comb, 
+#                # top = text_grob("Dominant ß: 5",  face = "bold", size = 12),
+#                left = text_grob("Segregation", rot = 90, size = 12),
+#                 bottom = text_grob("ß value conservative both group: 0", hjust = 1, x = 1, size = 12),
+#                 )
+
+
+ggsave("lc_hc2_maj.jpg",last_plot(),
+  device = NULL,
+  path = NULL,
+   scale = 2,
+  width = 6,
+  height = 3,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+
+
+```{r rand80, fig.width= 8,fig.height= 7, fig.pos="H",include=TRUE,fig.cap="Individual comparison rand 80", echo=FALSE}
+
+
+
+eth_min_lib.labs <- c("ß Ethnic liberal migrants: 0", "ß Ethnic liberal migrants: 1", "ß Ethnic liberal migrants: 2","ß Ethnic liberal migrants: 3","ß Ethnic liberal migrants: 4","ß Ethnic liberal migrants: 5","ß Ethnic liberal migrants: 10","ß Ethnic liberal migrants: 15","ß Ethnic liberal migrants: 20")
+names(eth_min_lib.labs) <- c("0","1","2","3","4", "5","10","15","20")
+eth_loc_lib.labs <- c("ß Ethnic liberal locals: 0", "ß Ethnic liberal locals: 1", "ß Ethnic liberal locals: 2","ß Ethnic liberal locals: 3","ß Ethnic liberal locals: 4","ß Ethnic liberal locals: 5","ß Ethnic liberal locals: 10","ß Ethnic liberal locals: 15","ß Ethnic liberal locals: 20")
+names(eth_loc_lib.labs) <-  c("0","1","2","3","4", "5","10","15","20")
+
+
+
+# Intermediate randomness Migrants x-axys
+
+ df_eth_loc  %>% filter(ID == "lc_hc") %>% filter(circle_orange == 80)  %>% filter(eth_loc_lib == 0 | eth_loc_lib == 1 | eth_loc_lib == 3 | eth_loc_lib == 5) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic\n 80% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_min_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ eth_loc_lib, labeller = labeller(eth_loc_lib = eth_loc_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("Ethnic liberal migrants") + 
+ guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant migrants: 20\nß dominant locals: 5") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+
+
+
+ggsave("lc_hc8_min.jpg",last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 2,
+  width = 6,
+  height = 3,
+ # units = ("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+# Intermediate randomness Locals x-axys
+
+df_eth_loc  %>% filter(ID == "hc_lc") %>% filter(circle_orange == 80)  %>% filter(eth_min_lib == 0 | eth_min_lib == 1 | eth_min_lib == 3 |   eth_min_lib == 5) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic\n 80% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_loc_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ eth_min_lib, labeller = labeller(eth_min_lib = eth_min_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+xlab("Ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant locals: 20\nß dominant migrants: 5") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+# 
+# comb <- ggarrange(mig,loc, nrow =  2, common.legend = TRUE, legend = "bottom")
+# annotate_figure(comb, 
+#                # top = text_grob("Dominant ß: 5",  face = "bold", size = 12),
+#                left = text_grob("Segregation", rot = 90, size = 12),
+#                 bottom = text_grob("ß value conservative both group: 0", hjust = 1, x = 1, size = 12),
+#                 )
+
+
+ggsave("lc_hc8_maj.jpg",last_plot(),
+  device = NULL,
+  path = NULL,
+   scale = 2,
+  width = 6,
+  height = 3,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+
+
+
+```{r det20, fig.width= 8,fig.height= 7, fig.pos="H",include=TRUE,fig.cap="Individual comparison determinism beta 20", echo=FALSE}
+
+
+
+eth_min_lib.labs <- c("ß Ethnic liberal migrants: 0", "ß Ethnic liberal migrants: 1", "ß Ethnic liberal migrants: 2","ß Ethnic liberal migrants: 3","ß Ethnic liberal migrants: 4","ß Ethnic liberal migrants: 5","ß Ethnic liberal migrants: 10","ß Ethnic liberal migrants: 15","ß Ethnic liberal migrants: 20")
+names(eth_min_lib.labs) <- c("0","1","2","3","4", "5","10","15","20")
+eth_loc_lib.labs <- c("ß Ethnic liberal locals: 0", "ß Ethnic liberal locals: 1", "ß Ethnic liberal locals: 2","ß Ethnic liberal locals: 3","ß Ethnic liberal locals: 4","ß Ethnic liberal locals: 5","ß Ethnic liberal locals: 10","ß Ethnic liberal locals: 15","ß Ethnic liberal locals: 20")
+names(eth_loc_lib.labs) <-  c("0","1","2","3","4", "5","10","15","20")
+
+
+
+# Intermediate randomness Migrants x-axys
+
+ df_eth_loc  %>% filter(ID == "hc_hc") %>% filter(circle_orange == 20)  %>% filter(eth_loc_lib == 0 | eth_loc_lib == 5 | eth_loc_lib == 10 | eth_loc_lib == 20) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic\n 20% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_min_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ eth_loc_lib, labeller = labeller(eth_loc_lib = eth_loc_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("Ethnic liberal migrants") + 
+ guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant migrants: 20\nß dominant locals: 20") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+
+
+
+ggsave("hc_hc2_min.jpg",last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 2,
+  width = 6,
+  height = 3,
+ # units = ("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+# Intermediate randomness Locals x-axys
+
+df_eth_loc  %>% filter(ID == "hc_hc") %>% filter(circle_orange == 20)  %>% filter(eth_min_lib == 0 | eth_min_lib == 5 | eth_min_lib == 10 | eth_min_lib == 20) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic\n 20% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_loc_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ eth_min_lib, labeller = labeller(eth_min_lib = eth_min_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+xlab("Ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant locals: 20\nß dominant migrants: 20") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+# 
+# comb <- ggarrange(mig,loc, nrow =  2, common.legend = TRUE, legend = "bottom")
+# annotate_figure(comb, 
+#                # top = text_grob("Dominant ß: 5",  face = "bold", size = 12),
+#                left = text_grob("Segregation", rot = 90, size = 12),
+#                 bottom = text_grob("ß value conservative both group: 0", hjust = 1, x = 1, size = 12),
+#                 )
+
+
+ggsave("hc_hc2_maj.jpg",last_plot(),
+  device = NULL,
+  path = NULL,
+   scale = 2,
+  width = 6,
+  height = 3,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+
+
+```{r det80, fig.width= 8,fig.height= 7, fig.pos="H",include=TRUE,fig.cap="Individual comparison determinism beta 20", echo=FALSE}
+
+
+
+eth_min_lib.labs <- c("ß Ethnic liberal migrants: 0", "ß Ethnic liberal migrants: 1", "ß Ethnic liberal migrants: 2","ß Ethnic liberal migrants: 3","ß Ethnic liberal migrants: 4","ß Ethnic liberal migrants: 5","ß Ethnic liberal migrants: 10","ß Ethnic liberal migrants: 15","ß Ethnic liberal migrants: 20")
+names(eth_min_lib.labs) <- c("0","1","2","3","4", "5","10","15","20")
+eth_loc_lib.labs <- c("ß Ethnic liberal locals: 0", "ß Ethnic liberal locals: 1", "ß Ethnic liberal locals: 2","ß Ethnic liberal locals: 3","ß Ethnic liberal locals: 4","ß Ethnic liberal locals: 5","ß Ethnic liberal locals: 10","ß Ethnic liberal locals: 15","ß Ethnic liberal locals: 20")
+names(eth_loc_lib.labs) <-  c("0","1","2","3","4", "5","10","15","20")
+
+
+
+# Intermediate randomness Migrants x-axys
+
+ df_eth_loc  %>% filter(ID == "hc_hc") %>% filter(circle_orange == 80)  %>% filter(eth_loc_lib == 0 | eth_loc_lib == 5 | eth_loc_lib == 10 | eth_loc_lib == 20) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic\n 80% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_min_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ eth_loc_lib, labeller = labeller(eth_loc_lib = eth_loc_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("Ethnic liberal migrants") + 
+ guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant migrants: 20\nß dominant locals: 20") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+
+
+
+ggsave("hc_hc8_min.jpg",last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 2,
+  width = 6,
+  height = 3,
+ # units = ("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+# Intermediate randomness Locals x-axys
+
+hc_hc8_maj <- df_eth_loc  %>% filter(ID == "hc_hc") %>% filter(circle_orange == 80)  %>% filter(eth_min_lib == 0 | eth_min_lib == 5 | eth_min_lib == 10 | eth_min_lib == 20) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic\n 80% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_loc_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ eth_min_lib, labeller = labeller(eth_min_lib = eth_min_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+xlab("Ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant locals: 20\nß dominant migrants: 20") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+# 
+# comb <- ggarrange(mig,loc, nrow =  2, common.legend = TRUE, legend = "bottom")
+# annotate_figure(comb, 
+#                # top = text_grob("Dominant ß: 5",  face = "bold", size = 12),
+#                left = text_grob("Segregation", rot = 90, size = 12),
+#                 bottom = text_grob("ß value conservative both group: 0", hjust = 1, x = 1, size = 12),
+#                 )
+
+
+ggsave("hc_hc8_maj.jpg",hc_hc8_maj,
+  device = NULL,
+  path = NULL,
+   scale = 2,
+  width = 6,
+  height = 3,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+
+# TRASH
+
+
+```{r rand50locals, fig.width= 8,fig.height= 7, fig.pos="H",include=TRUE,fig.cap="Individual comparison rand 50", echo=FALSE}
+
+
+
+eth_min_lib.labs <- c("ß Ethnic liberal migrants: 0", "ß Ethnic liberal migrants: 1", "ß Ethnic liberal migrants: 2","ß Ethnic liberal migrants: 3","ß Ethnic liberal migrants: 4","ß Ethnic liberal migrants: 5","ß Ethnic liberal migrants: 10","ß Ethnic liberal migrants: 15","ß Ethnic liberal migrants: 20")
+names(eth_min_lib.labs) <- c("0","1","2","3","4", "5","10","15","20")
+eth_loc_lib.labs <- c("ß Ethnic liberal locals: 0", "ß Ethnic liberal locals: 1", "ß Ethnic liberal locals: 2","ß Ethnic liberal locals: 3","ß Ethnic liberal locals: 4","ß Ethnic liberal locals: 5","ß Ethnic liberal locals: 10","ß Ethnic liberal locals: 15","ß Ethnic liberal locals: 20")
+names(eth_loc_lib.labs) <-  c("0","1","2","3","4", "5","10","15","20")
+
+
+
+# Intermediate randomness Migrants x-axys
+
+ df_eth_loc  %>% filter(ID == "lc_hc") %>% filter(circle_orange == 50)  %>% filter(eth_min_lib == 0 | eth_min_lib == 5 | eth_min_lib == 10 | eth_min_lib == 20) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic\n 50% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_loc_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ eth_min_lib, labeller = labeller(eth_min_lib = eth_min_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("Ethnic liberal locals") + 
+#  guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant migrants: 20\nß dominant locals: 5") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+
+
+
+ggsave("lc_hc5_min.jpg",last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 2,
+  width = 6,
+  height = 3,
+ # units = ("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
+# Intermediate randomness Locals x-axys
+
+df_eth_loc  %>% filter(ID == "hc_lc") %>% filter(circle_orange == 50)  %>% filter(eth_min_lib == 0 | eth_min_lib == 1 | eth_min_lib == 3 |   eth_min_lib == 5) %>% gather(key = subgroup, value = Segra, eth_sqr_loc, eth_sqr_min, eth_crl_loc, eth_crl_min, val_sqr_loc,val_sqr_min,val_crl_loc, val_crl_min) %>%mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"ethnic seg." = c("eth_sqr_loc","eth_sqr_min","eth_crl_loc","eth_crl_min"), "value seg." = c("val_sqr_loc","val_sqr_min","val_crl_loc", "val_crl_min")), "ethnic seg."), `group` = fct_relevel(fct_collapse(subgroup, "liberal" = c("eth_crl_loc","eth_crl_min","val_crl_loc", "val_crl_min"), "conservative" = c("eth_sqr_loc","eth_sqr_min","val_sqr_loc","val_sqr_min")), "liberal"), 
+  `ethnia` = fct_relevel(fct_collapse(subgroup, "Locals:80% ethnic\n 50% liberal" = c("eth_sqr_loc","eth_crl_loc","val_sqr_loc","val_crl_loc"), "Migrants: 20% ethnic\n 50% liberal" = c("eth_sqr_min","eth_crl_min","val_sqr_min","val_crl_min")),"Locals:80% ethnic\n 50% liberal" ))  %>%
+  
+  ggplot( aes(x = eth_loc_lib, y = Segra, color = `segregation`, shape = `group` )) + geom_line() + geom_point(size = 3) + 
+  
+  scale_x_discrete(limits= c(0,1,2,3,4,5,10,15,20)) +
+  
+  scale_y_continuous(limits=c(0,1), breaks = c(0,0.2,0.5,0.8,1)) +
+  geom_vline(xintercept = c(1,5,10,20), color = "red") +
+    geom_hline(yintercept = c(0.5), color = "red", linetype = 2) +
+      geom_hline(yintercept = c(0.8), color = "purple", linetype = 5) +
+      geom_hline(yintercept = c(0.2), color = "purple", linetype = 2) +
+  facet_grid(`ethnia` ~ eth_min_lib, labeller = labeller(eth_min_lib = eth_min_lib.labs, circle_orange = circle_orange_labs)) +
+               #nrow =2 , dir = "v")  +
+  
+ scale_color_manual(values = c("purple","dark green"), guide = guide_legend(title= "")) + # ,nrow=2, byrow = TRUE)) +
+ scale_shape_manual(values = c("circle","square"), guide = guide_legend(title= "")) + #,nrow=2, byrow = TRUE)) + 
+   ylab("Segregation") +   
+  xlab("ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+xlab("Ethnic liberal locals") + 
+# guides(color = FALSE, shape = FALSE) +
+ggtitle("ß dominant locals: 20\nß dominant migrants: 5") +
+  theme_bw() +  theme(legend.position = "bottom", legend.title = element_blank(), panel.grid.minor.x = element_blank(),legend.text = element_text(size = 12),
+                      axis.title.y =   (element_text(size = 12)), # element_blank(),  # 
+                      axis.title.x =  (element_text(size = 14)), #   element_blank(),  # 
+                      axis.text.x = (element_text(size = 10)),
+                      axis.text.y =  (element_text(size = 10)),
+                      plot.title=element_text(face="bold", size = 14),   
+                      legend.margin=margin(0,0,0,0), panel.spacing = unit(0.8, "lines"), 
+                      strip.text.x = element_text(size = 15),  strip.text.y = element_text(size = 15),
+                      plot.caption = element_text(hjust= 0.5, size = 12)) +
+theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+# 
+# comb <- ggarrange(mig,loc, nrow =  2, common.legend = TRUE, legend = "bottom")
+# annotate_figure(comb, 
+#                # top = text_grob("Dominant ß: 5",  face = "bold", size = 12),
+#                left = text_grob("Segregation", rot = 90, size = 12),
+#                 bottom = text_grob("ß value conservative both group: 0", hjust = 1, x = 1, size = 12),
+#                 )
+
+
+ggsave("lc_hc5_maj.jpg",last_plot(),
+  device = NULL,
+  path = NULL,
+   scale = 2,
+  width = 6,
+  height = 3,
+ # units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+
