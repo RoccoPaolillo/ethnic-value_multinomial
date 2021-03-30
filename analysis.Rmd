@@ -1,0 +1,1950 @@
+---
+title: "JMS"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.lp="fig:"  ,warning = FALSE)
+ 
+# install.packages("tinytex", repos = "https://cloud.r-project.org" )
+
+
+library(knitr)
+library(ggplot2)
+library(reshape)
+library(reshape2)
+library(forcats)
+library(tidyr)
+library(dplyr)
+library(gtable)
+library(kableExtra)
+library(magick)
+library(webshot)
+library(xtable)
+library(gridExtra)
+library(ggrepel)
+library(viridis)
+options(xtable.floating = FALSE)
+options(xtable.timestamp = "")
+webshot::install_phantomjs()
+
+# fig.cap in the titles of chunk reports figure number in the text
+# Each chunk reports code for dataset filter, summary: mean and standard deviation, plotting graph, raw material latex, output details. They can vary if image was combined or other tweaks needed
+# Fig. 9 (sensitivity to group-type preference) selects distribution liberals 50% and combines for 4 group-type
+# Outputs create folder "image" for images and "latex" for latex raw tables
+# Name of index (often used in y-lab and in table): exposure for ethnic symmetric, spatial proximity or exposure correct for ethnic asymmetric
+
+
+# Change work directory in quotes
+setwd("C:/Users/rocpa/OneDrive/Desktop/AF2/exp12_2020/")
+
+
+
+# Datasets
+
+
+basic <- read.csv("df_basic.csv",sep =",")                 # basic condition
+value_basic <- read.csv("df_valuebasic.csv",sep = ",")     # value basic
+asym_dom <- read.csv("df_asym_dom.csv",sep = ",")          # asymmetric conditions, baseline figure dominant preference
+dislib <- read.csv("df_dislib.csv", sep = ",")             # sensitivity to distribution of liberals
+sa_asym <- read.csv("df_sa_asym.csv",sep =",")             # sensitivity analysis, ethnic asymmetry
+etlib <- read.csv("df_etlib.csv",sep =",")                 # ethnic preference liberals, ethnic asymmetry
+asym_all <- read.csv("df_asym_all.csv",sep =",")           # baseline ethnic  asymmetry
+
+
+# for labels
+
+circle_orange.labs <- c("20% liberal minority", "50% liberal minority", "80% liberal minority")
+names(circle_orange.labs) <- c("20","50","80")
+
+segregation.labs  <- c("ethnic segregation","value segregation")
+names(segregation.labs) <- c("ethnics","values")
+
+```
+
+# Symmetric Conditions
+
+```{r basefigure, fig.width=30, fig.cap="Fig. 3 Baseline symmetric. Same parameter for ethnic and value homophily for all agents", echo=FALSE}
+
+# database filter AND summary mean and standard deviation
+excl <- names(basic) %in% c("run", "ID","density","step")
+basic_sa <- basic[!excl] %>% filter(dominant == secondary) %>% group_by(dominant,secondary,circle_orange,circle_blue,fraction_blue) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+# graph
+
+data_f <- basic_sa %>% gather(key= subgroup, value = Segra, et_sq_bl_mean, vl_sq_bl_mean, et_cl_bl_mean, vl_cl_bl_mean, et_sq_or_mean, vl_sq_or_mean, et_cl_or_mean, vl_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("et_sq_bl_mean","et_cl_bl_mean","et_sq_or_mean","et_cl_or_mean"), "values" = c("vl_sq_bl_mean","vl_cl_bl_mean","vl_sq_or_mean","vl_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("et_sq_bl_mean","vl_sq_bl_mean","et_sq_or_mean","vl_sq_or_mean"), "liberal" = c("et_cl_bl_mean","vl_cl_bl_mean","et_cl_or_mean","vl_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("et_sq_bl_mean","vl_sq_bl_mean","et_cl_bl_mean","vl_cl_bl_mean"),"minority" = c("et_sq_or_mean","vl_sq_or_mean","et_cl_or_mean","vl_cl_or_mean")), "local"))
+
+ggplot(data = data_f, aes(x = dominant, y = Segra,  linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1))) + scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.10)) +
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab("ß dominant = ß secondary") + ylab("Exposure") + 
+  theme_bw() +  theme( axis.title.x = (element_text(size = 15)), axis.title.y = (element_text(size = 15)), axis.text.x =  (element_text(size = 15)),axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13), plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+  
+ggsave("images/one_beta.jpg",plot = last_plot(),
+  device = NULL,path = NULL, 
+  scale = 1,
+  width = 10,
+  height = 4,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+
+# robustness table
+
+table_rb <- xtable(basic_sa[,c("dominant","et_sq_bl_mean","et_sq_bl_sd","et_cl_bl_mean","et_cl_bl_sd","et_sq_or_mean","et_sq_or_sd","et_cl_or_mean","et_cl_or_sd","vl_sq_bl_mean","vl_sq_bl_sd","vl_cl_bl_mean","vl_cl_bl_sd","vl_sq_or_mean","vl_sq_or_sd","vl_cl_or_mean","vl_cl_or_sd")], digits = 3)
+align(table_rb) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <-  c("\\multicolumn{17}{|c|}{Baseline condition}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Exposure} & \\multicolumn{8}{|c|}{Value Exposure}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ dom = $\\beta$ sec & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+" & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+
+
+print(table_rb,type = "latex", file = "latex/basic_rb.tex", include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+```
+
+```{r secondary_0, fig.width=30, fig.cap="Fig. 4 Secondary preference set to 0. Baseline symmetric", echo=FALSE}
+
+
+# database filter
+excl <- names(basic) %in% c("run", "ID","density","step")
+basic_sa_sec0 <- basic[!excl] %>% filter(secondary == 0) %>% group_by(dominant,circle_orange,circle_blue,fraction_blue,secondary) %>% summarise_all(c("mean"= mean,"sd"= sd))
+
+# graph
+
+data_f <- basic_sa_sec0 %>% gather(key= subgroup, value = Segra, et_sq_bl_mean, vl_sq_bl_mean, et_cl_bl_mean, vl_cl_bl_mean, et_sq_or_mean, vl_sq_or_mean, et_cl_or_mean, vl_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("et_sq_bl_mean","et_cl_bl_mean","et_sq_or_mean","et_cl_or_mean"), "values" = c("vl_sq_bl_mean","vl_cl_bl_mean","vl_sq_or_mean","vl_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("et_sq_bl_mean","vl_sq_bl_mean","et_sq_or_mean","vl_sq_or_mean"), "liberal" = c("et_cl_bl_mean","vl_cl_bl_mean","et_cl_or_mean","vl_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("et_sq_bl_mean","vl_sq_bl_mean","et_cl_bl_mean","vl_cl_bl_mean"),"minority" = c("et_sq_or_mean","vl_sq_or_mean","et_cl_or_mean","vl_cl_or_mean")), "local"))
+
+ggplot(data = data_f, aes(x = dominant, y = Segra, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1))) + scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.10)) +
+   scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab("ß dominant") + ylab("Exposure") + 
+  theme_bw() +  theme( axis.title.x = (element_text(size = 15)), axis.title.y = (element_text(size = 15)), axis.text.x =  (element_text(size = 15)),axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13), plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+  
+ggsave("images/sec_0.jpg",plot = last_plot(),
+  device = NULL,path = NULL, 
+  scale = 1,
+  width = 10,
+  height = 4,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+
+# robustness table
+
+table_rb <- xtable(basic_sa_sec0[,c("dominant","et_sq_bl_mean","et_sq_bl_sd","et_cl_bl_mean","et_cl_bl_sd","et_sq_or_mean","et_sq_or_sd","et_cl_or_mean","et_cl_or_sd","vl_sq_bl_mean","vl_sq_bl_sd","vl_cl_bl_mean","vl_cl_bl_sd","vl_sq_or_mean","vl_sq_or_sd","vl_cl_or_mean","vl_cl_or_sd")], digits = 3)
+align(table_rb) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <-  c("\\multicolumn{17}{|c|}{Secondary preference = 0}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Exposure} & \\multicolumn{8}{|c|}{Value Exposure}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ sec = 0 & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+" & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+
+
+print(table_rb,type = "latex", file = "latex/basic_rb_sec0.tex", include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+```
+
+```{r sensval, fig.width=30, fig.cap="Fig. 5 Test mechanism: increase liberal and conservative, all other 0. Baselie  symmetric", echo=FALSE}
+
+
+# database filter
+excl <- names(value_basic) %in% c("run","density","step")
+dom_lib <- value_basic[!excl] %>% filter(ID == "dom_crl") %>%   #,  secondary_circle == 0 & dominant_square == 0 & secondary_square == 0) %>% 
+  group_by(ID, dominant_circle,secondary_circle,dominant_square,secondary_square,fraction_blue,circle_blue,circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+# graph
+
+data_f <- dom_lib %>% gather(key= subgroup, value = Segra, et_sq_bl_mean, vl_sq_bl_mean, et_cl_bl_mean, vl_cl_bl_mean, et_sq_or_mean, vl_sq_or_mean, et_cl_or_mean, vl_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("et_sq_bl_mean","et_cl_bl_mean","et_sq_or_mean","et_cl_or_mean"), "values" = c("vl_sq_bl_mean","vl_cl_bl_mean","vl_sq_or_mean","vl_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("et_sq_bl_mean","vl_sq_bl_mean","et_sq_or_mean","vl_sq_or_mean"), "liberal" = c("et_cl_bl_mean","vl_cl_bl_mean","et_cl_or_mean","vl_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("et_sq_bl_mean","vl_sq_bl_mean","et_cl_bl_mean","vl_cl_bl_mean"),"minority" = c("et_sq_or_mean","vl_sq_or_mean","et_cl_or_mean","vl_cl_or_mean")), "local"))
+
+ dom_libpic <- ggplot(data = data_f, aes(x = dominant_circle, y = Segra, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1))) + scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.10)) +
+#geom_hline(yintercept = 0.50, color = "red") +
+ scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab("ß value liberal") + ylab("Exposure") + 
+  theme_bw() +  theme( axis.title.x = (element_text(size = 15)), axis.title.y = (element_text(size = 15)), axis.text.x =  (element_text(size = 13)),axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13), plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+  
+# ggsave("images/dom_lib.jpg",plot = last_plot(),
+#   device = NULL,path = NULL, 
+#   scale = 1,
+#   width = 10,
+#   height = 4,
+#   units = c("in", "cm", "mm"),
+#   dpi = 300,
+#   limitsize = FALSE)
+
+
+# sensitivity to conservative
+ 
+excl <- names(value_basic) %in% c("run","density","step")
+dom_con <- value_basic[!excl] %>% filter(ID == "dom_sqr") %>%
+   group_by(ID,dominant_square, secondary_square,dominant_circle,secondary_circle,fraction_blue,circle_blue,circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+
+# graph
+
+data_f <- dom_con %>% gather(key= subgroup, value = Segra, et_sq_bl_mean, vl_sq_bl_mean, et_cl_bl_mean, vl_cl_bl_mean, et_sq_or_mean, vl_sq_or_mean, et_cl_or_mean, vl_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("et_sq_bl_mean","et_cl_bl_mean","et_sq_or_mean","et_cl_or_mean"), "values" = c("vl_sq_bl_mean","vl_cl_bl_mean","vl_sq_or_mean","vl_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("et_sq_bl_mean","vl_sq_bl_mean","et_sq_or_mean","vl_sq_or_mean"), "liberal" = c("et_cl_bl_mean","vl_cl_bl_mean","et_cl_or_mean","vl_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("et_sq_bl_mean","vl_sq_bl_mean","et_cl_bl_mean","vl_cl_bl_mean"),"minority" = c("et_sq_or_mean","vl_sq_or_mean","et_cl_or_mean","vl_cl_or_mean")), "local"))
+
+dom_conpic <- ggplot(data = data_f, aes(x = dominant_square, y = Segra, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1))) + scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.10)) +
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab("ß ethnic conservative") + ylab("Exposure") + 
+  theme_bw() +  theme( axis.title.x = (element_text(size = 15)), axis.title.y = (element_text(size = 15)), axis.text.x =  (element_text(size = 13)),axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13), plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+  
+# ggsave("images/dom_con.jpg",plot = last_plot(),
+#   device = NULL,path = NULL, 
+#   scale = 1,
+#   width = 10,
+#   height = 4,
+#   units = c("in", "cm", "mm"),
+#   dpi = 300,
+#   limitsize = FALSE)
+# 
+
+
+ggpubr::ggarrange(dom_libpic,dom_conpic, nrow = 2, ncol = 1, common.legend = TRUE, legend = "right")
+
+ggsave("images/comb_val.jpg",plot = last_plot(),
+  device = NULL,path = NULL, 
+  scale = 1,
+ width = 8,
+  height = 6,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+
+
+
+# robustness table
+
+row_lib <-  c("\\multicolumn{17}{|c|}{Baseline: sensitivity to value liberal}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Exposure} & \\multicolumn{8}{|c|}{Value Exposure}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+# note
+"$\\beta$ dom & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"liberal & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+
+row_con <- c("\\multicolumn{17}{|c|}{Baseline: sensitivity to ethnic conservative}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Exposure} & \\multicolumn{8}{|c|}{Value Exposure}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+# note
+"$\\beta$ dom & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+ & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+" conservative & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+
+
+table_lib <- xtable(dom_lib[,c("dominant_circle","et_sq_bl_mean","et_sq_bl_sd","et_cl_bl_mean","et_cl_bl_sd","et_sq_or_mean","et_sq_or_sd","et_cl_or_mean","et_cl_or_sd","vl_sq_bl_mean","vl_sq_bl_sd","vl_cl_bl_mean","vl_cl_bl_sd","vl_sq_or_mean","vl_sq_or_sd","vl_cl_or_mean","vl_cl_or_sd")], digits = 3)
+align(table_lib) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <- row_lib
+
+
+print(table_lib,type = "latex", file = "latex/dom_lib_rb.tex", include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+
+
+
+table_con <- xtable(dom_con[,c("dominant_square","et_sq_bl_mean","et_sq_bl_sd","et_cl_bl_mean","et_cl_bl_sd","et_sq_or_mean","et_sq_or_sd","et_cl_or_mean","et_cl_or_sd","vl_sq_bl_mean","vl_sq_bl_sd","vl_cl_bl_mean","vl_cl_bl_sd","vl_sq_or_mean","vl_sq_or_sd","vl_cl_or_mean","vl_cl_or_sd")], digits = 3)
+align(table_con) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <-  row_con
+
+
+print(table_con,type = "latex", file = "latex/dom_con_rb.tex", include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+
+```
+
+```{r sens_secondary, fig.width=30, fig.cap="Fig. 6 Test mechanism: increase secondary preference, all determinism high. Baseline symmetric", echo=FALSE}
+
+# database filter
+excl <- names(value_basic) %in% c("run","density","step")
+sec_crl <- value_basic[!excl] %>% filter(ID == "sec_crl") %>%   #,  secondary_circle == 0 & dominant_square == 0 & secondary_square == 0)
+  group_by(ID,secondary_circle, dominant_circle,dominant_square,secondary_square,fraction_blue,circle_blue,circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+# graph
+
+data_f <- sec_crl %>% gather(key= subgroup, value = Segra, et_sq_bl_mean, vl_sq_bl_mean, et_cl_bl_mean, vl_cl_bl_mean, et_sq_or_mean, vl_sq_or_mean, et_cl_or_mean, vl_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("et_sq_bl_mean","et_cl_bl_mean","et_sq_or_mean","et_cl_or_mean"), "values" = c("vl_sq_bl_mean","vl_cl_bl_mean","vl_sq_or_mean","vl_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("et_sq_bl_mean","vl_sq_bl_mean","et_sq_or_mean","vl_sq_or_mean"), "liberal" = c("et_cl_bl_mean","vl_cl_bl_mean","et_cl_or_mean","vl_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("et_sq_bl_mean","vl_sq_bl_mean","et_cl_bl_mean","vl_cl_bl_mean"),"minority" = c("et_sq_or_mean","vl_sq_or_mean","et_cl_or_mean","vl_cl_or_mean")), "local"))
+
+sec_crl_pic <- ggplot(data = data_f, aes(x = secondary_circle, y = Segra, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1))) + scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.10)) +
+#geom_hline(yintercept = 0.50, color = "red") +
+ scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab("ß ethnic liberal") + ylab("Exposure") + 
+  theme_bw() +  theme( axis.title.x = (element_text(size = 15)), axis.title.y = (element_text(size = 15)), axis.text.x =  (element_text(size = 13)),axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13), plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+  
+# ggsave("images/dom_lib.jpg",plot = last_plot(),
+#   device = NULL,path = NULL, 
+#   scale = 1,
+#   width = 10,
+#   height = 4,
+#   units = c("in", "cm", "mm"),
+#   dpi = 300,
+#   limitsize = FALSE)
+
+
+# sensitivity to conservative
+ 
+excl <- names(value_basic) %in% c("run","density","step")
+sec_sqr <- value_basic[!excl] %>% filter(ID == "sec_sqr") %>%
+   group_by(ID,secondary_square, dominant_square,dominant_circle,secondary_circle,fraction_blue,circle_blue,circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+
+# graph
+
+data_f <- sec_sqr %>% gather(key= subgroup, value = Segra, et_sq_bl_mean, vl_sq_bl_mean, et_cl_bl_mean, vl_cl_bl_mean, et_sq_or_mean, vl_sq_or_mean, et_cl_or_mean, vl_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("et_sq_bl_mean","et_cl_bl_mean","et_sq_or_mean","et_cl_or_mean"), "values" = c("vl_sq_bl_mean","vl_cl_bl_mean","vl_sq_or_mean","vl_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("et_sq_bl_mean","vl_sq_bl_mean","et_sq_or_mean","vl_sq_or_mean"), "liberal" = c("et_cl_bl_mean","vl_cl_bl_mean","et_cl_or_mean","vl_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("et_sq_bl_mean","vl_sq_bl_mean","et_cl_bl_mean","vl_cl_bl_mean"),"minority" = c("et_sq_or_mean","vl_sq_or_mean","et_cl_or_mean","vl_cl_or_mean")), "local"))
+
+sec_sqr_pic <- ggplot(data = data_f, aes(x = secondary_square, y = Segra, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1))) + scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.10)) +
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab("ß value conservative") + ylab("Exposure") + 
+  theme_bw() +  theme( axis.title.x = (element_text(size = 15)), axis.title.y = (element_text(size = 15)), axis.text.x =  (element_text(size = 13)),axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13), plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+  
+# ggsave("images/dom_con.jpg",plot = last_plot(),
+#   device = NULL,path = NULL, 
+#   scale = 1,
+#   width = 10,
+#   height = 4,
+#   units = c("in", "cm", "mm"),
+#   dpi = 300,
+#   limitsize = FALSE)
+# 
+
+
+ggpubr::ggarrange(sec_crl_pic,sec_sqr_pic, nrow = 2, ncol = 1, common.legend = TRUE, legend = "right")
+
+ggsave("images/comb_sec_bln.jpg",plot = last_plot(),
+  device = NULL,path = NULL, 
+  scale = 1,
+ width = 8,
+  height = 6,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+
+
+
+# robustness table
+
+row_lib <-  c("\\multicolumn{17}{|c|}{Baseline: increase ethnic liberal}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Exposure} & \\multicolumn{8}{|c|}{Value Exposure}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+# note
+"$\\beta$ ethnic & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"liberal & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+
+row_con <- c("\\multicolumn{17}{|c|}{Baseline: increase value conservative}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Exposure} & \\multicolumn{8}{|c|}{Value Exposure}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+# note
+"$\\beta$ value & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+ & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+" conservative & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+
+
+table_lib <- xtable(sec_crl[,c("secondary_circle","et_sq_bl_mean","et_sq_bl_sd","et_cl_bl_mean","et_cl_bl_sd","et_sq_or_mean","et_sq_or_sd","et_cl_or_mean","et_cl_or_sd","vl_sq_bl_mean","vl_sq_bl_sd","vl_cl_bl_mean","vl_cl_bl_sd","vl_sq_or_mean","vl_sq_or_sd","vl_cl_or_mean","vl_cl_or_sd")], digits = 3)
+align(table_lib) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <- row_lib
+
+
+print(table_lib,type = "latex", file = "latex/sec_crl_rb.tex", include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+
+
+
+table_con <- xtable(sec_sqr[,c("secondary_square","et_sq_bl_mean","et_sq_bl_sd","et_cl_bl_mean","et_cl_bl_sd","et_sq_or_mean","et_sq_or_sd","et_cl_or_mean","et_cl_or_sd","vl_sq_bl_mean","vl_sq_bl_sd","vl_cl_bl_mean","vl_cl_bl_sd","vl_sq_or_mean","vl_sq_or_sd","vl_cl_or_mean","vl_cl_or_sd")], digits = 3)
+align(table_con) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <-  row_con
+
+
+print(table_con,type = "latex", file = "latex/sec_sqr_rb.tex", include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+
+```
+
+```{r heatmap, include=TRUE, fig.cap="Fig. 7 Heatmap dominant vs secondary. Baseline symmetric", echo=FALSE}
+
+# database filter
+excl <- names(basic) %in% c("run", "ID","density","step")
+basic_sa <- basic[!excl]  %>% group_by(dominant,secondary,circle_orange,circle_blue,fraction_blue) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+# data preparation: long format
+data_f <- basic_sa %>% filter(dominant >= secondary)   %>% gather(key= subgroup, value = Segra, et_sq_bl_mean, vl_sq_bl_mean, et_cl_bl_mean, vl_cl_bl_mean, et_sq_or_mean, vl_sq_or_mean, et_cl_or_mean, vl_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("et_sq_bl_mean","et_cl_bl_mean","et_sq_or_mean","et_cl_or_mean"), "values" = c("vl_sq_bl_mean","vl_cl_bl_mean","vl_sq_or_mean","vl_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("et_sq_bl_mean","vl_sq_bl_mean","et_sq_or_mean","vl_sq_or_mean"), "liberal" = c("et_cl_bl_mean","vl_cl_bl_mean","et_cl_or_mean","vl_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("et_sq_bl_mean","vl_sq_bl_mean","et_cl_bl_mean","vl_cl_bl_mean"),"minority" = c("et_sq_or_mean","vl_sq_or_mean","et_cl_or_mean","vl_cl_or_mean")), "local"))
+  
+  
+  ggplot(data = data_f, aes(x = secondary , y = dominant , fill = Segra)) + geom_tile() + 
+ facet_grid( `orientation` ~  `segregation`, labeller = labeller(`segregation` = segregation.labs)) +
+  xlab("ß secondary") + ylab("ß dominant") +
+scale_x_discrete(limits=seq(0, 20 ,by = 1)) +
+  scale_y_discrete(limits=seq(0,20 ,by = 1)) + 
+ # geom_text(aes(label=round(Segra,2)), size=3) +
+    scale_fill_gradient(low = "grey", high = "brown", limits=c(min(data_f$Segra),1), breaks=round(seq(min(data_f$Segra),1,by=0.1),2),  name = "Segregation") +
+    # scale_fill_distiller(palette = "BlRd", limits=c(min(data_f$Segra),1), breaks=round(seq(min(data_f$Segra),1,by=0.05),2),  name = "Segregation") +
+    theme_bw()  +   theme(legend.position = "bottom", legend.title = element_text(size = 15,vjust = 0.8), legend.text = element_text(size = 15),  legend.key.width  = unit(1, "inch"), legend.key.height  = unit(0.3, "inch"), panel.grid.minor.x = element_blank(), plot.title=element_text(hjust = 0.5),  legend.margin=margin(0,0,0,0), axis.title.x = (element_text(size = 18)), axis.title.y = (element_text(size = 18)), axis.text.x =  (element_text(size = 13)),axis.text.y =  (element_text(size = 13)),strip.text.x = element_text(size = 15), strip.text.y = element_text(size = 15))
+
+
+
+
+ggsave("images/heatmapbase.jpg",plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 1,
+  width = 11,
+  height = 11,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = TRUE)
+
+```
+
+# Asymmetric Conditions
+
+```{r asym, fig.width=30, fig.cap="Fig. 8 Baseline asymmetric conditions, secondary = 0", echo=FALSE}
+
+# database filter
+excl <- names(asym_dom) %in% c("run", "ID","density","step")
+dataset_sa <- asym_dom[!excl] %>% group_by(dominant,circle_orange,circle_blue,fraction_blue,secondary) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+xlab_t <- "ß dominant"
+
+row_exp <- c("\\multicolumn{17}{|c|}{Ethnic asymmetric condition: Exposure}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Exposure} & \\multicolumn{8}{|c|}{Value Exposure}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ sec = 0 & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+" & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+
+row_prox <- c("\\multicolumn{17}{|c|}{Ethnic Asymmetric condition: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ sec = 0 & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+" & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+
+
+
+tablerb_expname <- "latex/asym_rb_exp.tex"
+tablerb_proxname <- "latex/asym_rb_prox.tex"
+
+plotname <- "images/asym_dom.jpg"
+
+
+
+# graph
+
+data_exp <- dataset_sa %>% gather(key= subgroup, value = Expo, et_sq_bl_mean, vl_sq_bl_mean, et_cl_bl_mean, vl_cl_bl_mean, et_sq_or_mean, vl_sq_or_mean, et_cl_or_mean, vl_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("et_sq_bl_mean","et_cl_bl_mean","et_sq_or_mean","et_cl_or_mean"), "values" = c("vl_sq_bl_mean","vl_cl_bl_mean","vl_sq_or_mean","vl_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("et_sq_bl_mean","vl_sq_bl_mean","et_sq_or_mean","vl_sq_or_mean"), "liberal" = c("et_cl_bl_mean","vl_cl_bl_mean","et_cl_or_mean","vl_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("et_sq_bl_mean","vl_sq_bl_mean","et_cl_bl_mean","vl_cl_bl_mean"),"minority" = c("et_sq_or_mean","vl_sq_or_mean","et_cl_or_mean","vl_cl_or_mean")), "local"))
+
+fig_exp <- ggplot(data = data_exp, aes(x = dominant, y = Expo, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1))) + scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.10)) +
+  geom_vline(xintercept = 20, color = "red") +
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab("") + ylab("Exposure") + 
+  theme_bw() +  theme( axis.title.x  = element_blank(), axis.title.y = (element_text(size = 15)), axis.text.x  = (element_text(size = 10)) ,axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13), plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+ 
+tablerb_exp <- xtable(dataset_sa[,c("dominant","et_sq_bl_mean","et_sq_bl_sd","et_cl_bl_mean","et_cl_bl_sd","et_sq_or_mean","et_sq_or_sd","et_cl_or_mean","et_cl_or_sd","vl_sq_bl_mean","vl_sq_bl_sd","vl_cl_bl_mean","vl_cl_bl_sd","vl_sq_or_mean","vl_sq_or_sd","vl_cl_or_mean","vl_cl_or_sd")], digits = 3)
+align(tablerb_exp) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <-  row_exp
+
+print(tablerb_exp,type = "latex", file = tablerb_expname, include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+
+## Spatial proximity baseline asymmetric
+
+# graph
+
+data_prox <- dataset_sa %>% gather(key= subgroup, value = Prox, de_sq_bl_mean, dv_sq_bl_mean, de_cl_bl_mean, dv_cl_bl_mean, de_sq_or_mean, dv_sq_or_mean, de_cl_or_mean, dv_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("de_sq_bl_mean","de_cl_bl_mean","de_sq_or_mean","de_cl_or_mean"), "values" = c("dv_sq_bl_mean","dv_cl_bl_mean","dv_sq_or_mean","dv_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("de_sq_bl_mean","dv_sq_bl_mean","de_sq_or_mean","dv_sq_or_mean"), "liberal" = c("de_cl_bl_mean","dv_cl_bl_mean","de_cl_or_mean","dv_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("de_sq_bl_mean","dv_sq_bl_mean","de_cl_bl_mean","dv_cl_bl_mean"),"minority" = c("de_sq_or_mean","dv_sq_or_mean","de_cl_or_mean","dv_cl_or_mean")), "local"))
+
+fig_prox <- ggplot(data = data_prox, aes(x = dominant, y = Prox, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1))) + scale_y_continuous(limits=c(min(data_prox$Prox),max(data_prox$Prox)), breaks=seq(0,max(data_prox$Prox),by=0.50)) +
+  geom_vline(xintercept = 20, color = "red") +
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab(xlab_t) + ylab(expression(Exposure[correct])) + 
+  theme_bw() +  theme( axis.title.x = (element_text(size = 15)), axis.title.y = (element_text(size = 15)), axis.text.x =  (element_text(size = 15)),axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13), plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+ 
+# robustness table
+
+tablerb_prox <- xtable(dataset_sa[,c("dominant","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(tablerb_prox) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <-  row_prox
+print(tablerb_prox,type = "latex", file = tablerb_proxname , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+
+# combined image
+
+ggpubr::ggarrange(fig_exp,fig_prox, nrow = 2, ncol = 1, common.legend = TRUE, legend = "right")
+
+ggsave(plotname,plot = last_plot(),
+  device = NULL,path = NULL, 
+  scale = 1,
+  width = 8,
+  height = 6,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+
+
+```
+
+```{r sa_dom_50prox, fig.width=30, fig.cap="Fig. 9, Sensitivity analysis group-type. Each panel reports 50 % then combined", echo=FALSE}
+
+# database filter
+excl <- names(sa_asym) %in% c("run", "ID","density","step","eth_lib_loc","val_con_loc","eth_lib_min","val_con_min")
+dataset_sa <- sa_asym[!excl] %>% filter(val_lib_loc  == 20,eth_con_min == 20, val_lib_min == 20)  %>% 
+ filter(circle_orange == 50) %>%
+  group_by(eth_con_loc,fraction_blue,circle_blue, circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+xlab_t <- "ß ethnic conservative local"
+
+
+
+# graph
+
+data_prox <- dataset_sa %>% gather(key= subgroup, value = Prox, de_sq_bl_mean, dv_sq_bl_mean, de_cl_bl_mean, dv_cl_bl_mean, de_sq_or_mean, dv_sq_or_mean, de_cl_or_mean, dv_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("de_sq_bl_mean","de_cl_bl_mean","de_sq_or_mean","de_cl_or_mean"), "values" = c("dv_sq_bl_mean","dv_cl_bl_mean","dv_sq_or_mean","dv_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("de_sq_bl_mean","dv_sq_bl_mean","de_sq_or_mean","dv_sq_or_mean"), "liberal" = c("de_cl_bl_mean","dv_cl_bl_mean","de_cl_or_mean","dv_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("de_sq_bl_mean","dv_sq_bl_mean","de_cl_bl_mean","dv_cl_bl_mean"),"minority" = c("de_sq_or_mean","dv_sq_or_mean","de_cl_or_mean","dv_cl_or_mean")), "local"))
+
+prox_eth_con_loc <- ggplot(data = data_prox, aes(x = eth_con_loc, y = Prox, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1)))  + scale_y_continuous(limits=c(min(data_prox$Prox),5), breaks=seq(0,5,by=0.50)) +
+  #    facet_wrap(~ circle_orange, labeller = labeller(circle_orange = circle_orange.labs)) +
+    geom_vline(xintercept = 20, color = "red") +
+
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab(xlab_t) + ylab(expression(Exposure[correct])) + 
+  theme_bw() +  theme( axis.title.x = (element_text(size = 15)), axis.title.y = (element_text(size = 15)), axis.text.x =  (element_text(size = 12)),axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13),plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+
+
+
+
+# database filter
+excl <- names(sa_asym) %in% c("run", "ID","density","step","eth_lib_loc","val_con_loc","eth_lib_min","val_con_min")
+dataset_sa <- sa_asym[!excl] %>% filter(eth_con_loc   == 20,eth_con_min == 20, val_lib_min == 20)  %>% 
+ filter(circle_orange == 50) %>%
+  group_by(val_lib_loc,fraction_blue,circle_blue, circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+xlab_t <- "ß value liberal local"
+
+
+
+# graph
+
+data_prox <- dataset_sa %>% gather(key= subgroup, value = Prox, de_sq_bl_mean, dv_sq_bl_mean, de_cl_bl_mean, dv_cl_bl_mean, de_sq_or_mean, dv_sq_or_mean, de_cl_or_mean, dv_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("de_sq_bl_mean","de_cl_bl_mean","de_sq_or_mean","de_cl_or_mean"), "values" = c("dv_sq_bl_mean","dv_cl_bl_mean","dv_sq_or_mean","dv_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("de_sq_bl_mean","dv_sq_bl_mean","de_sq_or_mean","dv_sq_or_mean"), "liberal" = c("de_cl_bl_mean","dv_cl_bl_mean","de_cl_or_mean","dv_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("de_sq_bl_mean","dv_sq_bl_mean","de_cl_bl_mean","dv_cl_bl_mean"),"minority" = c("de_sq_or_mean","dv_sq_or_mean","de_cl_or_mean","dv_cl_or_mean")), "local"))
+
+prox_val_lib_loc <-  ggplot(data = data_prox, aes(x = val_lib_loc, y = Prox, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1)))  + scale_y_continuous(limits=c(min(data_prox$Prox),5), breaks=seq(0,5,by=0.50)) +
+  #    facet_wrap(~ circle_orange, labeller = labeller(circle_orange = circle_orange.labs)) +
+    geom_vline(xintercept = 20, color = "red") +
+
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab(xlab_t) + ylab(expression(Exposure[correct])) + 
+  theme_bw() +  theme( axis.title.x = (element_text(size = 15)), axis.title.y = (element_text(size = 15)), axis.text.x =  (element_text(size = 12)),axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13),plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+
+
+# ggsave("images/val_lib_loc50.jpg",plot = fig_prox,
+#   device = NULL,path = NULL, 
+#   scale = 1,
+#   width = 8,
+#   height = 6,
+#   units = c("in", "cm", "mm"),
+#   dpi = 300,
+#   limitsize = FALSE)
+
+
+# database filter
+excl <- names(sa_asym) %in% c("run", "ID","density","step","eth_lib_loc","val_con_loc","eth_lib_min","val_con_min")
+dataset_sa <- sa_asym[!excl] %>% filter(eth_con_loc   == 20, val_lib_loc  == 20, val_lib_min == 20)  %>% 
+ filter(circle_orange == 50) %>%
+  group_by(eth_con_min,fraction_blue,circle_blue, circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+xlab_t <- "ß ethnic conservative minority"
+
+
+
+# graph
+
+data_prox <- dataset_sa %>% gather(key= subgroup, value = Prox, de_sq_bl_mean, dv_sq_bl_mean, de_cl_bl_mean, dv_cl_bl_mean, de_sq_or_mean, dv_sq_or_mean, de_cl_or_mean, dv_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("de_sq_bl_mean","de_cl_bl_mean","de_sq_or_mean","de_cl_or_mean"), "values" = c("dv_sq_bl_mean","dv_cl_bl_mean","dv_sq_or_mean","dv_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("de_sq_bl_mean","dv_sq_bl_mean","de_sq_or_mean","dv_sq_or_mean"), "liberal" = c("de_cl_bl_mean","dv_cl_bl_mean","de_cl_or_mean","dv_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("de_sq_bl_mean","dv_sq_bl_mean","de_cl_bl_mean","dv_cl_bl_mean"),"minority" = c("de_sq_or_mean","dv_sq_or_mean","de_cl_or_mean","dv_cl_or_mean")), "local"))
+
+prox_eth_con_min <- ggplot(data = data_prox, aes(x = eth_con_min, y = Prox, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1)))  + scale_y_continuous(limits=c(min(data_prox$Prox),5), breaks=seq(0,5,by=0.50)) +
+  #    facet_wrap(~ circle_orange, labeller = labeller(circle_orange = circle_orange.labs)) +
+    geom_vline(xintercept = 20, color = "red") +
+
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab(xlab_t) + ylab(expression(Exposure[correct])) + 
+  theme_bw() +  theme( axis.title.x = (element_text(size = 15)), axis.title.y = (element_text(size = 15)), axis.text.x =  (element_text(size = 12)),axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13),plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+
+# ggsave("images/eth_con_min50.jpg",plot = fig_prox,
+#   device = NULL,path = NULL, 
+#   scale = 1,
+#   width = 8,
+#   height = 6,
+#   units = c("in", "cm", "mm"),
+#   dpi = 300,
+#   limitsize = FALSE)
+
+
+# database filter
+excl <- names(sa_asym) %in% c("run", "ID","density","step","eth_lib_loc","val_con_loc","eth_lib_min","val_con_min")
+dataset_sa <- sa_asym[!excl] %>% filter(eth_con_loc   == 20, val_lib_loc  == 20, eth_con_min  == 20)  %>% 
+ filter(circle_orange == 50) %>%
+  group_by(val_lib_min,fraction_blue,circle_blue, circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+xlab_t <- "ß value liberal minority"
+
+
+
+# graph
+
+data_prox <- dataset_sa %>% gather(key= subgroup, value = Prox, de_sq_bl_mean, dv_sq_bl_mean, de_cl_bl_mean, dv_cl_bl_mean, de_sq_or_mean, dv_sq_or_mean, de_cl_or_mean, dv_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("de_sq_bl_mean","de_cl_bl_mean","de_sq_or_mean","de_cl_or_mean"), "values" = c("dv_sq_bl_mean","dv_cl_bl_mean","dv_sq_or_mean","dv_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("de_sq_bl_mean","dv_sq_bl_mean","de_sq_or_mean","dv_sq_or_mean"), "liberal" = c("de_cl_bl_mean","dv_cl_bl_mean","de_cl_or_mean","dv_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("de_sq_bl_mean","dv_sq_bl_mean","de_cl_bl_mean","dv_cl_bl_mean"),"minority" = c("de_sq_or_mean","dv_sq_or_mean","de_cl_or_mean","dv_cl_or_mean")), "local"))
+
+prox_val_lib_min <-  ggplot(data = data_prox, aes(x = val_lib_min, y = Prox, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1)))  + scale_y_continuous(limits=c(min(data_prox$Prox),5), breaks=seq(0,5,by=0.50)) +
+  #    facet_wrap(~ circle_orange, labeller = labeller(circle_orange = circle_orange.labs)) +
+    geom_vline(xintercept = 20, color = "red") +
+
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab(xlab_t) + ylab(expression(Exposure[correct])) + 
+  theme_bw() +  theme( axis.title.x = (element_text(size = 15)), axis.title.y = (element_text(size = 15)), axis.text.x =  (element_text(size = 12)),axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13),plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+
+ggpubr::ggarrange(prox_eth_con_loc,prox_val_lib_loc,prox_eth_con_min,prox_val_lib_min, nrow = 2, ncol = 2, common.legend = TRUE, legend = "bottom")
+
+
+ggsave("images/sa_asym_bt.jpg",plot = last_plot(),
+  device = NULL,path = NULL,
+  scale = 1,
+  width = 11,
+  height = 8,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+
+```
+
+
+```{r dislib, fig.width=30, fig.cap="Fig. 10, Effect distribution liberals minority, asymmetric condition", echo=FALSE}
+
+# CHECK LATEX! Re-edited
+
+# database filter
+excl <- names(dislib) %in% c("run", "ID","density","step","eth_lib_loc","eth_lib_min","val_con_loc","val_con_min")
+dataset_sa <- dislib[!excl] %>% group_by(fraction_blue,circle_blue,eth_con_loc,eth_con_min,val_lib_loc,val_lib_min,circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+xlab_t <- "% liberal minority"
+
+row_exp <- c("\\multicolumn{17}{|c|}{Ethnic asymmetric condition: Exposure}  \\\\\\hline\n",
+   "$\\beta$ dom = 20 &  \\multicolumn{8}{|c|}{Ethnic Exposure} & \\multicolumn{8}{|c|}{Value Exposure}   \\\\\\n",
+     "$\\beta$ sec = 0 &  \\multicolumn{8}{|c|}{} & \\multicolumn{8}{|c|}{}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\%$ liberal & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"minority  & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+
+row_prox <-  c("\\multicolumn{17}{|c|}{Ethnic asymmetric condition: Spatial Proximity}  \\\\\\hline\n",
+   "$\\beta$ dom = 20 &  \\multicolumn{8}{|c|}{Ethnic Exposure} & \\multicolumn{8}{|c|}{Value Exposure}   \\\\\\n",
+     "$\\beta$ sec = 0 &  \\multicolumn{8}{|c|}{} & \\multicolumn{8}{|c|}{}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\%$ liberal & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"minority  & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+
+
+
+
+tablerb_expname <- "latex/dislib_rb_exp.tex"
+tablerb_proxname <- "latex/dislib_rb_prox.tex"
+
+plotname <- "images/comb_dislib.jpg"
+
+
+
+# graph
+
+dataset_sa <- subset(dataset_sa, circle_orange >= 10 & circle_orange <= 90)
+data_exp <- dataset_sa %>% gather(key= subgroup, value = Expo, et_sq_bl_mean, vl_sq_bl_mean, et_cl_bl_mean, vl_cl_bl_mean, et_sq_or_mean, vl_sq_or_mean, et_cl_or_mean, vl_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("et_sq_bl_mean","et_cl_bl_mean","et_sq_or_mean","et_cl_or_mean"), "values" = c("vl_sq_bl_mean","vl_cl_bl_mean","vl_sq_or_mean","vl_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("et_sq_bl_mean","vl_sq_bl_mean","et_sq_or_mean","vl_sq_or_mean"), "liberal" = c("et_cl_bl_mean","vl_cl_bl_mean","et_cl_or_mean","vl_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("et_sq_bl_mean","vl_sq_bl_mean","et_cl_bl_mean","vl_cl_bl_mean"),"minority" = c("et_sq_or_mean","vl_sq_or_mean","et_cl_or_mean","vl_cl_or_mean")), "local"))
+
+fig_exp <- ggplot(data = data_exp, aes(x = circle_orange, y = Expo, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(10,90 ,by = 10))) + scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.10)) +
+   geom_vline(xintercept = 50, color = "red") +
+ scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab("") + ylab("Exposure") + 
+  theme_bw() +  theme( axis.title.x  = element_blank(), axis.title.y = (element_text(size = 15)), axis.text.x  = (element_text(size = 10)) ,axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13), plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+ 
+tablerb_exp <- xtable(dataset_sa[,c("circle_orange","et_sq_bl_mean","et_sq_bl_sd","et_cl_bl_mean","et_cl_bl_sd","et_sq_or_mean","et_sq_or_sd","et_cl_or_mean","et_cl_or_sd","vl_sq_bl_mean","vl_sq_bl_sd","vl_cl_bl_mean","vl_cl_bl_sd","vl_sq_or_mean","vl_sq_or_sd","vl_cl_or_mean","vl_cl_or_sd")], digits = 3)
+align(tablerb_exp) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <-  row_exp
+
+print(tablerb_exp,type = "latex", file = tablerb_expname, include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+
+## Spatial proximity baseline asymmetric
+
+# graph
+
+data_prox <- dataset_sa %>% gather(key= subgroup, value = Prox, de_sq_bl_mean, dv_sq_bl_mean, de_cl_bl_mean, dv_cl_bl_mean, de_sq_or_mean, dv_sq_or_mean, de_cl_or_mean, dv_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("de_sq_bl_mean","de_cl_bl_mean","de_sq_or_mean","de_cl_or_mean"), "values" = c("dv_sq_bl_mean","dv_cl_bl_mean","dv_sq_or_mean","dv_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("de_sq_bl_mean","dv_sq_bl_mean","de_sq_or_mean","dv_sq_or_mean"), "liberal" = c("de_cl_bl_mean","dv_cl_bl_mean","de_cl_or_mean","dv_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("de_sq_bl_mean","dv_sq_bl_mean","de_cl_bl_mean","dv_cl_bl_mean"),"minority" = c("de_sq_or_mean","dv_sq_or_mean","de_cl_or_mean","dv_cl_or_mean")), "local"))
+
+fig_prox <- ggplot(data = data_prox, aes(x = circle_orange, y = Prox, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(10,90 ,by = 10))) + scale_y_continuous(limits=c(min(data_prox$Prox),max(data_prox$Prox)), breaks = seq(0,max(data_prox$Prox), by = 0.5)) +
+   geom_vline(xintercept = 50, color = "red") +
+ scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab(xlab_t) + ylab(expression(Exposure[correct])) + 
+theme_bw() +  theme( axis.title.x = (element_text(size = 15)), axis.title.y = (element_text(size = 15)), axis.text.x =  (element_text(size = 15)),axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13), plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+ 
+# robustness table
+
+tablerb_prox <- xtable(dataset_sa[,c("circle_orange","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(tablerb_prox) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <-  row_prox
+print(tablerb_prox,type = "latex", file = tablerb_proxname , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+
+# combined image
+
+ggpubr::ggarrange(fig_exp,fig_prox, nrow = 2, ncol = 1, common.legend = TRUE, legend = "right")
+
+ggsave(plotname,plot = last_plot(),
+  device = NULL,path = NULL, 
+  scale = 1,
+  width = 8,
+  height = 6,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+
+
+```
+
+```{r sa_vllblc,  fig.cap="Fig 11, Sensitivity value liberals majority - exposure correct, asymmetric conditions", echo=FALSE}
+
+# database filter
+excl <- names(sa_asym) %in% c("run", "ID","density","step","eth_lib_loc","val_con_loc","eth_lib_min","val_con_min")
+dataset_sa <- sa_asym[!excl] %>% filter(eth_con_loc  == 20,eth_con_min   == 20,val_lib_min == 20)  %>% 
+group_by(val_lib_loc ,fraction_blue,circle_blue, circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+plotname <- "images/vllblc.jpg"
+xlab_t <- "ß value liberal local"
+
+xvalues <- c(dataset_sa$de_sq_bl_mean,dataset_sa$de_cl_bl_mean,dataset_sa$de_sq_or_mean,dataset_sa$de_cl_or_mean,
+       dataset_sa$dv_sq_bl_mean,dataset_sa$dv_cl_bl_mean,dataset_sa$dv_sq_or_mean,dataset_sa$dv_cl_or_mean)
+
+ expo_pic <-   ggplot(data = dataset_sa) + 
+  geom_point(aes(x = dataset_sa$de_sq_bl_mean, y = dataset_sa$et_sq_bl_mean),color = "black", fill = "blue", shape = 22, size = 5) +
+  geom_point(aes(x = dataset_sa$de_cl_bl_mean, y = dataset_sa$et_cl_bl_mean),color = "black",fill = "blue", shape = 21, size = 5) +
+  geom_point(aes(x = dataset_sa$de_sq_or_mean, y = dataset_sa$et_sq_or_mean),color = "black", fill = "orange", shape = 22, size = 5) +
+  geom_point(aes(x = dataset_sa$de_cl_or_mean, y = dataset_sa$et_cl_or_mean),color = "black", fill = "orange", shape = 21, size = 5) +
+
+  geom_point(aes(x = dataset_sa$dv_sq_bl_mean, y = dataset_sa$vl_sq_bl_mean),color = "black", fill = "blue", shape = 8, size = 5.1) + 
+   geom_point(aes(x = dataset_sa$dv_sq_bl_mean, y = dataset_sa$vl_sq_bl_mean),color = "black", fill = "blue", shape = 22, size = 5) + 
+  
+   geom_point(aes(x = dataset_sa$dv_cl_bl_mean, y = dataset_sa$vl_cl_bl_mean),color = "black",fill = "blue", shape = 8, size = 5.1) + 
+  geom_point(aes(x = dataset_sa$dv_cl_bl_mean, y = dataset_sa$vl_cl_bl_mean),color = "black",fill = "blue", shape = 21, size = 5) + 
+  
+    geom_point(aes(x = dataset_sa$dv_sq_or_mean, y = dataset_sa$vl_sq_or_mean),color = "black", fill = "orange", shape = 8, size = 5.1) +
+  geom_point(aes(x = dataset_sa$dv_sq_or_mean, y = dataset_sa$vl_sq_or_mean),color = "black", fill = "orange", shape = 22, size = 5) +
+  
+  geom_point(aes(x = dataset_sa$dv_cl_or_mean, y = dataset_sa$vl_cl_or_mean),color = "black", fill = "orange", shape = 8, size = 5.1) +
+geom_point(aes(x = dataset_sa$dv_cl_or_mean, y = dataset_sa$vl_cl_or_mean),color = "black", fill = "orange", shape = 21, size = 5) +
+  
+ scale_x_continuous(limits = c(min(xvalues),max(xvalues)), breaks = seq(0,max(xvalues), by = 0.5)) + 
+  scale_y_continuous(breaks= seq(0,1,by=0.1)) + 
+  geom_vline(xintercept = 1, color = "red") +
+   xlab(expression(Exposure[correct])) + ylab("Exposure") +
+  theme_bw() + theme( 
+    axis.title.x = (element_text(size = 13)), axis.title.y = (element_text(size = 15)),
+    axis.text.x =  (element_text(size = 12)), axis.text.y =  (element_text(size = 15)), 
+    legend.title = element_text(size = 13),legend.position = "bottom", legend.text = element_text(size = 13),
+    plot.title=element_text(hjust = 0.5), plot.caption = element_text(hjust= 0.5, size = 11), plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+ 
+
+data_prox <- dataset_sa  %>% gather(key= subgroup, value = Prox, de_sq_bl_mean, dv_sq_bl_mean, de_cl_bl_mean, dv_cl_bl_mean, de_sq_or_mean, dv_sq_or_mean, de_cl_or_mean, dv_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("de_sq_bl_mean","de_cl_bl_mean","de_sq_or_mean","de_cl_or_mean"), "values" = c("dv_sq_bl_mean","dv_cl_bl_mean","dv_sq_or_mean","dv_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("de_sq_bl_mean","dv_sq_bl_mean","de_sq_or_mean","dv_sq_or_mean"), "liberal" = c("de_cl_bl_mean","dv_cl_bl_mean","de_cl_or_mean","dv_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("de_sq_bl_mean","dv_sq_bl_mean","de_cl_bl_mean","dv_cl_bl_mean"),"minority" = c("de_sq_or_mean","dv_sq_or_mean","de_cl_or_mean","dv_cl_or_mean")), "local"))
+
+
+  
+prox_pic <- ggplot(data = data_prox, aes(x = val_lib_loc, y = Prox, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1))) + scale_y_continuous(limits=c(min(data_prox$Prox),max(data_prox$Prox)), breaks=seq(0,max(data_prox$Prox),by=0.50)) +
+ facet_wrap(~ circle_orange, dir = "v", labeller = labeller(circle_orange = circle_orange.labs)) +
+    geom_vline(xintercept = 20, color = "red") +  geom_hline(yintercept = 1, color = "red") +
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+   scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab(xlab_t) + ylab(expression(Exposure[correct])) + 
+  theme_bw() +  theme( 
+    axis.title.x = (element_text(size = 13)), axis.title.y = (element_text(size = 15)),
+    axis.text.x =  (element_text(size = 12)), axis.text.y =  (element_text(size = 15)), 
+    strip.text = element_text(size=13),
+    legend.title = element_text(size = 13),legend.position = "bottom", legend.text = element_text(size = 14),
+    plot.title=element_text(hjust = 0.5), plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+#, plot.caption = element_text(hjust= 0.5, size = 11)
+ggpubr::ggarrange(prox_pic, expo_pic, common.legend = TRUE, legend = "bottom", widths = c(1.3,1))
+
+ggsave(plotname,plot = last_plot(),
+  device = NULL,path = NULL,
+  scale = 1,
+  width = 12,
+  height = 9,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+
+```
+
+```{r sa_vllbmn,  fig.cap="Fig. 12: Sensitivity value liberals minority - exposure correct, asymmetric conditions", echo=FALSE}
+
+# database filter
+excl <- names(sa_asym) %in% c("run", "ID","density","step","eth_lib_loc","val_con_loc","eth_lib_min","val_con_min")
+dataset_sa <- sa_asym[!excl] %>% filter(eth_con_loc  == 20,val_lib_loc == 20,eth_con_min  == 20)  %>% 
+group_by(val_lib_min ,fraction_blue,circle_blue, circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+
+# for image output
+
+plotname <- "images/vllbmn.jpg"
+xlab_t <- "ß value liberal minority"
+
+xvalues <- c(dataset_sa$de_sq_bl_mean,dataset_sa$de_cl_bl_mean,dataset_sa$de_sq_or_mean,dataset_sa$de_cl_or_mean,
+       dataset_sa$dv_sq_bl_mean,dataset_sa$dv_cl_bl_mean,dataset_sa$dv_sq_or_mean,dataset_sa$dv_cl_or_mean)
+
+# ethnic exposure plot
+
+ expo_pic <-   ggplot(data = dataset_sa) + 
+  geom_point(aes(x = dataset_sa$de_sq_bl_mean, y = dataset_sa$et_sq_bl_mean),color = "black", fill = "blue", shape = 22, size = 5) +
+  geom_point(aes(x = dataset_sa$de_cl_bl_mean, y = dataset_sa$et_cl_bl_mean),color = "black",fill = "blue", shape = 21, size = 5) +
+  geom_point(aes(x = dataset_sa$de_sq_or_mean, y = dataset_sa$et_sq_or_mean),color = "black", fill = "orange", shape = 22, size = 5) +
+  geom_point(aes(x = dataset_sa$de_cl_or_mean, y = dataset_sa$et_cl_or_mean),color = "black", fill = "orange", shape = 21, size = 5) +
+
+  geom_point(aes(x = dataset_sa$dv_sq_bl_mean, y = dataset_sa$vl_sq_bl_mean),color = "black", fill = "blue", shape = 8, size = 5.1) + 
+   geom_point(aes(x = dataset_sa$dv_sq_bl_mean, y = dataset_sa$vl_sq_bl_mean),color = "black", fill = "blue", shape = 22, size = 5) + 
+  
+   geom_point(aes(x = dataset_sa$dv_cl_bl_mean, y = dataset_sa$vl_cl_bl_mean),color = "black",fill = "blue", shape = 8, size = 5.1) + 
+  geom_point(aes(x = dataset_sa$dv_cl_bl_mean, y = dataset_sa$vl_cl_bl_mean),color = "black",fill = "blue", shape = 21, size = 5) + 
+  
+    geom_point(aes(x = dataset_sa$dv_sq_or_mean, y = dataset_sa$vl_sq_or_mean),color = "black", fill = "orange", shape = 8, size = 5.1) +
+  geom_point(aes(x = dataset_sa$dv_sq_or_mean, y = dataset_sa$vl_sq_or_mean),color = "black", fill = "orange", shape = 22, size = 5) +
+  
+  geom_point(aes(x = dataset_sa$dv_cl_or_mean, y = dataset_sa$vl_cl_or_mean),color = "black", fill = "orange", shape = 8, size = 5.1) +
+geom_point(aes(x = dataset_sa$dv_cl_or_mean, y = dataset_sa$vl_cl_or_mean),color = "black", fill = "orange", shape = 21, size = 5) +
+  
+ scale_x_continuous(limits = c(min(xvalues),max(xvalues)), breaks = seq(0,max(xvalues), by = 0.5)) + 
+  scale_y_continuous(breaks= seq(0,1,by=0.1)) + 
+  geom_vline(xintercept = 1, color = "red") +
+   xlab(expression(Exposure[correct])) + ylab("Exposure") +
+  theme_bw() + theme( 
+    axis.title.x = (element_text(size = 13)), axis.title.y = (element_text(size = 15)),
+    axis.text.x =  (element_text(size = 12)), axis.text.y =  (element_text(size = 15)), 
+    legend.title = element_text(size = 13),legend.position = "bottom", legend.text = element_text(size = 13),
+    plot.title=element_text(hjust = 0.5), plot.caption = element_text(hjust= 0.5, size = 11), plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+
+ 
+# exposure corrected plot
+
+data_prox <- dataset_sa  %>% gather(key= subgroup, value = Prox, de_sq_bl_mean, dv_sq_bl_mean, de_cl_bl_mean, dv_cl_bl_mean, de_sq_or_mean, dv_sq_or_mean, de_cl_or_mean, dv_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("de_sq_bl_mean","de_cl_bl_mean","de_sq_or_mean","de_cl_or_mean"), "values" = c("dv_sq_bl_mean","dv_cl_bl_mean","dv_sq_or_mean","dv_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("de_sq_bl_mean","dv_sq_bl_mean","de_sq_or_mean","dv_sq_or_mean"), "liberal" = c("de_cl_bl_mean","dv_cl_bl_mean","de_cl_or_mean","dv_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("de_sq_bl_mean","dv_sq_bl_mean","de_cl_bl_mean","dv_cl_bl_mean"),"minority" = c("de_sq_or_mean","dv_sq_or_mean","de_cl_or_mean","dv_cl_or_mean")), "local"))
+
+
+  
+prox_pic <- ggplot(data = data_prox, aes(x = val_lib_min, y = Prox, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1))) + scale_y_continuous(limits=c(min(data_prox$Prox),max(data_prox$Prox)), breaks=seq(0,max(data_prox$Prox),by=0.50)) +
+ facet_wrap(~ circle_orange, dir = "v", labeller = labeller(circle_orange = circle_orange.labs)) +
+    geom_vline(xintercept = 20, color = "red") +  geom_hline(yintercept = 1, color = "red") +
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+   scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab(xlab_t) + ylab(expression(Exposure[correct])) + 
+  theme_bw() +  theme( 
+    axis.title.x = (element_text(size = 13)), axis.title.y = (element_text(size = 15)),
+    axis.text.x =  (element_text(size = 12)), axis.text.y =  (element_text(size = 15)), 
+    strip.text = element_text(size=13),
+    legend.title = element_text(size = 13),legend.position = "bottom", legend.text = element_text(size = 14),
+    plot.title=element_text(hjust = 0.5), plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+#, plot.caption = element_text(hjust= 0.5, size = 11)
+ggpubr::ggarrange(prox_pic, expo_pic, common.legend = TRUE, legend = "bottom", widths = c(1.3,1))
+
+ggsave(plotname,plot = last_plot(),
+  device = NULL,path = NULL,
+  scale = 1,
+  width = 12,
+  height = 9,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+
+```
+
+```{r et_lib_loc,  fig.cap="Fig. 13: Ethnic liberals majority, asymmetric conditions", echo=FALSE}
+
+# database filter
+excl <- names(etlib) %in% c("run", "ID","density","step","eth_con_loc","eth_con_min","val_lib_loc","val_lib_min","val_con_loc","val_con_min")
+etlib_df <- etlib[!excl] %>% filter(eth_lib_min  == 0)  %>% 
+group_by(eth_lib_loc,fraction_blue,circle_blue, circle_orange,eth_lib_min) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+
+plotname <- "images/et_libloc.jpg"
+xlab_t <- "ß ethnic liberal local"
+
+xvalues <- c(etlib_df$de_sq_bl_mean,etlib_df$de_cl_bl_mean,etlib_df$de_sq_or_mean,etlib_df$de_cl_or_mean,
+       etlib_df$dv_sq_bl_mean,etlib_df$dv_cl_bl_mean,etlib_df$dv_sq_or_mean,etlib_df$dv_cl_or_mean)
+
+ expo_pic <-   ggplot(data = etlib_df) + 
+  geom_point(aes(x = etlib_df$de_sq_bl_mean, y = etlib_df$et_sq_bl_mean),color = "black", fill = "blue", shape = 22, size = 5) +
+  geom_point(aes(x = etlib_df$de_cl_bl_mean, y = etlib_df$et_cl_bl_mean),color = "black",fill = "blue", shape = 21, size = 5) +
+  geom_point(aes(x = etlib_df$de_sq_or_mean, y = etlib_df$et_sq_or_mean),color = "black", fill = "orange", shape = 22, size = 5) +
+  geom_point(aes(x = etlib_df$de_cl_or_mean, y = etlib_df$et_cl_or_mean),color = "black", fill = "orange", shape = 21, size = 5) +
+
+  geom_point(aes(x = etlib_df$dv_sq_bl_mean, y = etlib_df$vl_sq_bl_mean),color = "black", fill = "blue", shape = 8, size = 5.1) + 
+   geom_point(aes(x = etlib_df$dv_sq_bl_mean, y = etlib_df$vl_sq_bl_mean),color = "black", fill = "blue", shape = 22, size = 5) + 
+  
+   geom_point(aes(x = etlib_df$dv_cl_bl_mean, y = etlib_df$vl_cl_bl_mean),color = "black",fill = "blue", shape = 8, size = 5.1) + 
+  geom_point(aes(x = etlib_df$dv_cl_bl_mean, y = etlib_df$vl_cl_bl_mean),color = "black",fill = "blue", shape = 21, size = 5) + 
+  
+    geom_point(aes(x = etlib_df$dv_sq_or_mean, y = etlib_df$vl_sq_or_mean),color = "black", fill = "orange", shape = 8, size = 5.1) +
+  geom_point(aes(x = etlib_df$dv_sq_or_mean, y = etlib_df$vl_sq_or_mean),color = "black", fill = "orange", shape = 22, size = 5) +
+  
+  geom_point(aes(x = etlib_df$dv_cl_or_mean, y = etlib_df$vl_cl_or_mean),color = "black", fill = "orange", shape = 8, size = 5.1) +
+geom_point(aes(x = etlib_df$dv_cl_or_mean, y = etlib_df$vl_cl_or_mean),color = "black", fill = "orange", shape = 21, size = 5) +
+  
+ scale_x_continuous(limits = c(min(xvalues),max(xvalues)), breaks = seq(0,max(xvalues), by = 0.5)) + 
+  scale_y_continuous(breaks= seq(0,1,by=0.1)) + 
+  geom_vline(xintercept = 1, color = "red") +
+  xlab(expression(Exposure[correct])) +  + ylab("Exposure") +
+  theme_bw() + theme( 
+    axis.title.x = (element_text(size = 13)), axis.title.y = (element_text(size = 15)),
+    axis.text.x =  (element_text(size = 12)), axis.text.y =  (element_text(size = 15)), 
+    legend.title = element_text(size = 13),legend.position = "bottom", legend.text = element_text(size = 13),
+    plot.title=element_text(hjust = 0.5), plot.caption = element_text(hjust= 0.5, size = 11), plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+ 
+
+data_prox <- etlib_df  %>% gather(key= subgroup, value = Prox, de_sq_bl_mean, dv_sq_bl_mean, de_cl_bl_mean, dv_cl_bl_mean, de_sq_or_mean, dv_sq_or_mean, de_cl_or_mean, dv_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("de_sq_bl_mean","de_cl_bl_mean","de_sq_or_mean","de_cl_or_mean"), "values" = c("dv_sq_bl_mean","dv_cl_bl_mean","dv_sq_or_mean","dv_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("de_sq_bl_mean","dv_sq_bl_mean","de_sq_or_mean","dv_sq_or_mean"), "liberal" = c("de_cl_bl_mean","dv_cl_bl_mean","de_cl_or_mean","dv_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("de_sq_bl_mean","dv_sq_bl_mean","de_cl_bl_mean","dv_cl_bl_mean"),"minority" = c("de_sq_or_mean","dv_sq_or_mean","de_cl_or_mean","dv_cl_or_mean")), "local"))
+
+
+  
+prox_pic <- ggplot(data = data_prox, aes(x = eth_lib_loc, y = Prox, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1))) + scale_y_continuous(limits=c(min(data_prox$Prox),max(data_prox$Prox)), breaks=seq(0,max(data_prox$Prox),by=0.50)) +
+ facet_wrap(~ circle_orange, dir = "v", labeller = labeller(circle_orange = circle_orange.labs)) +
+    geom_vline(xintercept = 0, color = "red") +  geom_hline(yintercept = 1, color = "red") +
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+   scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab(xlab_t) + ylab(expression(Exposure[correct])) + 
+  theme_bw() +  theme( 
+    axis.title.x = (element_text(size = 13)), axis.title.y = (element_text(size = 15)),
+    axis.text.x =  (element_text(size = 12)), axis.text.y =  (element_text(size = 15)), 
+    strip.text = element_text(size=13),
+    legend.title = element_text(size = 13),legend.position = "bottom", legend.text = element_text(size = 14),
+    plot.title=element_text(hjust = 0.5), plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+#, plot.caption = element_text(hjust= 0.5, size = 11)
+ggpubr::ggarrange(prox_pic, expo_pic, common.legend = TRUE, legend = "bottom", widths = c(1.3,1))
+
+ggsave(plotname,plot = last_plot(),
+  device = NULL,path = NULL,
+  scale = 1,
+  width = 12,
+  height = 9,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+
+```
+
+```{r et_lib_min,  fig.cap="Fig. 14: Ethnic liberals minority, asymmetric conditions", echo=FALSE}
+
+# database filter
+excl <- names(etlib) %in% c("run", "ID","density","step","eth_con_loc","eth_con_min","val_lib_loc","val_lib_min","val_con_loc","val_con_min")
+etlib_df <- etlib[!excl] %>% filter(eth_lib_loc  == 0)  %>% 
+group_by(eth_lib_min,fraction_blue,circle_blue, circle_orange,eth_lib_loc) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+
+plotname <- "images/et_libmin.jpg"
+xlab_t <- "ß ethnic liberal minority"
+
+xvalues <- c(etlib_df$de_sq_bl_mean,etlib_df$de_cl_bl_mean,etlib_df$de_sq_or_mean,etlib_df$de_cl_or_mean,
+       etlib_df$dv_sq_bl_mean,etlib_df$dv_cl_bl_mean,etlib_df$dv_sq_or_mean,etlib_df$dv_cl_or_mean)
+
+ expo_pic <-   ggplot(data = etlib_df) + 
+  geom_point(aes(x = etlib_df$de_sq_bl_mean, y = etlib_df$et_sq_bl_mean),color = "black", fill = "blue", shape = 22, size = 5) +
+  geom_point(aes(x = etlib_df$de_cl_bl_mean, y = etlib_df$et_cl_bl_mean),color = "black",fill = "blue", shape = 21, size = 5) +
+  geom_point(aes(x = etlib_df$de_sq_or_mean, y = etlib_df$et_sq_or_mean),color = "black", fill = "orange", shape = 22, size = 5) +
+  geom_point(aes(x = etlib_df$de_cl_or_mean, y = etlib_df$et_cl_or_mean),color = "black", fill = "orange", shape = 21, size = 5) +
+
+  geom_point(aes(x = etlib_df$dv_sq_bl_mean, y = etlib_df$vl_sq_bl_mean),color = "black", fill = "blue", shape = 8, size = 5.1) + 
+   geom_point(aes(x = etlib_df$dv_sq_bl_mean, y = etlib_df$vl_sq_bl_mean),color = "black", fill = "blue", shape = 22, size = 5) + 
+  
+   geom_point(aes(x = etlib_df$dv_cl_bl_mean, y = etlib_df$vl_cl_bl_mean),color = "black",fill = "blue", shape = 8, size = 5.1) + 
+  geom_point(aes(x = etlib_df$dv_cl_bl_mean, y = etlib_df$vl_cl_bl_mean),color = "black",fill = "blue", shape = 21, size = 5) + 
+  
+    geom_point(aes(x = etlib_df$dv_sq_or_mean, y = etlib_df$vl_sq_or_mean),color = "black", fill = "orange", shape = 8, size = 5.1) +
+  geom_point(aes(x = etlib_df$dv_sq_or_mean, y = etlib_df$vl_sq_or_mean),color = "black", fill = "orange", shape = 22, size = 5) +
+  
+  geom_point(aes(x = etlib_df$dv_cl_or_mean, y = etlib_df$vl_cl_or_mean),color = "black", fill = "orange", shape = 8, size = 5.1) +
+geom_point(aes(x = etlib_df$dv_cl_or_mean, y = etlib_df$vl_cl_or_mean),color = "black", fill = "orange", shape = 21, size = 5) +
+  
+ scale_x_continuous(limits = c(min(xvalues),max(xvalues)), breaks = seq(0,max(xvalues), by = 0.5)) + 
+  scale_y_continuous(breaks= seq(0,1,by=0.1)) + 
+  geom_vline(xintercept = 1, color = "red") +
+  xlab(expression(Exposure[correct])) + ylab("Exposure") +
+  theme_bw() + theme( 
+    axis.title.x = (element_text(size = 13)), axis.title.y = (element_text(size = 15)),
+    axis.text.x =  (element_text(size = 12)), axis.text.y =  (element_text(size = 15)), 
+    legend.title = element_text(size = 13),legend.position = "bottom", legend.text = element_text(size = 13),
+    plot.title=element_text(hjust = 0.5), plot.caption = element_text(hjust= 0.5, size = 11), plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+ 
+
+data_prox <- etlib_df  %>% gather(key= subgroup, value = Prox, de_sq_bl_mean, dv_sq_bl_mean, de_cl_bl_mean, dv_cl_bl_mean, de_sq_or_mean, dv_sq_or_mean, de_cl_or_mean, dv_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("de_sq_bl_mean","de_cl_bl_mean","de_sq_or_mean","de_cl_or_mean"), "values" = c("dv_sq_bl_mean","dv_cl_bl_mean","dv_sq_or_mean","dv_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("de_sq_bl_mean","dv_sq_bl_mean","de_sq_or_mean","dv_sq_or_mean"), "liberal" = c("de_cl_bl_mean","dv_cl_bl_mean","de_cl_or_mean","dv_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("de_sq_bl_mean","dv_sq_bl_mean","de_cl_bl_mean","dv_cl_bl_mean"),"minority" = c("de_sq_or_mean","dv_sq_or_mean","de_cl_or_mean","dv_cl_or_mean")), "local"))
+
+
+  
+prox_pic <- ggplot(data = data_prox, aes(x = eth_lib_min, y = Prox, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1))) + scale_y_continuous(limits=c(min(data_prox$Prox),max(data_prox$Prox)), breaks=seq(0,max(data_prox$Prox),by=0.50)) +
+ facet_wrap(~ circle_orange, dir = "v", labeller = labeller(circle_orange = circle_orange.labs)) +
+    geom_vline(xintercept = 0, color = "red") +  geom_hline(yintercept = 1, color = "red") +
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+   scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab(xlab_t) + ylab(expression(Exposure[correct])) + 
+  theme_bw() +  theme( 
+    axis.title.x = (element_text(size = 13)), axis.title.y = (element_text(size = 15)),
+    axis.text.x =  (element_text(size = 12)), axis.text.y =  (element_text(size = 15)), 
+    strip.text = element_text(size=13),
+    legend.title = element_text(size = 13),legend.position = "bottom", legend.text = element_text(size = 14),
+    plot.title=element_text(hjust = 0.5), plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+#, plot.caption = element_text(hjust= 0.5, size = 11)
+ggpubr::ggarrange(prox_pic, expo_pic, common.legend = TRUE, legend = "bottom", widths = c(1.3,1))
+
+ggsave(plotname,plot = last_plot(),
+  device = NULL,path = NULL,
+  scale = 1,
+  width = 12,
+  height = 9,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+
+```
+
+```{r asym_ALL, fig.width=30, fig.cap="Fig. 16 Baseline asymmetric conditions, dominant preferene ==  secondary preference", echo=FALSE}
+
+
+# database filter
+excl <- names(asym_all) %in% c("run", "density","step")
+dataset_sa <- asym_all[!excl] %>% group_by(dominant,circle_orange,circle_blue,fraction_blue) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+xlab_t <- "ß dominant = ß secondary"
+
+row_exp <- c("\\multicolumn{17}{|c|}{Ethnic asymmetric condition: Exposure}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Exposure} & \\multicolumn{8}{|c|}{Value Exposure}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ sec = $\\beta$ doom  & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+" & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+
+row_prox <- c("\\multicolumn{17}{|c|}{Ethnic Asymmetric condition: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ sec = $\\beta$ doom   & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+" & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+
+
+
+tablerb_expname <- "latex/asym_all_rb_exp.tex"
+tablerb_proxname <- "latex/asym_all_rb_prox.tex"
+
+plotname <- "images/asym_all.jpg"
+
+
+
+# graph
+
+data_exp <- dataset_sa %>% gather(key= subgroup, value = Expo, et_sq_bl_mean, vl_sq_bl_mean, et_cl_bl_mean, vl_cl_bl_mean, et_sq_or_mean, vl_sq_or_mean, et_cl_or_mean, vl_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("et_sq_bl_mean","et_cl_bl_mean","et_sq_or_mean","et_cl_or_mean"), "values" = c("vl_sq_bl_mean","vl_cl_bl_mean","vl_sq_or_mean","vl_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("et_sq_bl_mean","vl_sq_bl_mean","et_sq_or_mean","vl_sq_or_mean"), "liberal" = c("et_cl_bl_mean","vl_cl_bl_mean","et_cl_or_mean","vl_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("et_sq_bl_mean","vl_sq_bl_mean","et_cl_bl_mean","vl_cl_bl_mean"),"minority" = c("et_sq_or_mean","vl_sq_or_mean","et_cl_or_mean","vl_cl_or_mean")), "local"))
+
+fig_exp <- ggplot(data = data_exp, aes(x = dominant, y = Expo, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1))) + scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.10)) +
+  geom_vline(xintercept = 20, color = "red") +
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab("") + ylab("Exposure") + 
+  theme_bw() +  theme( axis.title.x  = element_blank(), axis.title.y = (element_text(size = 15)), axis.text.x  = (element_text(size = 10)) ,axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13), plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+ 
+tablerb_exp <- xtable(dataset_sa[,c("dominant","et_sq_bl_mean","et_sq_bl_sd","et_cl_bl_mean","et_cl_bl_sd","et_sq_or_mean","et_sq_or_sd","et_cl_or_mean","et_cl_or_sd","vl_sq_bl_mean","vl_sq_bl_sd","vl_cl_bl_mean","vl_cl_bl_sd","vl_sq_or_mean","vl_sq_or_sd","vl_cl_or_mean","vl_cl_or_sd")], digits = 3)
+align(tablerb_exp) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <-  row_exp
+
+print(tablerb_exp,type = "latex", file = tablerb_expname, include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+
+## Spatial proximity baseline asymmetric
+
+# graph
+
+data_prox <- dataset_sa %>% gather(key= subgroup, value = Prox, de_sq_bl_mean, dv_sq_bl_mean, de_cl_bl_mean, dv_cl_bl_mean, de_sq_or_mean, dv_sq_or_mean, de_cl_or_mean, dv_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("de_sq_bl_mean","de_cl_bl_mean","de_sq_or_mean","de_cl_or_mean"), "values" = c("dv_sq_bl_mean","dv_cl_bl_mean","dv_sq_or_mean","dv_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("de_sq_bl_mean","dv_sq_bl_mean","de_sq_or_mean","dv_sq_or_mean"), "liberal" = c("de_cl_bl_mean","dv_cl_bl_mean","de_cl_or_mean","dv_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("de_sq_bl_mean","dv_sq_bl_mean","de_cl_bl_mean","dv_cl_bl_mean"),"minority" = c("de_sq_or_mean","dv_sq_or_mean","de_cl_or_mean","dv_cl_or_mean")), "local"))
+
+fig_prox <- ggplot(data = data_prox, aes(x = dominant, y = Prox, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1))) + scale_y_continuous(limits=c(min(data_prox$Prox),max(data_prox$Prox)), breaks=seq(0,max(data_prox$Prox),by=0.50)) +
+  geom_vline(xintercept = 20, color = "red") +
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab(xlab_t) + ylab(expression(Exposure[correct])) + 
+  theme_bw() +  theme( axis.title.x = (element_text(size = 15)), axis.title.y = (element_text(size = 15)), axis.text.x =  (element_text(size = 15)),axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13), plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+ 
+# robustness table
+
+tablerb_prox <- xtable(dataset_sa[,c("dominant","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(tablerb_prox) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <-  row_prox
+print(tablerb_prox,type = "latex", file = tablerb_proxname , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+
+# combined image
+
+ggpubr::ggarrange(fig_exp,fig_prox, nrow = 2, ncol = 1, common.legend = TRUE, legend = "right")
+
+ggsave(plotname,plot = last_plot(),
+  device = NULL,path = NULL, 
+  scale = 1,
+  width = 8,
+  height = 6,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+
+
+```
+
+```{r sa_etcnlc,  fig.cap="Fig. 17. Sensitivity ethnic conservative majority, asymmetric conditions", echo=FALSE}
+
+# database filter
+excl <- names(sa_asym) %in% c("run", "ID","density","step","eth_lib_loc","val_con_loc","eth_lib_min","val_con_min")
+dataset_sa <- sa_asym[!excl] %>% filter(val_lib_loc   == 20,eth_con_min   == 20, val_lib_min == 20)  %>% 
+group_by(eth_con_loc ,fraction_blue,circle_blue, circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+# image output location
+
+plotname <- "images/etcnlc.jpg"
+xlab_t <- "ß ethnic conservative local"
+
+xvalues <- c(dataset_sa$de_sq_bl_mean,dataset_sa$de_cl_bl_mean,dataset_sa$de_sq_or_mean,dataset_sa$de_cl_or_mean,
+       dataset_sa$dv_sq_bl_mean,dataset_sa$dv_cl_bl_mean,dataset_sa$dv_sq_or_mean,dataset_sa$dv_cl_or_mean)
+
+ expo_pic <-   ggplot(data = dataset_sa) + 
+  geom_point(aes(x = dataset_sa$de_sq_bl_mean, y = dataset_sa$et_sq_bl_mean),color = "black", fill = "blue", shape = 22, size = 5) +
+  geom_point(aes(x = dataset_sa$de_cl_bl_mean, y = dataset_sa$et_cl_bl_mean),color = "black",fill = "blue", shape = 21, size = 5) +
+  geom_point(aes(x = dataset_sa$de_sq_or_mean, y = dataset_sa$et_sq_or_mean),color = "black", fill = "orange", shape = 22, size = 5) +
+  geom_point(aes(x = dataset_sa$de_cl_or_mean, y = dataset_sa$et_cl_or_mean),color = "black", fill = "orange", shape = 21, size = 5) +
+
+  geom_point(aes(x = dataset_sa$dv_sq_bl_mean, y = dataset_sa$vl_sq_bl_mean),color = "black", fill = "blue", shape = 8, size = 5.1) + 
+   geom_point(aes(x = dataset_sa$dv_sq_bl_mean, y = dataset_sa$vl_sq_bl_mean),color = "black", fill = "blue", shape = 22, size = 5) + 
+  
+   geom_point(aes(x = dataset_sa$dv_cl_bl_mean, y = dataset_sa$vl_cl_bl_mean),color = "black",fill = "blue", shape = 8, size = 5.1) + 
+  geom_point(aes(x = dataset_sa$dv_cl_bl_mean, y = dataset_sa$vl_cl_bl_mean),color = "black",fill = "blue", shape = 21, size = 5) + 
+  
+    geom_point(aes(x = dataset_sa$dv_sq_or_mean, y = dataset_sa$vl_sq_or_mean),color = "black", fill = "orange", shape = 8, size = 5.1) +
+  geom_point(aes(x = dataset_sa$dv_sq_or_mean, y = dataset_sa$vl_sq_or_mean),color = "black", fill = "orange", shape = 22, size = 5) +
+  
+  geom_point(aes(x = dataset_sa$dv_cl_or_mean, y = dataset_sa$vl_cl_or_mean),color = "black", fill = "orange", shape = 8, size = 5.1) +
+geom_point(aes(x = dataset_sa$dv_cl_or_mean, y = dataset_sa$vl_cl_or_mean),color = "black", fill = "orange", shape = 21, size = 5) +
+  
+ scale_x_continuous(limits = c(min(xvalues),max(xvalues)), breaks = seq(0,max(xvalues), by = 0.5)) + 
+  scale_y_continuous(breaks= seq(0,1,by=0.1)) + 
+  geom_vline(xintercept = 1, color = "red") +
+   xlab(expression(Exposure[correct])) + ylab("Exposure") +
+  theme_bw() + theme( 
+    axis.title.x = (element_text(size = 13)), axis.title.y = (element_text(size = 15)),
+    axis.text.x =  (element_text(size = 12)), axis.text.y =  (element_text(size = 15)), 
+    legend.title = element_text(size = 13),legend.position = "bottom", legend.text = element_text(size = 13),
+    plot.title=element_text(hjust = 0.5), plot.caption = element_text(hjust= 0.5, size = 11), plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+ 
+
+data_prox <- dataset_sa  %>% gather(key= subgroup, value = Prox, de_sq_bl_mean, dv_sq_bl_mean, de_cl_bl_mean, dv_cl_bl_mean, de_sq_or_mean, dv_sq_or_mean, de_cl_or_mean, dv_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("de_sq_bl_mean","de_cl_bl_mean","de_sq_or_mean","de_cl_or_mean"), "values" = c("dv_sq_bl_mean","dv_cl_bl_mean","dv_sq_or_mean","dv_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("de_sq_bl_mean","dv_sq_bl_mean","de_sq_or_mean","dv_sq_or_mean"), "liberal" = c("de_cl_bl_mean","dv_cl_bl_mean","de_cl_or_mean","dv_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("de_sq_bl_mean","dv_sq_bl_mean","de_cl_bl_mean","dv_cl_bl_mean"),"minority" = c("de_sq_or_mean","dv_sq_or_mean","de_cl_or_mean","dv_cl_or_mean")), "local"))
+
+
+# plot ethnic exposure corrected
+
+  
+prox_pic <- ggplot(data = data_prox, aes(x = eth_con_loc, y = Prox, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1))) + scale_y_continuous(limits=c(min(data_prox$Prox),max(data_prox$Prox)), breaks=seq(0,max(data_prox$Prox),by=0.50)) +
+ facet_wrap(~ circle_orange, dir = "v", labeller = labeller(circle_orange = circle_orange.labs)) +
+    geom_vline(xintercept = 20, color = "red") +  geom_hline(yintercept = 1, color = "red") +
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+   scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab(xlab_t) + ylab(expression(Exposure[correct])) + 
+  theme_bw() +  theme( 
+    axis.title.x = (element_text(size = 13)), axis.title.y = (element_text(size = 15)),
+    axis.text.x =  (element_text(size = 12)), axis.text.y =  (element_text(size = 15)), 
+    strip.text = element_text(size=13),
+    legend.title = element_text(size = 13),legend.position = "bottom", legend.text = element_text(size = 14),
+    plot.title=element_text(hjust = 0.5), plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+#, plot.caption = element_text(hjust= 0.5, size = 11)
+ggpubr::ggarrange(prox_pic, expo_pic, common.legend = TRUE, legend = "bottom", widths = c(1.3,1))
+
+ggsave(plotname,plot = last_plot(),
+  device = NULL,path = NULL,
+  scale = 1,
+  width = 12,
+  height = 9,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+```
+
+```{r sa_etcnmn,  fig.cap="Fig. 18: Sensitivity ethnic conservative minority, asymmetric conditions", echo=FALSE}
+
+# database filter
+excl <- names(sa_asym) %in% c("run", "ID","density","step","eth_lib_loc","val_con_loc","eth_lib_min","val_con_min")
+dataset_sa <- sa_asym[!excl] %>% filter(eth_con_loc  == 20,val_lib_loc == 20,val_lib_min == 20)  %>% 
+group_by(eth_con_min ,fraction_blue,circle_blue, circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+# image folder output
+
+plotname <- "images/etcnmn.jpg"
+xlab_t <- "ß ethnic conservative minority"
+
+xvalues <- c(dataset_sa$de_sq_bl_mean,dataset_sa$de_cl_bl_mean,dataset_sa$de_sq_or_mean,dataset_sa$de_cl_or_mean,
+       dataset_sa$dv_sq_bl_mean,dataset_sa$dv_cl_bl_mean,dataset_sa$dv_sq_or_mean,dataset_sa$dv_cl_or_mean)
+
+ expo_pic <-   ggplot(data = dataset_sa) + 
+  geom_point(aes(x = dataset_sa$de_sq_bl_mean, y = dataset_sa$et_sq_bl_mean),color = "black", fill = "blue", shape = 22, size = 5) +
+  geom_point(aes(x = dataset_sa$de_cl_bl_mean, y = dataset_sa$et_cl_bl_mean),color = "black",fill = "blue", shape = 21, size = 5) +
+  geom_point(aes(x = dataset_sa$de_sq_or_mean, y = dataset_sa$et_sq_or_mean),color = "black", fill = "orange", shape = 22, size = 5) +
+  geom_point(aes(x = dataset_sa$de_cl_or_mean, y = dataset_sa$et_cl_or_mean),color = "black", fill = "orange", shape = 21, size = 5) +
+
+  geom_point(aes(x = dataset_sa$dv_sq_bl_mean, y = dataset_sa$vl_sq_bl_mean),color = "black", fill = "blue", shape = 8, size = 5.1) + 
+   geom_point(aes(x = dataset_sa$dv_sq_bl_mean, y = dataset_sa$vl_sq_bl_mean),color = "black", fill = "blue", shape = 22, size = 5) + 
+  
+   geom_point(aes(x = dataset_sa$dv_cl_bl_mean, y = dataset_sa$vl_cl_bl_mean),color = "black",fill = "blue", shape = 8, size = 5.1) + 
+  geom_point(aes(x = dataset_sa$dv_cl_bl_mean, y = dataset_sa$vl_cl_bl_mean),color = "black",fill = "blue", shape = 21, size = 5) + 
+  
+    geom_point(aes(x = dataset_sa$dv_sq_or_mean, y = dataset_sa$vl_sq_or_mean),color = "black", fill = "orange", shape = 8, size = 5.1) +
+  geom_point(aes(x = dataset_sa$dv_sq_or_mean, y = dataset_sa$vl_sq_or_mean),color = "black", fill = "orange", shape = 22, size = 5) +
+  
+  geom_point(aes(x = dataset_sa$dv_cl_or_mean, y = dataset_sa$vl_cl_or_mean),color = "black", fill = "orange", shape = 8, size = 5.1) +
+geom_point(aes(x = dataset_sa$dv_cl_or_mean, y = dataset_sa$vl_cl_or_mean),color = "black", fill = "orange", shape = 21, size = 5) +
+  
+ scale_x_continuous(limits = c(min(xvalues),max(xvalues)), breaks = seq(0,max(xvalues), by = 0.5)) + 
+  scale_y_continuous(breaks= seq(0,1,by=0.1)) + 
+  geom_vline(xintercept = 1, color = "red") +
+   xlab(expression(Exposure[correct])) + ylab("Exposure") +
+  theme_bw() + theme( 
+    axis.title.x = (element_text(size = 13)), axis.title.y = (element_text(size = 15)),
+    axis.text.x =  (element_text(size = 12)), axis.text.y =  (element_text(size = 15)), 
+    legend.title = element_text(size = 13),legend.position = "bottom", legend.text = element_text(size = 13),
+    plot.title=element_text(hjust = 0.5), plot.caption = element_text(hjust= 0.5, size = 11), plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+ 
+
+data_prox <- dataset_sa  %>% gather(key= subgroup, value = Prox, de_sq_bl_mean, dv_sq_bl_mean, de_cl_bl_mean, dv_cl_bl_mean, de_sq_or_mean, dv_sq_or_mean, de_cl_or_mean, dv_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("de_sq_bl_mean","de_cl_bl_mean","de_sq_or_mean","de_cl_or_mean"), "values" = c("dv_sq_bl_mean","dv_cl_bl_mean","dv_sq_or_mean","dv_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("de_sq_bl_mean","dv_sq_bl_mean","de_sq_or_mean","dv_sq_or_mean"), "liberal" = c("de_cl_bl_mean","dv_cl_bl_mean","de_cl_or_mean","dv_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("de_sq_bl_mean","dv_sq_bl_mean","de_cl_bl_mean","dv_cl_bl_mean"),"minority" = c("de_sq_or_mean","dv_sq_or_mean","de_cl_or_mean","dv_cl_or_mean")), "local"))
+
+
+  
+prox_pic <- ggplot(data = data_prox, aes(x = eth_con_min, y = Prox, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1))) + scale_y_continuous(limits=c(min(data_prox$Prox),max(data_prox$Prox)), breaks=seq(0,max(data_prox$Prox),by=0.50)) +
+ facet_wrap(~ circle_orange, dir = "v", labeller = labeller(circle_orange = circle_orange.labs)) +
+    geom_vline(xintercept = 20, color = "red") +  geom_hline(yintercept = 1, color = "red") +
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+   scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab(xlab_t) + ylab(expression(Exposure[correct])) + 
+  theme_bw() +  theme( 
+    axis.title.x = (element_text(size = 13)), axis.title.y = (element_text(size = 15)),
+    axis.text.x =  (element_text(size = 12)), axis.text.y =  (element_text(size = 15)), 
+    strip.text = element_text(size=13),
+    legend.title = element_text(size = 13),legend.position = "bottom", legend.text = element_text(size = 14),
+    plot.title=element_text(hjust = 0.5), plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm")) 
+
+#, plot.caption = element_text(hjust= 0.5, size = 11)
+ggpubr::ggarrange(prox_pic, expo_pic, common.legend = TRUE, legend = "bottom", widths = c(1.3,1))
+
+ggsave(plotname,plot = last_plot(),
+  device = NULL,path = NULL,
+  scale = 1,
+  width = 12,
+  height = 9,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+```
+
+```{r sa_dom_50exp, fig.width=30, fig.cap="NO in text: sensitivity each group-type, exposure index", echo=FALSE}
+## NOT INCLUDED IN THE PAPER
+# database filter
+excl <- names(sa_asym) %in% c("run", "ID","density","step","eth_lib_loc","val_con_loc","eth_lib_min","val_con_min")
+dataset_sa <- sa_asym[!excl] %>% filter(val_lib_loc  == 20,eth_con_min == 20, val_lib_min == 20)  %>% 
+ filter(circle_orange == 50) %>%
+  group_by(eth_con_loc,fraction_blue,circle_blue, circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+xlab_t <- "ß ethnic conservative local"
+
+
+
+# graph
+
+data_exp <- dataset_sa %>% gather(key= subgroup, value = Expo, et_sq_bl_mean, vl_sq_bl_mean, et_cl_bl_mean, vl_cl_bl_mean, et_sq_or_mean, vl_sq_or_mean, et_cl_or_mean, vl_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("et_sq_bl_mean","et_cl_bl_mean","et_sq_or_mean","et_cl_or_mean"), "values" = c("vl_sq_bl_mean","vl_cl_bl_mean","vl_sq_or_mean","vl_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("et_sq_bl_mean","vl_sq_bl_mean","et_sq_or_mean","vl_sq_or_mean"), "liberal" = c("et_cl_bl_mean","vl_cl_bl_mean","et_cl_or_mean","vl_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("et_sq_bl_mean","vl_sq_bl_mean","et_cl_bl_mean","vl_cl_bl_mean"),"minority" = c("et_sq_or_mean","vl_sq_or_mean","et_cl_or_mean","vl_cl_or_mean")), "local"))
+
+exp_eth_con_loc <- ggplot(data = data_exp, aes(x = eth_con_loc, y = Expo, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1)))  + scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.10)) +
+  #    facet_wrap(~ circle_orange, labeller = labeller(circle_orange = circle_orange.labs)) +
+    geom_vline(xintercept = 20, color = "red") +
+
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab(xlab_t) + ylab("Exposure") + 
+  theme_bw() +  theme( axis.title.x = (element_text(size = 15)), axis.title.y = (element_text(size = 15)), axis.text.x =  (element_text(size = 12)),axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13),plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+# ggsave("images/eth_con_loc50.jpg",plot = fig_expo,
+#   device = NULL,path = NULL, 
+#   scale = 1,
+#   width = 8,
+#   height = 6,
+#   units = c("in", "cm", "mm"),
+#   dpi = 300,
+#   limitsize = FALSE)
+
+
+# database filter
+excl <- names(sa_asym) %in% c("run", "ID","density","step","eth_lib_loc","val_con_loc","eth_lib_min","val_con_min")
+dataset_sa <- sa_asym[!excl] %>% filter(eth_con_loc   == 20,eth_con_min == 20, val_lib_min == 20)  %>% 
+ filter(circle_orange == 50) %>%
+  group_by(val_lib_loc,fraction_blue,circle_blue, circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+xlab_t <- "ß value liberal local"
+
+
+
+# graph
+
+data_exp <- dataset_sa %>% gather(key= subgroup, value = Expo, et_sq_bl_mean, vl_sq_bl_mean, et_cl_bl_mean, vl_cl_bl_mean, et_sq_or_mean, vl_sq_or_mean, et_cl_or_mean, vl_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("et_sq_bl_mean","et_cl_bl_mean","et_sq_or_mean","et_cl_or_mean"), "values" = c("vl_sq_bl_mean","vl_cl_bl_mean","vl_sq_or_mean","vl_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("et_sq_bl_mean","vl_sq_bl_mean","et_sq_or_mean","vl_sq_or_mean"), "liberal" = c("et_cl_bl_mean","vl_cl_bl_mean","et_cl_or_mean","vl_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("et_sq_bl_mean","vl_sq_bl_mean","et_cl_bl_mean","vl_cl_bl_mean"),"minority" = c("et_sq_or_mean","vl_sq_or_mean","et_cl_or_mean","vl_cl_or_mean")), "local"))
+
+exp_val_lib_loc <- ggplot(data = data_exp, aes(x = val_lib_loc, y = Expo, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1)))  + scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.10)) +
+  #    facet_wrap(~ circle_orange, labeller = labeller(circle_orange = circle_orange.labs)) +
+    geom_vline(xintercept = 20, color = "red") +
+
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab(xlab_t) + ylab("Exposure") + 
+  theme_bw() +  theme( axis.title.x = (element_text(size = 15)), axis.title.y = (element_text(size = 15)), axis.text.x =  (element_text(size = 12)),axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13),plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+
+# ggsave("images/val_lib_loc50.jpg",plot = fig_expo,
+#   device = NULL,path = NULL, 
+#   scale = 1,
+#   width = 8,
+#   height = 6,
+#   units = c("in", "cm", "mm"),
+#   dpi = 300,
+#   limitsize = FALSE)
+
+
+# database filter
+excl <- names(sa_asym) %in% c("run", "ID","density","step","eth_lib_loc","val_con_loc","eth_lib_min","val_con_min")
+dataset_sa <- sa_asym[!excl] %>% filter(eth_con_loc   == 20, val_lib_loc  == 20, val_lib_min == 20)  %>% 
+ filter(circle_orange == 50) %>%
+  group_by(eth_con_min,fraction_blue,circle_blue, circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+
+###
+
+xlab_t <- "ß ethnic conservative minority"
+
+# graph
+
+data_exp <- dataset_sa %>% gather(key= subgroup, value = Expo, et_sq_bl_mean, vl_sq_bl_mean, et_cl_bl_mean, vl_cl_bl_mean, et_sq_or_mean, vl_sq_or_mean, et_cl_or_mean, vl_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("et_sq_bl_mean","et_cl_bl_mean","et_sq_or_mean","et_cl_or_mean"), "values" = c("vl_sq_bl_mean","vl_cl_bl_mean","vl_sq_or_mean","vl_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("et_sq_bl_mean","vl_sq_bl_mean","et_sq_or_mean","vl_sq_or_mean"), "liberal" = c("et_cl_bl_mean","vl_cl_bl_mean","et_cl_or_mean","vl_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("et_sq_bl_mean","vl_sq_bl_mean","et_cl_bl_mean","vl_cl_bl_mean"),"minority" = c("et_sq_or_mean","vl_sq_or_mean","et_cl_or_mean","vl_cl_or_mean")), "local"))
+
+exp_eth_con_min <-  ggplot(data = data_exp, aes(x = eth_con_min, y = Expo, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1)))  + scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.10)) +
+  #    facet_wrap(~ circle_orange, labeller = labeller(circle_orange = circle_orange.labs)) +
+    geom_vline(xintercept = 20, color = "red") +
+
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab(xlab_t) + ylab("Exposure") + 
+  theme_bw() +  theme( axis.title.x = (element_text(size = 15)), axis.title.y = (element_text(size = 15)), axis.text.x =  (element_text(size = 12)),axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13),plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+
+
+
+# database filter
+excl <- names(sa_asym) %in% c("run", "ID","density","step","eth_lib_loc","val_con_loc","eth_lib_min","val_con_min")
+dataset_sa <- sa_asym[!excl] %>% filter(eth_con_loc   == 20, val_lib_loc  == 20, eth_con_min  == 20)  %>% 
+ filter(circle_orange == 50) %>%
+  group_by(val_lib_min,fraction_blue,circle_blue, circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+###
+xlab_t <- "ß value liberal minority"
+
+# graph
+
+data_exp <- dataset_sa %>% gather(key= subgroup, value = Expo, et_sq_bl_mean, vl_sq_bl_mean, et_cl_bl_mean, vl_cl_bl_mean, et_sq_or_mean, vl_sq_or_mean, et_cl_or_mean, vl_cl_or_mean) %>% mutate(
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("et_sq_bl_mean","et_cl_bl_mean","et_sq_or_mean","et_cl_or_mean"), "values" = c("vl_sq_bl_mean","vl_cl_bl_mean","vl_sq_or_mean","vl_cl_or_mean")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("et_sq_bl_mean","vl_sq_bl_mean","et_sq_or_mean","vl_sq_or_mean"), "liberal" = c("et_cl_bl_mean","vl_cl_bl_mean","et_cl_or_mean","vl_cl_or_mean")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("et_sq_bl_mean","vl_sq_bl_mean","et_cl_bl_mean","vl_cl_bl_mean"),"minority" = c("et_sq_or_mean","vl_sq_or_mean","et_cl_or_mean","vl_cl_or_mean")), "local"))
+
+exp_val_lib_min <- ggplot(data = data_exp, aes(x = val_lib_min, y = Expo, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`)) + geom_line(aes(color = `ethnia`))  +  geom_point(color = "black", size = 4) + 
+ scale_x_discrete(limits=c(seq(0,20 ,by = 1)))  + scale_y_continuous(limits=c(0,1), breaks=seq(0,1,by=0.10)) +
+  #    facet_wrap(~ circle_orange, labeller = labeller(circle_orange = circle_orange.labs)) +
+    geom_vline(xintercept = 20, color = "red") +
+
+  scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+  scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill = FALSE) +
+  xlab(xlab_t) + ylab(expression(Exposure[correct])) + 
+  theme_bw() +  theme( axis.title.x = (element_text(size = 15)), axis.title.y = (element_text(size = 15)), axis.text.x =  (element_text(size = 12)),axis.text.y =  (element_text(size = 15)), legend.title = element_text(size = 13) ,legend.text = element_text(size = 13),plot.title=element_text(hjust = 0.5)) + theme(plot.margin=unit(c(0.1,0.1,0.1,0.1),"cm"))
+
+ggpubr::ggarrange(exp_eth_con_loc,exp_val_lib_loc,exp_eth_con_min,exp_val_lib_min, nrow = 2, ncol = 2, common.legend = TRUE, legend = "right")
+
+
+ggsave("images/exp_sa_asym_bt.jpg",plot = last_plot(),
+  device = NULL,path = NULL,
+  scale = 1,
+  width = 11,
+  height = 8,
+  units = c("in", "cm", "mm"),
+  dpi = 300,
+  limitsize = FALSE)
+
+```
+
+# Table Robustness Analysis
+
+
+```{r sa_etcnlc_table,  fig.cap="Tab. 11: Sensitivity ethnic conservative majority, asymmetric conditions", echo=FALSE}
+
+# database filter
+
+excl <- names(sa_asym) %in% c("run", "ID","density","step","eth_lib_loc","val_con_loc","eth_lib_min","val_con_min")
+dataset_sa <- sa_asym[!excl] %>% filter(val_lib_min == 20,  val_lib_loc == 20, eth_con_min == 20)  %>% 
+group_by(eth_con_loc ,fraction_blue,circle_blue, circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+# latex different distributions of liberals minority
+
+df_etcnlc50 <- dataset_sa %>%  filter(circle_orange == 50)
+etcnlc50 <- xtable(df_etcnlc50[,c("eth_con_loc","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(etcnlc50) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <-  c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $50 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ ethnic & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"conservative local & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(etcnlc50,type = "latex", file = "latex/etcnlc50.tex"  , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+
+df_etcnlc20 <- dataset_sa %>%  filter(circle_orange == 20)
+etcnlc20 <- xtable(df_etcnlc20[,c("eth_con_loc","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(etcnlc20) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <- c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $20 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ ethnic & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"conservative local & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(etcnlc20,type = "latex", file = "latex/etcnlc20.tex" , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+df_etcnlc80 <- dataset_sa %>%  filter(circle_orange == 80)
+etcnlc80 <- xtable(df_etcnlc80[,c("eth_con_loc","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(etcnlc80) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <- c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $80 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ ethnic & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"conservative local & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(etcnlc80,type = "latex", file = "latex/etcnlc80.tex" , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+```
+
+```{r sa_etcnmn_table,  fig.cap="Tab. 12: Ethnic conservative minority, asymmetric conditions", echo=FALSE}
+
+# database filter
+
+excl <- names(sa_asym) %in% c("run", "ID","density","step","eth_lib_loc","val_con_loc","eth_lib_min","val_con_min")
+dataset_sa <- sa_asym[!excl] %>% filter(val_lib_min == 20,  val_lib_loc == 20, eth_con_loc == 20)  %>% 
+group_by(eth_con_min ,fraction_blue,circle_blue, circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+
+df_etcnmn50 <- dataset_sa %>%  filter(circle_orange == 50)
+etcnmn50 <- xtable(df_etcnmn50[,c("eth_con_min","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(etcnmn50) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <-  c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $50 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ ethnic & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"conservative minority & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(etcnmn50,type = "latex", file = "latex/etcnmn50.tex"  , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+
+df_etcnmn20 <- dataset_sa %>%  filter(circle_orange == 20)
+etcnmn20 <- xtable(df_etcnmn20[,c("eth_con_min","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(etcnmn20) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <- c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $20 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ ethnic & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"conservative minority & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(etcnmn20,type = "latex", file = "latex/etcnmn20.tex" , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+df_etcnmn80 <- dataset_sa %>%  filter(circle_orange == 80)
+etcnmn80 <- xtable(df_etcnmn80[,c("eth_con_min","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(etcnmn80) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <- c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $80 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ ethnic & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"conservative minority & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(etcnmn80,type = "latex", file = "latex/etcnmn80.tex" , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+# test_all <- rbind(etcnmn20,etcnmn50,etcnmn80)
+# print(test_all, type = "latex", file = "latex/test_all.tex",include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+```
+
+```{r sa_vllblc_table,  fig.cap="Tab. 13: Sensitivity value liberals majority - exposure correct, asymmetric conditions", echo=FALSE}
+
+# database filter
+
+excl <- names(sa_asym) %in% c("run", "ID","density","step","eth_lib_loc","val_con_loc","eth_lib_min","val_con_min")
+dataset_sa <- sa_asym[!excl] %>% filter(eth_con_loc  == 20,eth_con_min   == 20,val_lib_min == 20)  %>% 
+group_by(val_lib_loc ,fraction_blue,circle_blue, circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+# for latex output
+
+df_vllblc50 <- dataset_sa %>%  filter(circle_orange == 50)
+tablerb_prox50 <- xtable(df_vllblc50[,c("val_lib_loc","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(tablerb_prox50) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <-  c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $50 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ value & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"liberal local & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(tablerb_prox50,type = "latex", file = "latex/vllblc50.tex"  , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+
+df_vllblc20 <- dataset_sa %>%  filter(circle_orange == 20)
+tablerb_prox20 <- xtable(df_vllblc20[,c("val_lib_loc","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(tablerb_prox20) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <- c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $20 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ value & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"liberal local & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(tablerb_prox20,type = "latex", file = "latex/vllblc20.tex" , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+df_vllblc80 <- dataset_sa %>%  filter(circle_orange == 80)
+tablerb_prox80 <- xtable(df_vllblc80[,c("val_lib_loc","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(tablerb_prox80) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <- c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $80 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ value & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"liberal local & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(tablerb_prox80,type = "latex", file = "latex/vllblc80.tex" , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+```
+
+```{r sa_vllbmn_table,  fig.cap="Tab. 14: Sensitivity value liberals minority - exposure correct, asymmetric conditions", echo=FALSE}
+
+# database filter
+
+excl <- names(sa_asym) %in% c("run", "ID","density","step","eth_lib_loc","val_con_loc","eth_lib_min","val_con_min")
+dataset_sa <- sa_asym[!excl] %>% filter(eth_con_loc  == 20,eth_con_min   == 20,val_lib_loc == 20)  %>% 
+group_by(val_lib_min ,fraction_blue,circle_blue, circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+# latex  for different distribution liberals minority
+
+df_vllbmn50 <- dataset_sa %>%  filter(circle_orange == 50)
+tablerb_mn50 <- xtable(df_vllbmn50[,c("val_lib_min","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(tablerb_mn50) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <-  c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $50 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ value & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"liberal minority & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(tablerb_mn50,type = "latex", file = "latex/vllbmn50.tex"  , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+
+df_vllbmn20 <- dataset_sa %>%  filter(circle_orange == 20)
+tablerb_mn20 <- xtable(df_vllbmn20[,c("val_lib_min","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(tablerb_mn20) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <- c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $20 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ value & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"liberal minority & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(tablerb_mn20,type = "latex", file = "latex/vllbmn20.tex" , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+df_vllbmn80 <- dataset_sa %>%  filter(circle_orange == 80)
+tablerb_mn80 <- xtable(df_vllbmn80[,c("val_lib_min","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(tablerb_mn80) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <- c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $80 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ value & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"liberal minority & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(tablerb_mn80,type = "latex", file = "latex/vllbmn80.tex" , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+```
+
+```{r et_lib_loc_table,  fig.cap="Tab. 15: Ethnic liberals majority, asymmetric conditions", echo=FALSE}
+
+# database filter
+
+excl <- names(etlib) %in% c("run", "ID","density","step","eth_con_loc","eth_con_min","val_lib_loc","val_lib_min","val_con_loc","val_con_min")
+etlib_df <- etlib[!excl] %>% filter(eth_lib_min  == 0)  %>% 
+group_by(eth_lib_loc,fraction_blue,circle_blue, circle_orange,eth_lib_min) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+
+
+df_etlib_loc50 <- etlib_df %>%  filter(circle_orange == 50)
+etlib_loc50 <- xtable(df_etlib_loc50[,c("eth_lib_loc","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(etlib_loc50) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <-  c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $50 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ ethnic & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"liberal local & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(etlib_loc50,type = "latex", file = "latex/etlib_loc50.tex"  , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+
+df_etlib_loc20 <- etlib_df %>%  filter(circle_orange == 20)
+etlib_loc20 <- xtable(df_etlib_loc20[,c("eth_lib_loc","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(etlib_loc20) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <- c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $20 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ ethnic & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"liberal local & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(etlib_loc20,type = "latex", file = "latex/etlib_loc20.tex" , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+df_etlib_loc80 <- etlib_df %>%  filter(circle_orange == 80)
+etlib_loc80 <- xtable(df_etlib_loc80[,c("eth_lib_loc","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(etlib_loc80) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <- c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $80 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ ethnic & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"liberal local & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(etlib_loc80,type = "latex", file = "latex/etlib_loc80.tex" , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+```
+
+```{r et_lib_min_table,  fig.cap="Tab. 16: Ethnic liberals minority, asymmetric conditions", echo=FALSE}
+
+# database filter
+
+excl <- names(etlib) %in% c("run", "ID","density","step","eth_con_loc","eth_con_min","val_lib_loc","val_lib_min","val_con_loc","val_con_min")
+etlib_df <- etlib[!excl] %>% filter(eth_lib_loc  == 0)  %>% 
+group_by(eth_lib_min,fraction_blue,circle_blue, circle_orange) %>% summarise_all(c("mean"= mean,"sd"= sd)) 
+
+
+
+df_etlib_min50 <- etlib_df %>%  filter(circle_orange == 50)
+etlib_min50 <- xtable(df_etlib_min50[,c("eth_lib_min","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(etlib_min50) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <-  c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $50 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ ethnic & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"liberal minority & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(etlib_min50,type = "latex", file = "latex/etlib_min50.tex"  , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+
+df_etlib_min20 <- etlib_df %>%  filter(circle_orange == 20)
+etlib_min20 <- xtable(df_etlib_min20[,c("eth_lib_min","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(etlib_min20) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <- c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $20 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ ethnic & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"liberal minority & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(etlib_min20,type = "latex", file = "latex/etlib_min20.tex" , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+df_etlib_min80 <- etlib_df %>%  filter(circle_orange == 80)
+etlib_min80 <- xtable(df_etlib_min80[,c("eth_lib_min","de_sq_bl_mean","de_sq_bl_sd","de_cl_bl_mean","de_cl_bl_sd","de_sq_or_mean","de_sq_or_sd","de_cl_or_mean","de_cl_or_sd","dv_sq_bl_mean","dv_sq_bl_sd","dv_cl_bl_mean","dv_cl_bl_sd","dv_sq_or_mean","dv_sq_or_sd","dv_cl_or_mean","dv_cl_or_sd")], digits = 3)
+align(etlib_min80) <- "c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|"
+addtorow <- list()
+addtorow$pos <- list(0, 0,0,0,0)
+addtorow$command <- c("\\multicolumn{17}{|c|}{Ethnic Asymmetry, $80 \\%$ Liberal Migrants: Spatial Proximity}  \\\\\\hline\n",
+   "Preference &  \\multicolumn{8}{|c|}{Ethnic Proximity} & \\multicolumn{8}{|c|}{Value Proximity}   \\\\\\hline\n",
+  "& \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  & \\multicolumn{4}{|c|}{Local} & \\multicolumn{4}{|c|}{Minority}  \\\\\n",
+"$\\beta$ ethnic & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} & \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal} 
+& \\multicolumn{2}{|c|}{Conservative} & \\multicolumn{2}{|c|}{Liberal}\\\\\n",
+"liberal minority & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD & Mean & SD\\\\\n")
+print(etlib_min80,type = "latex", file = "latex/etlib_min80.tex" , include.rownames=FALSE, add.to.row = addtorow, include.colnames = FALSE, latex.environments = "center")
+
+```
