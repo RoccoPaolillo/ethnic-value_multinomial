@@ -37,8 +37,8 @@ webshot::install_phantomjs()
 # Name of index (often used in y-lab and in table): exposure for ethnic symmetric, spatial proximity or exposure correct for ethnic asymmetric
 
 
-# Change work directory in quotes
-setwd("C:/Users/rocpa/OneDrive/Desktop/AF2/exp12_2020/")
+# Add working directory, substitute * in quotes (leave "/" for folders output of images and latex, or tweak)
+setwd("*/")
 
 
 
