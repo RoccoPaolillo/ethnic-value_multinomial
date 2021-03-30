@@ -1,6 +1,0 @@
-ethnic_value_log-ses with logistic function for attribution ses-value, put apart for now
-
----
-- Aim at Journal of Mathematical Sociology
-March 5: check in JAMS, follow AF comments, Shuffle focus on Schelling
-
