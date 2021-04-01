@@ -1,4 +1,12 @@
 Datasets were collected from different experiments and versions of the model.  Here is an overview:
 - e_v_rum_basic.nlogo
-    - df_basic.csv > Figg. 3,4,7
-    - df_asym_dom.csv > Fig. 8
+    - df_basic.csv > Figg. 3,4,7 (experiment basic)
+    - df_asym_dom.csv > Fig. 8 (experiment asym_dom)
+- e_v_rum_value.nlogo
+    - df_valuebasic.csv > Figg. 5,6 (combined experiment dom_crl,dom_sqr,sec_crl,sec_sqr)
+- e_v_rum_complete.nlogo
+    - df_sa_asym.csv > Figg. 9,11,12,17,18 (combined experiment etcnlc,vllblc,etcnmn,vllbmn)
+    - df_dislib.csv > Fig. 10 (experiment dislib)
+    - df_etlib.csv > Figg. 13,14 (combined experiment etlib_loc, etlib_min)
+- e_v_rum_mj.nlogo
+    - df_asym_all.csv > Fig. 16
