@@ -10,3 +10,5 @@ Datasets were collected from different experiments and versions of the model.  H
     - df_etlib.csv > Figg. 13,14 (combined experiment etlib_loc, etlib_min)
 - e_v_rum_mj.nlogo
     - df_asym_all.csv > Fig. 16
+
+Some unused additional data were collected because of time.
