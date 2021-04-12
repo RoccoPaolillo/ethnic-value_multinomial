@@ -37,7 +37,9 @@ webshot::install_phantomjs()
 # Name of index (often used in y-lab and in table): exposure for ethnic symmetric, spatial proximity or exposure correct for ethnic asymmetric
 
 
-# Add working directory, substitute * in quotes (leave "/" for folders output of images and latex, or tweak)
+# Add working directory, substitute * in quotes (leave "/" for folders output of images and latex, or tweak). In case of bug with names of pictures as "image/vllblc.jpg":
+# delete "image/".
+
 setwd("*/")
 
 
