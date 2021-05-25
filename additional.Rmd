@@ -569,66 +569,89 @@ df_high <- cbind(df_fin[,1:11],df_fin[,vars]) %>% filter(val_lib_loc==20,val_lib
 lowE <- plot_ly(df_sqbl)  %>%
   add_trace(x=df_sqbl$fraction_blue,y=df_sqbl$circle_orange,z=df_sqbl$de_sq_bl,
             scene = "scene1",
-                                        name = "Ethnic",
+                                       # name = "Ethnic",
                                        type="scatter3d",
                                        mode="markers",
-                                     marker = list(cmin=0,cmax=1,
-                                                   # colorscale = "Reds",
-                                     colorscale =  list(
-                                        c(0,'pink'),
-                                        c(0.25,'red'),
-                                        c(0.5,'green'),
-                                        c(0.75,'blue'),
-                                        c(1, 'purple')),
-                                       color= df_sqbl$et_sq_bl, showscale = T)
+                                     marker = list(
+                                       #cmin=0,cmax=1,
+                                           colorscale = "Reds",
+                                     # colorscale =  list(
+                                     #    c(0,'pink'),
+                                     #    c(0.25,'red'),
+                                     #    c(0.5,'green'),
+                                     #    c(0.75,'blue'),
+                                     #    c(1, 'purple')),
+                                       color= df_sqbl$et_sq_bl, showscale =  T,
+                                     colorbar=list(title = "Ethnic \nExposure" ,y = 0.3, len = 0.5, yanchor='top'))
                                     
-            
-            
             )  %>% 
   layout(showlegend = F,
-         title="Ethnic",
-         scene = list(
+         #title="Ethnic",
+         "scene1" = list(
       xaxis = list(title = "Ethnic Ratio",range=seq(50,90,by=10),dtick=10),
       yaxis = list(title = "% Liberal Minority",autorange = "reversed"),
-      zaxis = list(title = "Cluster")))
+      zaxis = list(title = "Ethnic Cluster")))
 
 
 
       
  lowV<- plot_ly(df_sqbl)  %>%   add_trace(x=df_sqbl$fraction_blue,y=df_sqbl$circle_orange,z=df_sqbl$dv_sq_bl,
                                           scene =  "scene2",
-                                     name = "Value",
+                                   #  name = "Value",
                                      type="scatter3d",
-                                     mode="markers",
-                                    marker = list(cmin=0,cmax=1,
+                                     mode="markers", 
+                                     marker = list( #cmin=0,cmax=1,
                                                    # colorscale = "Reds",
-                                     colorscale =  list(
-                                        c(0,'pink'),
-                                        c(0.25,'red'),
-                                        c(0.5,'green'),
-                                        c(0.75,'blue'),
-                                        c(1, 'purple')),
-                                       color= df_sqbl$et_sq_bl, showscale = T)
-                                    
-            
-            
+                                     colorscale = "Blues",
+                                       # list(
+                                       #  c(0,'pink'),
+                                       #  c(0.25,'red'),
+                                       #  c(0.5,'green'),
+                                       #  c(0.75,'blue'),
+                                       #  c(1, 'purple'))
+
+                                    color= df_sqbl$et_sq_bl , showscale = T, reversescale=T,
+                                     colorbar=list(title = "Value  \nExposure", y = 0.3, len=0.5, yanchor='bottom'))
             )  %>% 
-       layout(showlegend = T,
-         title="",
-         scene = list(
+       layout(showlegend = F,
+         "scene2" = list(
       xaxis = list(title = "Ethnic Ratio",range=seq(50,90,by=10),dtick=10),
       yaxis = list(title = "% Liberal Minority",autorange = "reversed"),
-      zaxis = list(title = "Cluster")))
+      zaxis = list(title = "Value Cluster"))) 
     
  
-
-    
-A <- subplot(lowE,lowV) %>% layout(annotations = list(
- list(x = 0.2 , y = 1 , text = "Ethnic", showarrow = F, xref='paper', yref='paper'),
-  list(x = 0.8 , y = 1, text = "Value", showarrow = F, xref='paper', yref='paper'))
+axx <- list(
+  title = "Ethnic Ratio"
 )
-         
-         
+
+axy <- list(
+  title = "% Liberal Minority"
+)
+
+axz <- list(
+  title = "Ethnic Cluster"
+)
+    
+A <- subplot(lowE, lowV)  %>% 
+
+  layout(title =  "Conservative Locals"
+)
+
+
+b <- subplot(
+  add_markers(plot_ly(x=df_sqbl$fraction_blue,y=df_sqbl$circle_orange,z=df_sqbl$de_sq_bl),color=df_sqbl$et_sq_bl) %>% colorbar(title= "Ethnic")
+ 
+)
+
+c <- subplot(
+  add_markers(plot_ly(x=df_sqbl$fraction_blue,y=df_sqbl$circle_orange,z=df_sqbl$dv_sq_bl),color=df_sqbl$vl_sq_bl) %>% colorbar(title = "Value")
+ 
+)
+
+
+A <- subplot(b,c)
+
+
    ###
       
 
