@@ -1,0 +1,1117 @@
+---
+title: "additional3D"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+setwd("C:/Users/rocpa/OneDrive/Desktop/AF/ethnic-value_multinomial-master/additional/")
+
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(scatterplot3d)
+library(reshape)
+library(reshape2)
+library(tidyr)
+library(forcats)
+library(plot3D)
+
+valueminority.labs <- c("ß value liberals minority: 0", "ß value liberals minority: 1", "ß value liberals minority: 7")
+names(valueminority.labs) <- c("0","1","7")
+valuemajority.labs <- c("ß value liberals majority: 0", "ß value liberals majority: 1", "ß value liberals majority: 7")
+names(valuemajority.labs) <- c("0","1","7")
+ethnicminority.labs <- c("ß ethnic liberals minority: 0", "ß ethnic liberals minority: 1", "ß ethnic liberals minority: 7")
+names(ethnicminority.labs) <- c("0","1","7")
+ethnicmajority.labs <- c("ß ethnic liberals majority: 0", "ß ethnic liberals majority: 1", "ß ethnic liberals majority: 7")
+names(ethnicmajority.labs) <- c("0","1","7")
+
+mech <- read.csv("mech_lib.csv",sep=",")
+excl <- names(mech) %in% c("run", "density","step")
+mech <- mech[!excl] %>% group_by(eth_con_loc, eth_con_min,eth_lib_loc,eth_lib_min,val_lib_loc,val_lib_min,val_con_loc,val_con_min,circle_orange,circle_blue,fraction_blue) %>% summarise_all(mean)
+
+df_sec <- read.csv("df_secondary.csv",sep=",")
+exclet <- names(df_sec) %in% c("run", "density","step")
+
+df_sec <- df_sec[!exclet] %>% group_by(ID,RND,eth_con_loc,eth_con_min,eth_lib_loc,eth_lib_min,val_lib_loc,val_lib_min,val_con_loc,val_con_min,circle_orange,circle_blue,fraction_blue) %>% summarise_all(mean)
+
+ df <- read.csv("3Dlowdom.csv",sep = ",",skip = 6)
+df2 <- read.csv("3Dhighdom.csv",sep = ",",skip = 6)
+leg <- read.csv("legend_sa_asym.csv",sep=";")[,1]
+df_fin <- rbind(df,df2)
+ names(df_fin)<- leg
+ 
+
+# 
+# df_t <- rbind(df_3D,df_fin)
+# 
+# 
+# write.csv(df_t,"3D.csv",row.names = F)
+
+df_3D <- read.csv("3D.csv",sep=",")
+excl3D <- names(df_3D) %in% c("run", "density","step")
+df_3D <- df_3D[!excl3D] %>% group_by(eth_con_loc, eth_con_min,eth_lib_loc,eth_lib_min,val_lib_loc,val_lib_min,val_con_loc,val_con_min,circle_orange,circle_blue,fraction_blue) %>% summarise_all(mean)
+
+
+
+```
+
+```{r asym_baseline, fig.cap="Fig. 8 orig", echo = FALSE}
+
+asym_dom <- read.csv("df_asym_dom.csv",sep = ",")
+
+excl <- names(asym_dom) %in% c("run", "density","step")
+df <- asym_dom[!excl] %>% group_by(dominant,circle_orange,circle_blue,fraction_blue,secondary) %>% summarise_all(mean)
+
+df <- df %>% filter(df$dominant <= 15) 
+df <- df %>% filter(df$fraction_blue==50|df$fraction_blue==60|df$fraction_blue==80)
+
+
+
+majcons <- ggplotly(ggplot(data = df) + geom_point(aes(x=dominant,y=dv_sq_bl, colour = vl_sq_bl),shape = "circle")  + geom_line(aes(x=dominant,y=dv_sq_bl, linetype = as.factor(fraction_blue))) +
+           geom_point(aes(x=dominant,y=de_sq_bl, colour = et_sq_bl),shape="square") + geom_line(aes(x=dominant,y=de_sq_bl, linetype = as.factor(fraction_blue)))+ ggtitle("majcons")) 
+
+majlib <- ggplotly(ggplot(data = df) + geom_point(aes(x=dominant,y=dv_cl_bl, colour = vl_cl_bl),shape = "circle")  + geom_line(aes(x=dominant,y=dv_cl_bl, linetype = as.factor(fraction_blue))) +
+           geom_point(aes(x=dominant,y=de_cl_bl, colour = et_cl_bl),shape="square") + geom_line(aes(x=dominant,y=de_cl_bl, linetype = as.factor(fraction_blue))) + ggtitle("majlib"))
+
+mincons <- ggplotly(ggplot(data = df) + geom_point(aes(x=dominant,y=dv_sq_or, colour = vl_sq_or),shape = "circle")  + geom_line(aes(x=dominant,y=dv_sq_or, linetype = as.factor(fraction_blue))) +
+           geom_point(aes(x=dominant,y=de_sq_or, colour = et_sq_or),shape="square") + geom_line(aes(x=dominant,y=de_sq_or, linetype = as.factor(fraction_blue))) + ggtitle("mincons"))
+
+minlib <- ggplotly(ggplot(data = df) + geom_point(aes(x=dominant,y=dv_cl_or, colour = vl_cl_or),shape = "circle")  + geom_line(aes(x=dominant,y=dv_cl_or, linetype = as.factor(fraction_blue))) +
+           geom_point(aes(x=dominant,y=de_cl_or, colour = et_cl_or),shape="square") + geom_line(aes(x=dominant,y=de_cl_or, linetype = as.factor(fraction_blue)))+ ggtitle("minlib")) 
+
+
+
+majcons
+majlib
+mincons
+minlib
+
+```
+
+```{r sa_asym, fig.cap="Fig. 8 orig", echo = FALSE}
+
+sa_asym <- read.csv("df_sa_asym.csv",sep = ",")
+
+excl <- names(sa_asym) %in% c("run", "density","step")
+df <- sa_asym[!excl] %>% group_by(eth_con_loc, eth_con_min,eth_lib_loc,eth_lib_min,val_lib_loc,val_lib_min,val_con_loc,val_con_min,circle_orange,circle_blue,fraction_blue) %>% summarise_all(mean)
+
+
+
+df <- df %>% filter(eth_con_min==20 & eth_con_loc==20 & val_lib_min==20)
+df <- df %>% filter(fraction_blue==50|fraction_blue==60|fraction_blue==80)
+df <- df %>% filter(circle_orange==50)
+
+dominant <- df$val_lib_loc
+
+majcons <- ggplotly(ggplot(data = df) + geom_point(aes(x=dominant,y=dv_sq_bl, colour = vl_sq_bl),shape = "circle")  + geom_line(aes(x=dominant,y=dv_sq_bl, linetype = as.factor(fraction_blue))) +
+           geom_point(aes(x=dominant,y=de_sq_bl, colour = et_sq_bl),shape="square") + geom_line(aes(x=dominant,y=de_sq_bl, linetype = as.factor(fraction_blue)))+ ggtitle("majcons")) 
+
+majlib <- ggplotly(ggplot(data = df) + geom_point(aes(x=dominant,y=dv_cl_bl, colour = vl_cl_bl),shape = "circle")  + geom_line(aes(x=dominant,y=dv_cl_bl, linetype = as.factor(fraction_blue))) +
+           geom_point(aes(x=dominant,y=de_cl_bl, colour = et_cl_bl),shape="square") + geom_line(aes(x=dominant,y=de_cl_bl, linetype = as.factor(fraction_blue))) + ggtitle("majlib"))
+
+mincons <- ggplotly(ggplot(data = df) + geom_point(aes(x=dominant,y=dv_sq_or, colour = vl_sq_or),shape = "circle")  + geom_line(aes(x=dominant,y=dv_sq_or, linetype = as.factor(fraction_blue))) +
+           geom_point(aes(x=dominant,y=de_sq_or, colour = et_sq_or),shape="square") + geom_line(aes(x=dominant,y=de_sq_or, linetype = as.factor(fraction_blue))) + ggtitle("mincons"))
+
+minlib <- ggplotly(ggplot(data = df) + geom_point(aes(x=dominant,y=dv_cl_or, colour = vl_cl_or),shape = "circle")  + geom_line(aes(x=dominant,y=dv_cl_or, linetype = as.factor(fraction_blue))) +
+           geom_point(aes(x=dominant,y=de_cl_or, colour = et_cl_or),shape="square") + geom_line(aes(x=dominant,y=de_cl_or, linetype = as.factor(fraction_blue)))+ ggtitle("minlib")) 
+
+
+
+majcons
+majlib
+mincons
+minlib
+
+
+
+```
+
+# Comparing beta majority over beta minority liberal
+
+```{r by-product_cons_original, fig.cap="Effect of liberals majority vs minority on value segregation conservatives", echo = FALSE}
+
+# ethnic and value segregation for each group in the annex
+
+##### 
+# By-product value of conservatives by value preference liberals
+
+
+# Majority
+
+mech_cons <- mech %>% filter(fraction_blue == 50 | fraction_blue == 80) %>%  filter(val_lib_min==0 | val_lib_min==1 |val_lib_min==7) %>% gather(key=ethnics, value=Clust, dv_sq_bl,dv_sq_or)
+
+
+cons_maj <- ggplot(data = mech_cons, aes(x=val_lib_loc,y=Clust,color=  `ethnics`,linetype= as.factor(fraction_blue))) + geom_point(size=1.5, shape = "square") + geom_line() + 
+  facet_wrap(~val_lib_min,dir="v",labeller = labeller(val_lib_min = valueminority.labs)) +
+    scale_y_continuous(breaks= seq(0,2,by=0.25)) +
+  xlab("ß value liberal majority") + ylab("Spatial clustering") +
+  geom_hline(yintercept=1,color="red") +
+  scale_color_manual(values=c("blue","darkorange"),labels=c("Majority","Minority"),name="Ethnicity") +
+    scale_linetype_manual(values=c("solid","dashed"),labels=c("50%","80%"),name="% Majority") +
+   guides(color  = guide_legend(order = 1), linetype = guide_legend(order = 2)) +
+  theme_bw() 
+
+
+# Minority
+
+mech_lib <- mech %>%  filter(fraction_blue == 50 | fraction_blue == 80) %>%  filter(val_lib_loc==0 | val_lib_loc==1 |val_lib_loc==7) %>% gather(key=ethnics, value=Cluste, dv_sq_bl,dv_sq_or)
+
+cons_min <- ggplot(data = mech_lib, aes(x=val_lib_min,y=Cluste,color=  `ethnics`,linetype= as.factor(fraction_blue))) + geom_point(size=1.5, shape = "square") + geom_line() + 
+  facet_wrap(~val_lib_loc,dir="v",labeller = labeller(val_lib_loc = valuemajority.labs)) +
+  xlab("ß value liberal minority") + ylab("Spatial clustering") +
+  scale_y_continuous(breaks= seq(0,2,by=0.25)) +
+  geom_hline(yintercept=1,color="red") +
+  scale_color_manual(values=c("blue","darkorange"),labels=c("Majority","Minority"),name="Ethnicity") +
+    scale_linetype_manual(values=c("solid","dashed"),labels=c("50%","80%"),name="% Majority") +
+   guides(color  = guide_legend(order = 1), linetype = guide_legend(order = 2)) +
+ theme_bw()
+
+
+ggplotly(cons_maj)
+ggplotly(cons_min)
+
+lib_cons <- ggpubr::ggarrange(cons_maj,cons_min, common.legend = TRUE, legend = "bottom")
+
+ggsave("lib_cons.jpg",plot=lib_cons)
+
+```
+
+
+```{r by-product ethnic cons, fig.cap="Effect of liberals majority vs minority on ethnic segregation conservatives", echo = FALSE}
+# Not interesting, goes in the annex
+
+# ethnic and value segregation for each group in the annex
+
+##### 
+# By-product value of conservatives by value preference liberals
+
+
+# Majority
+
+mech_cons <- mech %>% filter(fraction_blue == 50 | fraction_blue == 80) %>%  filter(val_lib_min==0 | val_lib_min==1 |val_lib_min==7) %>% gather(key=ethnics, value=Clust, de_sq_bl,de_sq_or)
+
+
+cons_maj_et <- ggplot(data = mech_cons, aes(x=val_lib_loc,y=Clust,color=  `ethnics`,linetype= as.factor(fraction_blue))) + geom_point(size=1.5, shape = "square") + geom_line() + 
+  facet_wrap(~val_lib_min,dir="v",labeller = labeller(val_lib_min = valueminority.labs)) +
+    scale_y_continuous(breaks= seq(0,5,by=0.5)) +
+  xlab("ß value liberal majority") + ylab("Spatial clustering") +
+  geom_hline(yintercept=1,color="red") +
+  scale_color_manual(values=c("blue","darkorange"),labels=c("Majority","Minority"),name="Ethnicity") +
+    scale_linetype_manual(values=c("solid","dashed"),labels=c("50%","80%"),name="% Majority") +
+   guides(color  = guide_legend(order = 1), linetype = guide_legend(order = 2)) +
+  theme_bw() 
+
+
+# Minority
+
+mech_lib <- mech %>%  filter(fraction_blue == 50 | fraction_blue == 80) %>%  filter(val_lib_loc==0 | val_lib_loc==1 |val_lib_loc==7) %>% gather(key=ethnics, value=Cluste, de_sq_bl,de_sq_or)
+
+cons_min_et <- ggplot(data = mech_lib, aes(x=val_lib_min,y=Cluste,color=  `ethnics`,linetype= as.factor(fraction_blue))) + geom_point(size=1.5, shape = "square") + geom_line() + 
+  facet_wrap(~val_lib_loc,dir="v",labeller = labeller(val_lib_loc = valuemajority.labs)) +
+  xlab("ß value liberal minority") + ylab("Spatial clustering") +
+  scale_y_continuous(breaks= seq(0,5,by=0.5)) +
+  geom_hline(yintercept=1,color="red") +
+  scale_color_manual(values=c("blue","darkorange"),labels=c("Majority","Minority"),name="Ethnicity") +
+    scale_linetype_manual(values=c("solid","dashed"),labels=c("50%","80%"),name="% Majority") +
+   guides(color  = guide_legend(order = 1), linetype = guide_legend(order = 2)) +
+ theme_bw()
+
+
+ggplotly(cons_maj_et)
+ggplotly(cons_min_et)
+
+lib_cons_et <- ggpubr::ggarrange(cons_maj_et,cons_min_et, common.legend = TRUE, legend = "bottom")
+
+#ggsave("lib_cons.jpg",plot=lib_cons)
+
+```
+
+```{r beta_maj, fig.cap="effect liberals one  dataset", echo = FALSE}
+
+#####
+# Ethnic and value of liberals above each other
+mech_vlmj <- mech %>% filter(fraction_blue == 50 | fraction_blue == 80) %>%  filter(val_lib_min==0 | val_lib_min==1 |val_lib_min==7) %>% gather(key = segregation, value = Clustmj, de_cl_bl, dv_cl_bl) 
+
+librmj <- ggplot(data=mech_vlmj,aes(x=val_lib_loc,y = Clustmj,shape=`segregation`,linetype=as.factor(fraction_blue))) + 
+  geom_point(size=1.5,color="blue") + geom_line(color="blue") +
+facet_wrap(~val_lib_min,dir="v",labeller=labeller(val_lib_min=valueminority.labs)) +
+  xlab("ß value liberals majority") + ylab("Spatial Clustering") +
+  scale_y_continuous(breaks= seq(0,2,by=0.25)) +
+  scale_linetype_manual(values=c("solid","dashed"),labels=c("50%","80%"),name="% Majority" ) +
+  scale_shape_manual(values=c("square","circle"),labels=c("Ethnic","Value"),name="Segregation" ) +
+ ggtitle("Liberals Majority") +
+    geom_hline(yintercept=1,color="red") +
+      theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) 
+   
+
+
+mech_vlmn <- mech %>%  filter(fraction_blue == 50 | fraction_blue == 80) %>%  filter(val_lib_loc==0 | val_lib_loc==1 |val_lib_loc==7) %>% gather(key = segregation, value = Clustmn, de_cl_or, dv_cl_or) 
+
+
+librmn <- ggplot(data=mech_vlmn,aes(x=val_lib_min,y = Clustmn,shape=`segregation`,linetype=as.factor(fraction_blue))) + 
+  geom_point(size=1.5,color="orange") + geom_line(color="orange") +
+facet_wrap(~val_lib_loc,dir="v",labeller=labeller(val_lib_loc=valuemajority.labs)) +
+ scale_y_continuous(breaks= seq(0,2,by=0.25)) +
+  xlab("ß value liberals minority") + ylab("Spatial Clustering") +
+    scale_linetype_manual(values=c("solid","dashed"),labels=c("50%","80%"),name="% Majority") +
+  scale_shape_manual(values=c("square","circle"),labels=c("Ethnic","Value"),name="Segregation") +
+    geom_hline(yintercept=1,color="red") +
+    guides(  linetype = guide_legend(order = 1), shape = guide_legend(order = 2)) +
+ #  guides(color=FALSE) + 
+    ggtitle("Liberals Minority") +
+    geom_hline(yintercept=1,color="red") +
+      theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+
+
+ggplotly(librmj)
+ggplotly(librmn)
+
+lib_lib <- ggpubr::ggarrange(librmj,librmn, common.legend = TRUE, legend = "bottom")  
+
+ggsave("lib_lib.jpg",plot=lib_lib)
+
+```
+
+```{r etlib_min, fig.cap="Ethnic preference majority or minority over liberals or conservatives minority", echo = FALSE}
+
+
+excl <- names(df_etlib) %in% c("run", "density","step")
+df_etlib <- df_etlib[!excl] %>% group_by(ID,eth_con_loc,eth_con_min,eth_lib_loc,eth_lib_min,val_lib_loc,val_lib_min,val_con_loc,val_con_min,circle_orange,circle_blue,fraction_blue) %>% summarise_all(mean)
+
+## Majority
+
+df_ethloc <- df_etlib %>% filter(ID == "etlib_loc") %>% filter(fraction_blue == 80) %>% gather(key = subgroup, value = Clustetmj, de_sq_or,dv_sq_or,de_cl_or,dv_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Ethnic" = c("de_sq_or","de_cl_or"), "Value" = c("dv_sq_or","dv_cl_or") ),"Ethnic"),
+              `orientation` = fct_relevel(fct_collapse(subgroup,"Conservative" = c("de_sq_or","dv_sq_or"), "Liberal" = c("de_cl_or","dv_cl_or")), "Conservative"))
+
+
+
+maj_min <- ggplot(data=df_ethloc,aes(x=eth_lib_loc,y = Clustetmj,linetype=`segregation`,shape = `orientation`)) + 
+  geom_point(size=1.5,color="orange") + geom_line(color="orange") +
+facet_wrap(~eth_lib_min,dir="v",labeller=labeller(eth_lib_min=ethnicminority.labs)) +
+  xlab("ß ethnic liberals majority") + ylab("Spatial Clustering") +
+  scale_y_continuous(breaks= seq(0,5,by=0.50)) +
+  scale_linetype_manual(values=c("solid","dashed"),labels=c("Ethnic","Value"),name="Segregation" ) +
+  scale_shape_manual(values=c("square","circle"),labels=c("Conservative","Liberal"),name="Orientation \n minority" ) +
+ ggtitle("") +
+    geom_hline(yintercept=1,color="red") +
+      theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+ggplotly(maj_min)
+   maj_min
+## Minority
+
+df_ethmin <- df_etlib %>% filter(ID == "etlib_min") %>% filter(fraction_blue == 80) %>% gather(key = subgroup, value = Clustetmn, de_sq_or,dv_sq_or,de_cl_or,dv_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Ethnic" = c("de_sq_or","de_cl_or"), "Value" = c("dv_sq_or","dv_cl_or") ),"Ethnic"),
+              `orientation` = fct_relevel(fct_collapse(subgroup,"Conservative" = c("de_sq_or","dv_sq_or"), "Liberal" = c("de_cl_or","dv_cl_or")), "Conservative"))
+
+min_min <- ggplot(data=df_ethmin,aes(x=eth_lib_min,y = Clustetmn,linetype=`segregation`,shape = `orientation`)) + 
+  geom_point(size=1.5,color="orange") + geom_line(color="orange") +
+facet_wrap(~eth_lib_loc,dir="v",labeller=labeller(eth_lib_loc=ethnicmajority.labs)) +
+  xlab("ß ethnic liberals minority") + ylab("Spatial Clustering") +
+  scale_y_continuous(breaks= seq(0,5,by=0.50)) +
+  scale_linetype_manual(values=c("solid","dashed"),labels=c("Ethnic","Value"),name="Segregation" ) +
+  scale_shape_manual(values=c("square","circle"),labels=c("Conservative","Liberal"),name="Orientation \n minority" ) +
+ ggtitle("") +
+    geom_hline(yintercept=1,color="red") +
+      theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+ggplotly(min_min)
+   min_min
+
+eth_lib_min <- ggpubr::ggarrange(maj_min,min_min, common.legend = TRUE, legend = "bottom")  
+
+ggsave("eth_lib_min.jpg",plot=eth_lib_min)
+
+```
+
+```{r etlib_min_test fraction, fig.cap="Ethnic preference majority or minority over liberals or conservatives minority", echo = FALSE}
+
+df_etlib <- read.csv("df_etlib.csv",sep=",")
+
+excl <- names(df_etlib) %in% c("run", "density","step")
+df_etlib <- df_etlib[!excl] %>% group_by(ID,eth_con_loc,eth_con_min,eth_lib_loc,eth_lib_min,val_lib_loc,val_lib_min,val_con_loc,val_con_min,circle_orange,circle_blue,fraction_blue) %>% summarise_all(mean)
+
+## Majority
+
+df_ethloc <- df_etlib %>% filter(ID == "etlib_loc") %>% filter(fraction_blue == 50 | fraction_blue == 80) %>% gather(key = subgroup, value = Clustetmj, de_sq_or,dv_sq_or,de_cl_or,dv_cl_or) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Ethnic" = c("de_sq_or","de_cl_or"), "Value" = c("dv_sq_or","dv_cl_or") ),"Ethnic"),
+              `orientation` = fct_relevel(fct_collapse(subgroup,"Conservative" = c("de_sq_or","dv_sq_or"), "Liberal" = c("de_cl_or","dv_cl_or")), "Conservative"))
+
+
+df_ethloc <- df_etlib %>% filter(ID == "etlib_loc") %>% filter(fraction_blue == 50 | fraction_blue == 80) %>%  filter(eth_lib_min==0 | eth_lib_min==1 |eth_lib_min==7) %>% gather(key = segregation, value = Clustmj, de_cl_bl, dv_cl_bl) 
+
+librmj <- ggplot(data=df_ethloc,aes(x=eth_lib_loc,y = Clustmj,shape=`segregation`,linetype=as.factor(fraction_blue))) + 
+  geom_point(size=1.5,color="blue") + geom_line(color="blue") +
+facet_wrap(~eth_lib_min,dir="v",labeller=labeller(eth_lib_min=ethnicminority.labs)) +
+  xlab("ß ethnic liberals majority") + ylab("Spatial Clustering") +
+  scale_y_continuous(breaks= seq(0,2,by=0.25)) +
+  scale_linetype_manual(values=c("solid","dashed"),labels=c("50%","80%"),name="% Majority" ) +
+  scale_shape_manual(values=c("square","circle"),labels=c("Ethnic","Value"),name="Segregation" ) +
+ ggtitle("Liberals Majority") +
+    geom_hline(yintercept=1,color="red") +
+      theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) 
+   
+
+
+df_etmin <- df_etlib %>% filter(ID == "etlib_min") %>% filter(fraction_blue == 50 | fraction_blue == 80) %>%  filter(eth_lib_loc==0 | eth_lib_loc==1 |eth_lib_loc==7) %>% gather(key = segregation, value = Clustmn, de_cl_or, dv_cl_or) 
+
+
+librmn <- ggplot(data=df_etmin,aes(x=eth_lib_min,y = Clustmn,shape=`segregation`,linetype=as.factor(fraction_blue))) + 
+  geom_point(size=1.5,color="orange") + geom_line(color="orange") +
+facet_wrap(~eth_lib_loc,dir="v",labeller=labeller(eth_lib_loc=ethnicmajority.labs)) +
+ scale_y_continuous(breaks= seq(0,2,by=0.25)) +
+  xlab("ß ethnic liberals minority") + ylab("Spatial Clustering") +
+    scale_linetype_manual(values=c("solid","dashed"),labels=c("50%","80%"),name="% Majority") +
+  scale_shape_manual(values=c("square","circle"),labels=c("Ethnic","Value"),name="Segregation") +
+    geom_hline(yintercept=1,color="red") +
+    guides(  linetype = guide_legend(order = 1), shape = guide_legend(order = 2)) +
+ #  guides(color=FALSE) + 
+    ggtitle("Liberals Minority") +
+    geom_hline(yintercept=1,color="red") +
+      theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+
+
+ggplotly(librmj)
+ggplotly(librmn)
+
+lib_lib_ethnic <- ggpubr::ggarrange(librmj,librmn, common.legend = TRUE, legend = "bottom")  
+
+# ggsave("lib_lib.jpg",plot=lib_lib)
+
+
+```
+
+
+```{r etlib_maj, fig.cap="Ethnic preference majority or minority over liberals or conservatives majority", echo = FALSE}
+
+## Majority
+
+df_ethloc_maj <- df_etlib %>% filter(ID == "etlib_loc") %>% filter(fraction_blue == 80) %>% gather(key = subgroup, value = Clustetmj, de_sq_bl,dv_sq_bl,de_cl_bl,dv_cl_bl) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Ethnic" = c("de_sq_bl","de_cl_bl"), "Value" = c("dv_sq_bl","dv_cl_bl") ),"Ethnic"),
+              `orientation` = fct_relevel(fct_collapse(subgroup,"Conservative" = c("de_sq_bl","dv_sq_bl"), "Liberal" = c("de_cl_bl","dv_cl_bl")), "Conservative"))
+
+maj_maj <- ggplot(data=df_ethloc_maj,aes(x=eth_lib_loc,y = Clustetmj,linetype=`segregation`,shape = `orientation`)) + 
+  geom_point(size=1.5,color="blue") + geom_line(color="blue") +
+facet_wrap(~eth_lib_min,dir="v",labeller=labeller(eth_lib_min=ethnicminority.labs)) +
+  xlab("ß ethnic liberals majority") + ylab("Spatial Clustering") +
+  scale_y_continuous(breaks= seq(0,5,by=0.50)) +
+  scale_linetype_manual(values=c("solid","dashed"),labels=c("Ethnic","Value"),name="Segregation" ) +
+  scale_shape_manual(values=c("square","circle"),labels=c("Conservative","Liberal"),name="Orientation \n majority" ) +
+ ggtitle("") +
+    geom_hline(yintercept=1,color="red") +
+      theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+ggplotly(maj_maj)
+   maj_maj
+## Minority
+
+df_ethmin_maj <- df_etlib %>% filter(ID == "etlib_min") %>% filter(fraction_blue == 80) %>% gather(key = subgroup, value = Clustetmn, de_sq_bl,dv_sq_bl,de_cl_bl,dv_cl_bl) %>% mutate(`segregation` = fct_relevel(fct_collapse(subgroup,"Ethnic" = c("de_sq_bl","de_cl_bl"), "Value" = c("dv_sq_bl","dv_cl_bl") ),"Ethnic"),
+              `orientation` = fct_relevel(fct_collapse(subgroup,"Conservative" = c("de_sq_bl","dv_sq_bl"), "Liberal" = c("de_cl_bl","dv_cl_bl")), "Conservative"))
+
+min_maj <- ggplot(data=df_ethmin_maj,aes(x=eth_lib_min,y = Clustetmn,linetype=`segregation`,shape = `orientation`)) + 
+  geom_point(size=1.5,color="blue") + geom_line(color="blue") +
+facet_wrap(~eth_lib_loc,dir="v",labeller=labeller(eth_lib_loc=ethnicmajority.labs)) +
+  xlab("ß ethnic liberals minority") + ylab("Spatial Clustering") +
+  scale_y_continuous(breaks= seq(0,5,by=0.50)) +
+  scale_linetype_manual(values=c("solid","dashed"),labels=c("Ethnic","Value"),name="Segregation" ) +
+  scale_shape_manual(values=c("square","circle"),labels=c("Conservative","Liberal"),name="Orientation \n majority" ) +
+ ggtitle("") +
+    geom_hline(yintercept=1,color="red") +
+      theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+ggplotly(min_maj)
+   min_maj
+
+eth_lib_maj <- ggpubr::ggarrange(maj_maj,min_maj, common.legend = TRUE, legend = "bottom")  
+
+ggsave("eth_lib_maj.jpg",plot=eth_lib_maj)
+
+```
+
+```{r sec_not_rel, fig.cap="Value conservativess and ethnic liberal not primary", echo = FALSE}
+
+
+df <- df_sec  %>%  gather(key= subgroup, value = Prox, de_sq_bl, dv_sq_bl, de_cl_bl, dv_cl_bl, de_sq_or, dv_sq_or, de_cl_or, dv_cl_or) %>% mutate(  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("de_sq_bl","de_cl_bl","de_sq_or","de_cl_or"), "values" = c("dv_sq_bl","dv_cl_bl","dv_sq_or","dv_cl_or")),"ethnics"),
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("de_sq_bl","dv_sq_bl","de_sq_or","dv_sq_or"), "liberal" = c("de_cl_bl","dv_cl_bl","de_cl_or","dv_cl_or")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("de_sq_bl","dv_sq_bl","de_cl_bl","dv_cl_bl"),"minority" = c("de_sq_or","dv_sq_or","de_cl_or","dv_cl_or")), "local"))
+
+dflow <- df %>% filter(ID == "valuecon_min" & fraction_blue == 80) %>% filter(RND == "low")
+dfh <- df %>% filter(ID == "valuecon_min" & fraction_blue == 80) %>% filter(RND == "high")
+
+low <- ggplot(data=dflow, aes(x=dflow$val_con_min,y=Prox, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`))  +  geom_point(size= 1.5) +
+  geom_line(aes(color = `ethnia`)) + 
+  facet_wrap(~  dflow$val_con_loc) +
+  ggtitle("Low randomness") + 
+   scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+ scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill  = FALSE) 
+
+high <- ggplot(data=dfh, aes(x=dfh$val_con_min,y=Prox, linetype = `segregation` , fill = `ethnia`,  shape = `orientation`))  +  geom_point(size= 1.5) +
+  geom_line(aes(color = `ethnia`)) + 
+  facet_wrap(~  dfh$val_con_loc) +
+  ggtitle("High randomness") + 
+   scale_linetype_manual(values=c("solid","dashed"), labels = c("ethnic","value"), guide = guide_legend(title = "Segregation", order = 1)) +
+  scale_fill_manual(values = c("blue","darkorange")) + 
+ scale_color_manual(values = c("blue","darkorange"), guide = guide_legend(title="Ethnicity", order = 2)) + 
+  scale_shape_manual(values = c(22,21), guide = guide_legend(title="Value" ,override.aes = list(size = 3), order = 3)) +
+  guides(fill  = FALSE) 
+
+
+cmp <- ggpubr::ggarrange(low,high,common.legend = T)
+
+
+```
+
+
+```{r sec_test, fig.cap="Value conservativess and ethnic liberal not primary", echo = FALSE}
+
+# pref <- names(df_sec) %in% c("eth_con_loc", "eth_con_min","val_loc_lib")
+
+etlblc_high <- df_sec  %>% filter(fraction_blue == 80) %>% filter(ID == "etlib_loc", RND == "high", eth_lib_loc == 5 | eth_lib_loc == 0) %>% filter(eth_lib_min == 0) %>% gather(key = subgroup, value = Clus, de_sq_bl,dv_sq_bl,de_cl_bl,dv_cl_bl,de_sq_or,dv_sq_or,de_cl_or,dv_cl_or) 
+
+etlblc_high_pic <- ggplot(etlblc_high, aes(fill = as.factor(etlblc_high$eth_lib_loc), y= etlblc_high$Clus, x = etlblc_high$subgroup) ) + 
+    geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(values=c("red","blue")) +
+  scale_y_continuous(limits= c(0,6),breaks=seq(0,6,by=0.5)) 
+
+
+etlblc_low <- df_sec  %>% filter(fraction_blue == 80) %>% filter(ID == "etlib_loc", RND == "low", eth_lib_loc == 20 | eth_lib_loc == 0) %>% filter(eth_lib_min == 0) %>% gather(key = subgroup, value = Clus, de_sq_bl,dv_sq_bl,de_cl_bl,dv_cl_bl,de_sq_or,dv_sq_or,de_cl_or,dv_cl_or) 
+
+etlblc_low_pic <- ggplot(etlblc_low, aes(fill = as.factor(etlblc_low$eth_lib_loc), y= etlblc_low$Clus, x = etlblc_low$subgroup) ) + 
+    geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(values=c("red","blue")) +
+  scale_y_continuous(limits= c(0,6),breaks=seq(0,6,by=0.5)) 
+
+
+etlbmn_high <- df_sec  %>% filter(fraction_blue == 80) %>% filter(ID == "etlib_min", RND == "high", eth_lib_min == 5 | eth_lib_min == 0) %>% filter(eth_lib_loc == 0) %>% gather(key = subgroup, value = Clus, de_sq_bl,dv_sq_bl,de_cl_bl,dv_cl_bl,de_sq_or,dv_sq_or,de_cl_or,dv_cl_or) 
+
+etlbmn_high_pic <- ggplot(etlbmn_high, aes(fill = as.factor(etlbmn_high$eth_lib_min), y= etlbmn_high$Clus, x = etlbmn_high$subgroup) ) + 
+    geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(values=c("red","blue")) +
+  scale_y_continuous(limits= c(0,6),breaks=seq(0,6,by=0.5)) 
+
+etlbmn_low <- df_sec  %>% filter(fraction_blue == 80) %>% filter(ID == "etlib_min", RND == "low", eth_lib_min == 20 | eth_lib_min == 0) %>% filter(eth_lib_loc == 0) %>% gather(key = subgroup, value = Clus, de_sq_bl,dv_sq_bl,de_cl_bl,dv_cl_bl,de_sq_or,dv_sq_or,de_cl_or,dv_cl_or) 
+
+etlbmn_low_pic <- ggplot(etlbmn_low, aes(fill = as.factor(etlbmn_low$eth_lib_min), y= etlbmn_low$Clus, x = etlbmn_low$subgroup) ) + 
+    geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(values=c("red","blue")) +
+  scale_y_continuous(limits= c(0,6),breaks=seq(0,6,by=0.5)) 
+
+
+
+vlcnlc_low <- df_sec  %>% filter(fraction_blue == 80) %>% filter(ID == "valuecon_loc", RND == "low", val_con_loc == 20 | val_con_loc == 0) %>% filter(val_con_min == 0) %>% gather(key = subgroup, value = Clus, de_sq_bl,dv_sq_bl,de_cl_bl,dv_cl_bl,de_sq_or,dv_sq_or,de_cl_or,dv_cl_or) 
+
+vlcnlc_low_pic <- ggplot(vlcnlc_low, aes(fill = as.factor(vlcnlc_low$val_con_loc), y= vlcnlc_low$Clus, x = vlcnlc_low$subgroup) ) + 
+    geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(values=c("red","blue")) +
+  scale_y_continuous(limits= c(0,6),breaks=seq(0,6,by=0.5)) 
+
+
+
+vlcnlc_high <- df_sec  %>% filter(fraction_blue == 80) %>% filter(ID == "valuecon_loc", RND == "high", val_con_loc == 5 | val_con_loc == 0) %>% filter(val_con_min == 0) %>% gather(key = subgroup, value = Clus, de_sq_bl,dv_sq_bl,de_cl_bl,dv_cl_bl,de_sq_or,dv_sq_or,de_cl_or,dv_cl_or) 
+
+vlcnlc_high_pic <- ggplot(vlcnlc_high, aes(fill = as.factor(vlcnlc_high$val_con_loc), y= vlcnlc_high$Clus, x = vlcnlc_high$subgroup) ) + 
+    geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(values=c("red","blue")) +
+  scale_y_continuous(limits= c(0,6),breaks=seq(0,6,by=0.5)) 
+
+
+
+vlcnmn_low <- df_sec  %>% filter(fraction_blue == 80) %>% filter(ID == "valuecon_min", RND == "low", val_con_min == 20 | val_con_min == 0) %>% filter(val_con_loc == 0) %>% gather(key = subgroup, value = Clus, de_sq_bl,dv_sq_bl,de_cl_bl,dv_cl_bl,de_sq_or,dv_sq_or,de_cl_or,dv_cl_or) 
+
+vlcnmn_low_pic <- ggplot(vlcnmn_low, aes(fill = as.factor(vlcnmn_low$val_con_min), y= vlcnmn_low$Clus, x = vlcnmn_low$subgroup) ) + 
+    geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(values=c("red","blue")) +
+  scale_y_continuous(limits= c(0,6),breaks=seq(0,6,by=0.5)) 
+
+
+
+vlcnmn_high <- df_sec  %>% filter(fraction_blue == 80) %>% filter(ID == "valuecon_min", RND == "high", val_con_min == 5 | val_con_min == 0) %>% filter(val_con_loc == 0) %>% gather(key = subgroup, value = Clus, de_sq_bl,dv_sq_bl,de_cl_bl,dv_cl_bl,de_sq_or,dv_sq_or,de_cl_or,dv_cl_or) 
+
+vlcnmn_high_pic <- ggplot(vlcnmn_high, aes(fill = as.factor(vlcnmn_high$val_con_min), y= vlcnmn_high$Clus, x = vlcnmn_high$subgroup) ) + 
+    geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(values=c("red","blue")) +
+  scale_y_continuous(limits= c(0,6),breaks=seq(0,6,by=0.5)) 
+
+
+ggplotly(etlblc_high_pic)
+ggplotly(etlblc_low_pic)
+ggplotly(etlbmn_high_pic)
+ggplotly(etlbmn_low_pic)
+ggplotly(vlcnlc_low_pic)
+ggplotly(vlcnlc_high_pic)
+ggplotly(vlcnmn_low_pic)
+ggplotly(vlcnmn_high_pic)
+
+
+```
+
+```{r 3D, fig.cap="3D pictures", echo = FALSE}
+
+excl3D <- names(df_fin) %in% c("run", "density","step")
+df_fin <- df_fin[!excl3D] %>% group_by(eth_con_loc, eth_con_min,eth_lib_loc,eth_lib_min,val_lib_loc,val_lib_min,val_con_loc,val_con_min,circle_orange,circle_blue,fraction_blue) %>% summarise_all(mean)
+
+vars <- c("de_sq_bl","dv_sq_bl","et_sq_bl","vl_sq_bl")
+df_sqbl <- cbind(df_fin[,1:11],df_fin[,vars]) %>% filter(val_lib_loc==5,val_lib_min==5,eth_con_loc == 5,eth_con_min == 5)
+df_high <- cbind(df_fin[,1:11],df_fin[,vars]) %>% filter(val_lib_loc==20,val_lib_min==20,eth_con_loc == 20,eth_con_min == 20)
+
+lowE <- plot_ly(df_sqbl)  %>%
+  add_trace(x=df_sqbl$fraction_blue,y=df_sqbl$circle_orange,z=df_sqbl$de_sq_bl,
+            scene = "scene1",
+                                        name = "Ethnic",
+                                       type="scatter3d",
+                                       mode="markers",
+                                     marker = list(cmin=0,cmax=1,
+                                                   # colorscale = "Reds",
+                                     colorscale =  list(
+                                        c(0,'pink'),
+                                        c(0.25,'red'),
+                                        c(0.5,'green'),
+                                        c(0.75,'blue'),
+                                        c(1, 'purple')),
+                                       color= df_sqbl$et_sq_bl, showscale = T)
+                                    
+            
+            
+            )  %>% 
+  layout(showlegend = F,
+         title="Ethnic",
+         scene = list(
+      xaxis = list(title = "Ethnic Ratio",range=seq(50,90,by=10),dtick=10),
+      yaxis = list(title = "% Liberal Minority",autorange = "reversed"),
+      zaxis = list(title = "Cluster")))
+
+
+
+      
+ lowV<- plot_ly(df_sqbl)  %>%   add_trace(x=df_sqbl$fraction_blue,y=df_sqbl$circle_orange,z=df_sqbl$dv_sq_bl,
+                                          scene =  "scene2",
+                                     name = "Value",
+                                     type="scatter3d",
+                                     mode="markers",
+                                    marker = list(cmin=0,cmax=1,
+                                                   # colorscale = "Reds",
+                                     colorscale =  list(
+                                        c(0,'pink'),
+                                        c(0.25,'red'),
+                                        c(0.5,'green'),
+                                        c(0.75,'blue'),
+                                        c(1, 'purple')),
+                                       color= df_sqbl$et_sq_bl, showscale = T)
+                                    
+            
+            
+            )  %>% 
+       layout(showlegend = T,
+         title="",
+         scene = list(
+      xaxis = list(title = "Ethnic Ratio",range=seq(50,90,by=10),dtick=10),
+      yaxis = list(title = "% Liberal Minority",autorange = "reversed"),
+      zaxis = list(title = "Cluster")))
+    
+ 
+
+    
+A <- subplot(lowE,lowV) %>% layout(annotations = list(
+ list(x = 0.2 , y = 1 , text = "Ethnic", showarrow = F, xref='paper', yref='paper'),
+  list(x = 0.8 , y = 1, text = "Value", showarrow = F, xref='paper', yref='paper'))
+)
+         
+         
+   ###
+      
+
+high <- plot_ly(df_high)  %>% add_trace(x=df_high$fraction_blue,y=df_high$circle_orange,z=df_high$de_sq_bl,color= df_high$et_sq_bl,
+                                       type="scatter3d",
+                                       mode="markers",
+                                       marker = list( colorscale = 'Reds', showscale = T))  %>%
+  add_trace(x=df_high$fraction_blue,y=df_high$circle_orange,z=df_high$dv_sq_bl,color= df_high$vl_sq_bl,
+              type="scatter3d",
+                                       mode="markers",
+                                      marker = list( colorscale = 'Greens', showscale = TRUE))  %>%
+  layout(legend = list(orientation = 'h'),
+         title="high",
+         scene = list(
+      xaxis = list(title = "Ethnic Ratio",range=seq(50,90,by=10),dtick=10),
+      yaxis = list(title = "% Liberal Minority",autorange = "reversed"),
+      zaxis = list(title = "Cluster")))
+
+low
+high
+
+
+```
+
+
+
+```{r 3Dsimple, fig.cap="3D pictures", echo = FALSE}
+
+excl3D <- names(df_fin) %in% c("run", "density","step")
+df_fin <- df_fin[!excl3D] %>% group_by(eth_con_loc, eth_con_min,eth_lib_loc,eth_lib_min,val_lib_loc,val_lib_min,val_con_loc,val_con_min,circle_orange,circle_blue,fraction_blue) %>% summarise_all(mean)
+
+vars <- c("de_sq_or","dv_sq_or","et_sq_or","vl_sq_or")
+df_sqbl <- cbind(df_fin[,1:11],df_fin[,vars]) %>% filter(val_lib_loc==5,val_lib_min==5,eth_con_loc == 5,eth_con_min == 5)
+df_high <- cbind(df_fin[,1:11],df_fin[,vars]) %>% filter(val_lib_loc==20,val_lib_min==20,eth_con_loc == 20,eth_con_min == 20)
+
+low <- plot3D::scatter3D(x = df_sqbl$fraction_blue, y = df_sqbl$circle_orange, z = df_sqbl$de_sq_or, colvar = df_sqbl$et_sq_or, col = ramp.col (col = c("grey", "blue"), n = 100, alpha = 1), pch=20, cex= 2, phi = 0)
+
+
+```
+
+
+
+
+
+
+### Back
+
+
+```{r to write 3D csv, delete}
+# trd <- read.csv("vlmaj_ethrat_3D_1.csv",sep=",",skip = 6)
+# trd2 <- read.csv("vlmaj_ethrat_3D_2.csv",sep=",",skip = 6)
+# lgnd <- read.csv("legend_sa_asym.csv",sep=";")[,1]
+# names(trd2) <- lgnd
+# 
+# trd_f <- rbind(trd,trd2)
+# 
+# trdmin <- read.csv("vlmin_ethrat_3D_1.csv",sep=",",skip = 6)
+# trd2min <- read.csv("vlmin_ethrat_3D_2.csv",sep=",",skip = 6)
+# names(trdmin) <- lgnd
+# names(trd2min) <- lgnd
+# 
+# trdmin_f <- rbind(trdmin,trd2min)
+# 
+# etlib_mj <- read.csv("etlib_loc_3D_1.csv",sep=",",skip = 6)
+# lget <- read.csv("legend_etlib.csv",sep=";")[,1]
+# names(etlib_mj) <- lget
+# 
+# 
+# order <- c("run","density","fraction_blue", "circle_blue","circle_orange" ,"eth_con_loc","val_lib_loc", "eth_con_min" , "val_lib_min" ,  "val_con_loc","eth_lib_loc","val_con_min" ,  "eth_lib_min",   "step"  , "et_sq_bl" , "et_cl_bl" ,"et_sq_or","et_cl_or","vl_sq_bl","vl_cl_bl","vl_sq_or","vl_cl_or","de_sq_bl","de_cl_bl","de_sq_or","de_cl_or","dv_sq_bl","dv_cl_bl","dv_sq_or","dv_cl_or")
+# 
+# etlib_mj <- etlib_mj[,order]
+# 
+# etlib_mj2 <- read.csv("etlib_loc_3D_2.csv",sep=",",skip = 6)
+# names(etlib_mj2) <- lget
+# 
+# etlib_mj2 <- etlib_mj2[,order]
+# 
+# df <- rbind(trdmin_f,etlib_mj,etlib_mj2)
+# 
+# etmin <- read.csv("etlib_min_3D_1.csv",sep = ",",skip = 6)
+# names(etmin) <- lget
+# 
+# etmin2 <- read.csv("etlib_min_3D_2.csv",sep = ",",skip = 6)
+# names(etmin2) <- lget
+# 
+# etmin_all <- rbind(etmin,etmin2)
+# 
+# etmin_all <- etmin_all[,order]
+# 
+# df_f <- rbind(df,etmin_all)
+# 
+# write.csv(df_f,"3D.csv",row.names = F)
+```
+
+
+```{r beta_maj, fig.cap="x-axis value liberals maj vs min, each group", echo = FALSE}
+#####
+# effect on ethnic and value preference of conservatives
+
+consmj_majlib <- ggplot(data=mech_cons) + geom_point(aes(x=mech_cons$val_lib_loc,y=mech_cons$de_sq_bl,color=mech_cons$et_sq_bl),shape=15)  + 
+  geom_line(aes(x=mech_cons$val_lib_loc,y=mech_cons$de_sq_bl,linetype=as.factor(mech_cons$fraction_blue)),color="blue") +
+   scale_color_gradient(low = "grey", high = "brown") +
+geom_point(aes(x=mech_cons$val_lib_loc,y=mech_cons$dv_sq_bl,color=mech_cons$vl_sq_bl),shape =15) +
+    geom_line(aes(x=mech_cons$val_lib_loc,y=mech_cons$dv_sq_bl,linetype=as.factor(mech_cons$fraction_blue)),color="darkorange") +
+  facet_wrap(~mech_cons$val_lib_min,dir="v") +
+  theme(legend.position = "bottom")
+
+consmj_minlib <- ggplot(data=mech_lib) + geom_point(aes(x=mech_lib$val_lib_min,y=mech_lib$de_sq_bl,color=mech_lib$et_sq_bl),shape=15)  + 
+  geom_line(aes(x=mech_lib$val_lib_min,y=mech_lib$de_sq_bl,linetype=as.factor(mech_lib$fraction_blue)),color="blue") +
+   scale_color_gradient(low = "grey", high = "brown") +
+geom_point(aes(x=mech_lib$val_lib_min,y=mech_lib$dv_sq_bl,color=mech_lib$vl_sq_bl),shape =15) +
+    geom_line(aes(x=mech_lib$val_lib_min,y=mech_lib$dv_sq_bl,linetype=as.factor(mech_lib$fraction_blue)),color="darkorange") +
+  facet_wrap(~mech_lib$val_lib_loc,dir="v") +
+  theme(legend.position = "bottom")
+
+ggplotly(consmj_majlib)
+ggplotly(consmj_minlib)
+
+ggpubr::ggarrange(consmj_majlib,consmj_minlib)
+
+##
+
+consmn_majlib <- ggplot(data=mech_cons) + geom_point(aes(x=mech_cons$val_lib_loc,y=mech_cons$de_sq_or,color=mech_cons$et_sq_or),shape=15)  + 
+  geom_line(aes(x=mech_cons$val_lib_loc,y=mech_cons$de_sq_or,linetype=as.factor(mech_cons$fraction_blue)),color="blue") +
+   scale_color_gradient(low = "grey", high = "brown") +
+  scale_y_continuous(limits=c(0.5,5),breaks = seq(0,5,by=1)) +
+geom_point(aes(x=mech_cons$val_lib_loc,y=mech_cons$dv_sq_or,color=mech_cons$vl_sq_or),shape =15) +
+    geom_line(aes(x=mech_cons$val_lib_loc,y=mech_cons$dv_sq_or,linetype=as.factor(mech_cons$fraction_blue)),color="darkorange") +
+  facet_wrap(~mech_cons$val_lib_min,dir="v") +
+  theme(legend.position = "bottom")
+
+consmn_minlib <- ggplot(data=mech_lib) + geom_point(aes(x=mech_lib$val_lib_min,y=mech_lib$de_sq_or,color=mech_lib$et_sq_or),shape=15)  + 
+  geom_line(aes(x=mech_lib$val_lib_min,y=mech_lib$de_sq_or,linetype=as.factor(mech_lib$fraction_blue)),color="blue") +
+   scale_color_gradient(low = "grey", high = "brown") +
+   scale_y_continuous(limits=c(0.9,5),breaks = seq(0,5,by=1)) +
+geom_point(aes(x=mech_lib$val_lib_min,y=mech_lib$dv_sq_or,color=mech_lib$vl_sq_or),shape =15) +
+    geom_line(aes(x=mech_lib$val_lib_min,y=mech_lib$dv_sq_or,linetype=as.factor(mech_lib$fraction_blue)),color="darkorange") +
+  facet_wrap(~mech_lib$val_lib_loc,dir="v") +
+  theme(legend.position = "bottom")
+
+ggplotly(consmn_majlib)
+ggplotly(consmn_minlib)
+
+ggpubr::ggarrange(consmn_majlib,consmn_minlib)
+
+
+#####
+#behavior liberals
+
+libmj_maj <- ggplot(data=mech_cons) + geom_point(aes(x=mech_cons$val_lib_loc,y=mech_cons$de_cl_bl,color=mech_cons$et_cl_bl),shape="square")  + geom_line(aes(x=mech_cons$val_lib_loc,y=mech_cons$de_cl_bl,linetype=as.factor(mech_cons$fraction_blue)),color="blue") +
+   scale_color_gradient(low = "grey", high = "brown") +
+geom_point(aes(x=mech_cons$val_lib_loc,y=mech_cons$dv_cl_bl,color=mech_cons$vl_cl_bl),shape ="circle") +
+    geom_line(aes(x=mech_cons$val_lib_loc,y=mech_cons$dv_cl_bl,linetype=as.factor(mech_cons$fraction_blue)),color="darkorange") +
+  facet_wrap(~mech_cons$val_lib_min,dir="v") +
+  theme(legend.position = "bottom")
+
+libmj_min <-  ggplot(data=mech_lib) + geom_point(aes(x=mech_lib$val_lib_min,y=mech_lib$de_cl_bl,color=mech_lib$et_cl_bl),shape="square")  + 
+  geom_line(aes(x=mech_lib$val_lib_min,y=mech_lib$de_cl_bl,linetype=as.factor(mech_lib$fraction_blue)),color="blue") +
+   scale_color_gradient(low = "grey", high = "brown") +
+geom_point(aes(x=mech_lib$val_lib_min,y=mech_lib$dv_cl_bl,color=mech_lib$vl_cl_bl),shape ="circle") +
+    geom_line(aes(x=mech_lib$val_lib_min,y=mech_lib$dv_cl_bl,linetype=as.factor(mech_lib$fraction_blue)),color="darkorange") +
+  facet_wrap(~mech_lib$val_lib_loc,dir="v") +
+  theme(legend.position = "bottom")
+
+ggplotly(libmj_maj)
+ggplotly(libmj_min)
+
+ggpubr::ggarrange(libmj_maj,libmj_min)
+
+
+libmn_maj <- ggplot(data=mech_cons) + geom_point(aes(x=mech_cons$val_lib_loc,y=mech_cons$de_cl_or,color=mech_cons$et_cl_or),shape="square")  + geom_line(aes(x=mech_cons$val_lib_loc,y=mech_cons$de_cl_or,linetype=as.factor(mech_cons$fraction_blue)),color="blue") +
+   scale_color_gradient(low = "grey", high = "brown") +
+geom_point(aes(x=mech_cons$val_lib_loc,y=mech_cons$dv_cl_or,color=mech_cons$vl_cl_or),shape ="circle") +
+    geom_line(aes(x=mech_cons$val_lib_loc,y=mech_cons$dv_cl_or,linetype=as.factor(mech_cons$fraction_blue)),color="darkorange") +
+  facet_wrap(~mech_cons$val_lib_min,dir="v") +
+  theme(legend.position = "bottom")
+
+libmn_min <-  ggplot(data=mech_lib) + geom_point(aes(x=mech_lib$val_lib_min,y=mech_lib$de_cl_or,color=mech_lib$et_cl_or),shape="square")  + 
+  geom_line(aes(x=mech_lib$val_lib_min,y=mech_lib$de_cl_or,linetype=as.factor(mech_lib$fraction_blue)),color="blue") +
+   scale_color_gradient(low = "grey", high = "brown") +
+geom_point(aes(x=mech_lib$val_lib_min,y=mech_lib$dv_cl_or,color=mech_lib$vl_cl_or),shape ="circle") +
+    geom_line(aes(x=mech_lib$val_lib_min,y=mech_lib$dv_cl_or,linetype=as.factor(mech_lib$fraction_blue)),color="darkorange") +
+  facet_wrap(~mech_lib$val_lib_loc,dir="v") +
+  theme(legend.position = "bottom")
+
+ggplotly(libmn_maj)
+ggplotly(libmn_min)
+
+
+ggpubr::ggarrange(libmj_maj,libmj_min)
+ggpubr::ggarrange(libmn_maj,libmn_min)
+
+
+#####
+# too complicated
+
+
+lib_loc <- ggplot(data=mech_cons) + geom_point(aes(x=mech_cons$val_lib_loc,y=mech_cons$dv_sq_bl,color=mech_cons$vl_sq_bl),shape=15)  + 
+  geom_line(aes(x=mech_cons$val_lib_loc,y=mech_cons$dv_sq_bl,linetype=as.factor(mech_cons$val_lib_min)),color="blue") +
+   scale_color_gradient(low = "grey", high = "brown") +
+geom_point(aes(x=mech_cons$val_lib_loc,y=mech_cons$dv_sq_or,color=mech_cons$vl_sq_or),shape =15) +
+    geom_line(aes(x=mech_cons$val_lib_loc,y=mech_cons$dv_sq_or,linetype=as.factor(mech_cons$val_lib_min)),color="darkorange") +
+  facet_wrap(~mech_cons$fraction_blue,dir="v") +
+  theme(legend.position = "bottom")
+
+lib_min <- ggplot(data=mech_lib) + geom_point(aes(x=mech_lib$val_lib_min,y=mech_lib$dv_sq_bl,color=mech_lib$vl_sq_bl),shape=15)  + 
+  geom_line(aes(x=mech_lib$val_lib_min,y=mech_lib$dv_sq_bl,linetype=as.factor(mech_lib$val_lib_loc)),color="blue") +
+   scale_color_gradient(low = "grey", high = "brown") +
+geom_point(aes(x=mech_lib$val_lib_min,y=mech_lib$dv_sq_or,color=mech_lib$vl_sq_or),shape =15) +
+    geom_line(aes(x=mech_lib$val_lib_min,y=mech_lib$dv_sq_or,linetype=as.factor(mech_lib$val_lib_loc)),color="darkorange") +
+  facet_wrap(~mech_lib$fraction_blue,dir="v") +
+  theme(legend.position = "bottom")
+
+ggplotly(lib_loc)
+ggplotly(lib_min)
+ggpubr::ggarrange(lib_loc,lib_min,common.legend = TRUE)
+
+
+
+
+
+
+#####
+# fraction: take 50 65 80, beta = 0, 1, 7
+
+df_min <- read.csv("vlmin_ethrat_1.csv",sep = ",",skip = 6)
+legend <- read.csv("legend_sa_asym.csv",sep = ";")
+legend <- as.data.frame(legend[,-2])
+names(df_min) <- pull(legend)
+
+df_maj <- read.csv("vlmaj_ethrat_1.csv",sep = ",",skip = 6)
+names(df_maj) <- pull(legend)
+
+excl <- names(df_min) %in% c("run", "density","step")
+df_min <- df_min[!excl] %>% group_by(eth_con_loc, eth_con_min,eth_lib_loc,eth_lib_min,val_lib_loc,val_lib_min,val_con_loc,val_con_min,circle_orange,circle_blue,fraction_blue) %>% summarise_all(mean)
+
+excl <- names(df_maj) %in% c("run", "density","step")
+df_maj <- df_maj[!excl] %>% group_by(eth_con_loc, eth_con_min,eth_lib_loc,eth_lib_min,val_lib_loc,val_lib_min,val_con_loc,val_con_min,circle_orange,circle_blue,fraction_blue) %>% summarise_all(mean)
+
+df_min <- df_min %>% filter(eth_con_min==20 & eth_con_loc==20)
+# df_min <- df_min %>% filter(fraction_blue==50 |  fraction_blue==80)
+df_min <- df_min %>% filter(val_lib_loc == 0 | val_lib_loc == 1 |  val_lib_loc == 7 )
+
+# val_lib_loc == 3 ||val_lib_loc == 7 |
+
+df_maj <- df_maj %>% filter(eth_con_min==20 & eth_con_loc==20)
+# df_maj <- df_maj %>% filter(fraction_blue==50 |  fraction_blue==80)
+df_maj <- df_maj %>% filter(val_lib_min == 0 | val_lib_min == 1 |   val_lib_min == 7 )
+
+#  val_lib_min == 3 | val_lib_min == 7
+
+
+majcons_min <- ggplot(data = mech_lib) + geom_point(aes(x=val_lib_min,y=dv_sq_bl, colour = vl_sq_bl),shape = "circle",size=2)  + geom_line(aes(x=val_lib_min,y=dv_sq_bl, linetype = as.factor(val_lib_loc))) + facet_wrap(~mech_lib$fraction_blue) +
+  # geom_point(aes(x=val_lib_min,y=de_sq_bl, colour = et_sq_bl),shape = "square",size=2)  + geom_line(aes(x=val_lib_min,y=de_sq_bl, linetype = as.factor(val_lib_loc))) + facet_wrap(~df_min$fraction_blue)  + 
+  ggtitle("majcons over min")
+
+majcons_maj <- ggplot(data = mech_cons) + geom_point(aes(x=val_lib_loc,y=dv_sq_bl, colour = vl_sq_bl),shape = "circle",size=2)  + geom_line(aes(x=val_lib_loc,y=dv_sq_bl, linetype = as.factor(val_lib_min))) + facet_wrap(~mech_cons$fraction_blue) +
+ # geom_point(aes(x=val_lib_loc,y=de_sq_bl, colour = et_sq_bl),shape = "square",size=2)  + geom_line(aes(x=val_lib_loc,y=de_sq_bl, linetype = as.factor(val_lib_min))) + facet_wrap(~df_min$fraction_blue)  + 
+  ggtitle("majcons over min")
+
+
+
+mincons_min <- ggplot(data = df_min) + geom_point(aes(x=val_lib_min,y=dv_sq_or, colour = vl_sq_or),shape = "circle",size=2)  + geom_line(aes(x=val_lib_min,y=dv_sq_or, linetype = as.factor(val_lib_loc))) + facet_wrap(~df_min$fraction_blue) +
+#   geom_point(aes(x=val_lib_min,y=de_sq_or, colour = et_sq_or),shape = "square",size=2)  + geom_line(aes(x=val_lib_min,y=de_sq_or, linetype = as.factor(val_lib_loc))) + facet_wrap(~df_min$fraction_blue) +
+  ggtitle("mincons over min")
+
+
+mincons_maj <- ggplot(data = df_maj) + geom_point(aes(x=val_lib_loc,y=dv_sq_or, colour = vl_sq_or),shape = "circle",size=2)  + geom_line(aes(x=val_lib_loc,y=dv_sq_or, linetype = as.factor(val_lib_min))) + facet_wrap(~df_maj$fraction_blue) + # geom_point(aes(x=val_lib_loc,y=de_sq_or, colour = et_sq_or),shape = "square",size=2)  + geom_line(aes(x=val_lib_loc,y=de_sq_or, linetype = as.factor(val_lib_min))) + facet_wrap(~df_maj$fraction_blue) +
+  ggtitle("mincons over maj")
+
+
+ggplotly(majcons_min)
+ggplotly(majcons_maj)
+
+ggplotly(mincons_min)
+ggplotly(mincons_maj)
+
+
+
+
+
+
+
+
+majlib_min <- ggplot(data = df_min) + geom_point(aes(x=val_lib_min,y=dv_cl_bl, colour = vl_cl_bl),shape = "circle",size=2)  + geom_line(aes(x=val_lib_min,y=dv_cl_bl, linetype = as.factor(val_lib_loc))) + facet_wrap(~df_min$fraction_blue)+ 
+  # geom_point(aes(x=val_lib_min,y=de_cl_bl, colour = et_cl_bl),shape = "square",size=2)  + geom_line(aes(x=val_lib_min,y=de_cl_bl, linetype = as.factor(val_lib_loc))) + facet_wrap(~df_min$fraction_blue)+ 
+ ggtitle("majlib over min")
+
+majlib_maj <- ggplot(data = df_maj) + geom_point(aes(x=val_lib_loc,y=dv_cl_bl, colour = vl_cl_bl),shape = "circle",size=2)  + geom_line(aes(x=val_lib_loc,y=dv_cl_bl, linetype = as.factor(val_lib_min))) + facet_wrap(~df_maj$fraction_blue) +
+  # geom_point(aes(x=val_lib_loc,y=de_cl_bl, colour = et_cl_bl),shape = "square",size=2)  + geom_line(aes(x=val_lib_loc,y=de_cl_bl, linetype = as.factor(val_lib_min))) + facet_wrap(~df_min$fraction_blue)+
+ ggtitle("majlib over maj")
+
+ggplotly(majlib_min)
+ggplotly(majlib_maj)
+
+
+
+
+
+minlib_min <- ggplot(data = df_min) + geom_point(aes(x=val_lib_min,y=dv_cl_or, colour = vl_cl_or),shape = "circle",size=2)  + geom_line(aes(x=val_lib_min,y=dv_cl_or, linetype = as.factor(val_lib_loc))) + facet_wrap(~df_min$fraction_blue)+ geom_point(aes(x=val_lib_min,y=de_cl_or, colour = et_cl_or),shape = "square",size=2)  + geom_line(aes(x=val_lib_min,y=de_cl_or, linetype = as.factor(val_lib_loc))) + facet_wrap(~df_min$fraction_blue)  +
+  ggtitle("minlib over min")
+
+minlib_maj <- ggplot(data = df_maj) + geom_point(aes(x=val_lib_loc,y=dv_cl_or, colour = vl_cl_or),shape = "circle",size=2)  + geom_line(aes(x=val_lib_loc,y=dv_cl_or, linetype = as.factor(val_lib_min))) + facet_wrap(~df_maj$fraction_blue) + geom_point(aes(x=val_lib_loc,y=de_cl_or, colour = et_cl_or),shape = "square",size=2)  + geom_line(aes(x=val_lib_loc,y=de_cl_or, linetype = as.factor(val_lib_min))) + facet_wrap(~df_maj$fraction_blue) +
+  ggtitle("minlib over maj")
+
+ggplotly(minlib_min)
+ggplotly(minlib_maj)
+
+
+```
+
+
+```{r back}
+
+
+# fraction: take 50 65 80, beta = 0, 1, 7
+
+# vlmin1 <- read.csv("vlmin_ethrat_1.csv",sep = ",",skip = 6)
+# legend <- read.csv("legend_sa_asym.csv",sep = ";")
+# legend <- as.data.frame(legend[,-2])
+# names(vlmin1) <- pull(legend)
+# 
+# vlmin2 <- read.csv("vlmin_ethrat_2.csv",sep = ",",skip = 6)
+# names(vlmin2) <- pull(legend)
+# 
+# vlmaj1 <- read.csv("vlmaj_ethrat_1.csv",sep = ",",skip = 6)
+# names(vlmaj1) <- pull(legend)
+# 
+# vlmaj2 <- read.csv("vlmaj_ethrat_2.csv",sep = ",",skip = 6)
+# names(vlmaj2) <- pull(legend)
+# 
+# mech_lib <- rbind(vlmin1,vlmin2,vlmaj1,vlmaj2)
+# write.csv(mech_lib,"mech_lib.csv",row.names = FALSE)
+
+
+df_long <- df %>% gather(key= subgroup, value = Outcome, de_sq_bl, dv_sq_bl, de_cl_bl, dv_cl_bl, de_sq_or, dv_sq_or, de_cl_or, dv_cl_or
+                         ) %>% mutate(
+                            
+   # `measureseg` = fct_relevel(fct_collapse(subgroup,"exposure" = c("et_sq_bl", "vl_sq_bl", "et_cl_bl", "vl_cl_bl", "et_sq_or", "vl_sq_or", "et_cl_or", "vl_cl_or"), "clustering" = c("de_sq_bl", "dv_sq_bl", "de_cl_bl", "dv_cl_bl", "de_sq_or", "dv_sq_or", "de_cl_or", "dv_cl_or")),"exposure"),
+                            
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("de_sq_bl","de_cl_bl","de_sq_or","de_cl_or" ), "values" = c("dv_sq_bl","dv_cl_bl","dv_sq_or","dv_cl_or" )),"ethnics"),
+  
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("de_sq_bl","dv_sq_bl","de_sq_or","dv_sq_or"), "liberal" = c("de_cl_bl","dv_cl_bl","de_cl_or","dv_cl_or")),"conservative" ), 
+ 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("de_sq_bl","dv_sq_bl","de_cl_bl","dv_cl_bl"),"minority" = c("de_sq_or","dv_sq_or","de_cl_or","dv_cl_or")), "local"),
+ 
+ `groupp` = fct_relevel(fct_collapse(subgroup, "cons_maj" = c("de_sq_bl","dv_sq_bl"),"lib_maj"=c("de_cl_bl","dv_cl_bl"),"cons_min"=c("de_sq_or","dv_sq_or"),"lib_min"=c("de_cl_or","dv_cl_or")),"cons_maj")
+  ) 
+
+
+
+
+
+## df_long 2 measures
+
+df_long <- df %>% gather(key= subgroup, value = Outcome, et_sq_bl, vl_sq_bl, et_cl_bl, vl_cl_bl, et_sq_or, vl_sq_or, et_cl_or, vl_cl_or,
+                          de_sq_bl, dv_sq_bl, de_cl_bl, dv_cl_bl, de_sq_or, dv_sq_or, de_cl_or, dv_cl_or ) %>% mutate(
+                            
+   `measureseg` = fct_relevel(fct_collapse(subgroup,"exposure" = c("et_sq_bl", "vl_sq_bl", "et_cl_bl", "vl_cl_bl", "et_sq_or", "vl_sq_or", "et_cl_or", "vl_cl_or"), "clustering" = c("de_sq_bl", "dv_sq_bl", "de_cl_bl", "dv_cl_bl", "de_sq_or", "dv_sq_or", "de_cl_or", "dv_cl_or")),"exposure"),
+                            
+  `segregation` = fct_relevel(fct_collapse(subgroup,"ethnics" = c("et_sq_bl","et_cl_bl","et_sq_or","et_cl_or","de_sq_bl","de_cl_bl","de_sq_or", "de_cl_or" ), "values" = c("vl_sq_bl","vl_cl_bl","vl_sq_or","vl_cl_or","dv_sq_bl","dv_cl_bl","dv_sq_or","dv_cl_or" )),"ethnics"),
+  
+ `orientation` = fct_relevel(fct_collapse(subgroup, "conservative" = c("et_sq_bl","vl_sq_bl","et_sq_or","vl_sq_or","de_sq_bl", "dv_sq_bl", "de_sq_or", "dv_sq_or"), "liberal" = c("et_cl_bl","vl_cl_bl","et_cl_or","vl_cl_or","de_cl_bl", "dv_cl_bl","de_cl_or", "dv_cl_or")),"conservative" ), 
+ `ethnia` = fct_relevel(fct_collapse(subgroup, "local" = c("et_sq_bl","vl_sq_bl","et_cl_bl","vl_cl_bl","de_sq_bl", "dv_sq_bl", "de_cl_bl", "dv_cl_bl"),"minority" = c("et_sq_or","vl_sq_or","et_cl_or","vl_cl_or","de_sq_or", "dv_sq_or", "de_cl_or", "dv_cl_or")), "local")
+ )
+
+
+
+
+
+
+
+## 3D plotly
+
+dfcl <- df_long[which(df_long$measureseg=="clustering"),]
+
+df_etsqbl<- df[,which((names(df) %in% c("fraction_blue","dominant","et_sq_bl")))]
+
+a <- as.matrix(df$dominant)
+class(a)
+
+b <- as.matrix(df$fraction_blue)
+z <- as.matrix(df$et_sq_bl)
+
+diba <- data.matrix(df)
+class(diba)
+
+M <- mesh(seq(0, 6*pi, length.out = 50),seq(pi/3, pi, length.out = 50))
+u <- M$x ; v <- M$y
+
+
+x <- data.matrix(df$fraction_blue)
+y <- data.matrix(df$dominant)
+z <- data.matrix(df$et_sq_bl)
+
+dfa <- df[which(df$dominant <= 15),]
+#plot_ly(data=df, x=df$dominant, y=df$fraction_blue, z=df$de_sq_bl, color = df$et_sq_bl) +
+  plot_ly(data=dfa) %>% 
+    add_trace(x=dfa$dominant, y=dfa$fraction_blue, z=dfa$de_sq_or, color = dfa$et_sq_bl,type = 'scatter3d',mode = 'lines+markers', marker = list( symbol="square") ) %>% 
+     add_trace(x=dfa$dominant, y=dfa$fraction_blue, z=dfa$de_sq_bl, color = dfa$et_sq_bl, type = 'scatter3d',mode = 'lines+markers') %>%
+    #   add_trace(x=df$dominant, y=df$fraction_blue, z=df$de_cl_or, color = df$et_cl_or, type = 'scatter3d',mode = 'lines+markers') %>%
+    #     add_trace(x=df$dominant, y=df$fraction_blue, z=df$de_cl_bl, color = df$et_cl_bl, type = 'scatter3d',mode = 'lines+markers') %>%
+
+    layout(
+  #  title = "Layout options in a 3d scatter plot",
+    scene = list(
+      xaxis = list(title = "dominant"),
+      yaxis = list(title = "ethnic ratio"),
+      zaxis = list(title = "cluster")
+    ))
+
+
+
+# plot for each subgroup, aesthetic: x-axis:beta, y-axis:spatial clustering, linetype  = fraction_blue, shape = type of segregation, bright = exposure
+  
+
+## make ggplot into plotly
+x1 <- 1:100
+x2 <- x1 + 100
+x3 <- x2 + 100
+
+x <-  c(x1, x2, x3)
+y <- c(2*x1, 5*x2, -2*x3)
+
+group <-  c(rep("A", length(x1)),
+           rep("B", length(x2)),
+           rep("C", length(x3)))
+
+ds <- data.frame(x, y, group)
+
+# Use the group aesthetic to ensure lines are drawn separately for each group
+p <- ggplot(ds, aes(x, y)) +
+  geom_line(aes(group = group, color = group), size = 2) +
+  ggtitle("Group specific line chart")
+
+fig <- ggplotly(p)
+
+## regression fit to 3D
+
+
+
+# data(mtcars)
+# 
+# mtcars$shape <- cut(mtcars$mpg,
+#                     breaks = c(0,18, 26, 100),
+#                     labels = c("square", "circle", "diamond"))
+# mtcars$color <- cut(mtcars$mpg,
+#                     breaks = c(0,18, 26, 100),
+#                     labels = c("red", "yellow", "green"))
+# 
+# plot_ly(type = "scatter", data = mtcars, x = rownames(mtcars), y = mtcars$mpg,
+#         mode = "markers", symbol = ~I(shape), color = ~I(color))
+
+
+x <- data.matrix(df$dominant)
+y <- data.matrix(df$fraction_blue)
+z <- data.matrix(df$et_sq_bl)
+
+fit <- lm(z ~ as.integer(x) + as.integer(y))
+# predict values on regular xy grid
+grid.lines = 100
+x.pred <- seq(min(x), max(x), length.out = grid.lines)
+y.pred <- seq(min(y), max(y), length.out = grid.lines)
+xy <- expand.grid( x = x.pred, y = y.pred)
+z.pred <- matrix(predict(fit, newdata = xy),
+                 nrow = grid.lines, ncol = grid.lines)
+# fitted points for droplines to surface
+fitpoints <- predict(fit)
+# scatter plot with regression plane
+scatter3D(x, y, z, pch = 18, cex = 2,
+    theta = 90, phi = 0, ticktype = "detailed",
+    xlab = "dominant", ylab = "maj/min", zlab = "de_sq_mj",
+    surf = list(x = x.pred, y = y.pred, z = z.pred,
+    facets = NA, fit = fitpoints), main = "df")
+
+
+
+
+
+```
+
+
+
+
+
+
