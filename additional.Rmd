@@ -36,13 +36,21 @@ exclet <- names(df_sec) %in% c("run", "density","step")
 
 df_sec <- df_sec[!exclet] %>% group_by(ID,RND,eth_con_loc,eth_con_min,eth_lib_loc,eth_lib_min,val_lib_loc,val_lib_min,val_con_loc,val_con_min,circle_orange,circle_blue,fraction_blue) %>% summarise_all(mean)
 
- df <- read.csv("3Dlowdom.csv",sep = ",",skip = 6)
-df2 <- read.csv("3Dhighdom.csv",sep = ",",skip = 6)
-leg <- read.csv("legend_sa_asym.csv",sep=";")[,1]
-df_fin <- rbind(df,df2)
- names(df_fin)<- leg
+#  df <- read.csv("3Dlowdom.csv",sep = ",",skip = 6)
+# df2 <- read.csv("3Dhighdom.csv",sep = ",",skip = 6)
+#  df3 <- read.csv("3Detlibhigh.csv",sep = ",",skip = 6)
+# df4 <- read.csv("3Detliblow.csv",sep = ",",skip = 6)
+# 
+# leg <- read.csv("legend_sa_asym.csv",sep=";")[,1]
+# df_fin <- rbind(df,df2,df3,df4)
+#  names(df_fin)<- leg
+# # 
+#   write.csv(df_fin,"3D.csv",row.names = F)
+#  
+#  
  
-
+# excl3D <- names(df_fin) %in% c("run", "density","step")
+# df_fin <- df_fin[!excl3D] %>% group_by(eth_con_loc, eth_con_min,eth_lib_loc,eth_lib_min,val_lib_loc,val_lib_min,val_con_loc,val_con_min,circle_orange,circle_blue,fraction_blue) %>% summarise_all(mean)
 # 
 # df_t <- rbind(df_3D,df_fin)
 # 
@@ -559,15 +567,12 @@ ggplotly(vlcnmn_high_pic)
 
 ```{r 3D, fig.cap="3D pictures", echo = FALSE}
 
-excl3D <- names(df_fin) %in% c("run", "density","step")
-df_fin <- df_fin[!excl3D] %>% group_by(eth_con_loc, eth_con_min,eth_lib_loc,eth_lib_min,val_lib_loc,val_lib_min,val_con_loc,val_con_min,circle_orange,circle_blue,fraction_blue) %>% summarise_all(mean)
-
 vars <- c("de_sq_bl","dv_sq_bl","et_sq_bl","vl_sq_bl")
-df_sqbl <- cbind(df_fin[,1:11],df_fin[,vars]) %>% filter(val_lib_loc==5,val_lib_min==5,eth_con_loc == 5,eth_con_min == 5)
-df_high <- cbind(df_fin[,1:11],df_fin[,vars]) %>% filter(val_lib_loc==20,val_lib_min==20,eth_con_loc == 20,eth_con_min == 20)
+df_3D_low <- cbind(df_3D[,1:11],df_3D[,vars]) %>% filter(val_lib_loc==5,val_lib_min==5,eth_con_loc == 5,eth_con_min == 5,eth_lib_loc ==0,eth_lib_min==0)
+df_3D_high <- cbind(df_3D[,1:11],df_3D[,vars]) %>% filter(val_lib_loc==20,val_lib_min==20,eth_con_loc == 20,eth_con_min == 20,eth_lib_loc ==0,eth_lib_min==0)
 
-lowE <- plot_ly(df_sqbl)  %>%
-  add_trace(x=df_sqbl$fraction_blue,y=df_sqbl$circle_orange,z=df_sqbl$de_sq_bl,
+lowE <- plot_ly(df_3D_low)  %>%
+  add_trace(x=df_3D_low$fraction_blue,y=df_3D_low$circle_orange,z=df_3D_low$de_sq_bl,
             scene = "scene1",
                                        # name = "Ethnic",
                                        type="scatter3d",
@@ -581,8 +586,8 @@ lowE <- plot_ly(df_sqbl)  %>%
                                      #    c(0.5,'green'),
                                      #    c(0.75,'blue'),
                                      #    c(1, 'purple')),
-                                       color= df_sqbl$et_sq_bl, showscale =  T,
-                                     colorbar=list(title = "Ethnic \nExposure" ,y = 0.3, len = 0.5, yanchor='top'))
+                                       color= df_3D_low$et_sq_bl, showscale =  T,
+                                     colorbar=list(title = "Ethnic \nExposure" ,x = -0.1,  len = 0.5, yanchor='bottom'))
                                     
             )  %>% 
   layout(showlegend = F,
@@ -595,7 +600,7 @@ lowE <- plot_ly(df_sqbl)  %>%
 
 
       
- lowV<- plot_ly(df_sqbl)  %>%   add_trace(x=df_sqbl$fraction_blue,y=df_sqbl$circle_orange,z=df_sqbl$dv_sq_bl,
+ lowV<- plot_ly(df_3D_low)  %>%   add_trace(x=df_3D_low$fraction_blue,y=df_3D_low$circle_orange,z=df_3D_low$dv_sq_bl,
                                           scene =  "scene2",
                                    #  name = "Value",
                                      type="scatter3d",
@@ -610,8 +615,8 @@ lowE <- plot_ly(df_sqbl)  %>%
                                        #  c(0.75,'blue'),
                                        #  c(1, 'purple'))
 
-                                    color= df_sqbl$et_sq_bl , showscale = T, reversescale=T,
-                                     colorbar=list(title = "Value  \nExposure", y = 0.3, len=0.5, yanchor='bottom'))
+                                    color= df_3D_low$vl_sq_bl , showscale = T, reversescale=T,
+                                     colorbar=list(title = "Value  \nExposure", len=0.5, yanchor='bottom'))
             )  %>% 
        layout(showlegend = F,
          "scene2" = list(
@@ -620,77 +625,116 @@ lowE <- plot_ly(df_sqbl)  %>%
       zaxis = list(title = "Value Cluster"))) 
     
  
-axx <- list(
-  title = "Ethnic Ratio"
-)
-
-axy <- list(
-  title = "% Liberal Minority"
-)
-
-axz <- list(
-  title = "Ethnic Cluster"
-)
-    
-A <- subplot(lowE, lowV)  %>% 
-
-  layout(title =  "Conservative Locals"
-)
-
-
-b <- subplot(
-  add_markers(plot_ly(x=df_sqbl$fraction_blue,y=df_sqbl$circle_orange,z=df_sqbl$de_sq_bl),color=df_sqbl$et_sq_bl) %>% colorbar(title= "Ethnic")
  
-)
-
-c <- subplot(
-  add_markers(plot_ly(x=df_sqbl$fraction_blue,y=df_sqbl$circle_orange,z=df_sqbl$dv_sq_bl),color=df_sqbl$vl_sq_bl) %>% colorbar(title = "Value")
  
-)
-
-
-A <- subplot(b,c)
-
-
-   ###
-      
-
-high <- plot_ly(df_high)  %>% add_trace(x=df_high$fraction_blue,y=df_high$circle_orange,z=df_high$de_sq_bl,color= df_high$et_sq_bl,
+ highE <- plot_ly(df_3D_high)  %>%
+  add_trace(x=df_3D_high$fraction_blue,y=df_3D_high$circle_orange,z=df_3D_high$de_sq_bl,
+            scene = "scene3",
+                                       # name = "Ethnic",
                                        type="scatter3d",
                                        mode="markers",
-                                       marker = list( colorscale = 'Reds', showscale = T))  %>%
-  add_trace(x=df_high$fraction_blue,y=df_high$circle_orange,z=df_high$dv_sq_bl,color= df_high$vl_sq_bl,
-              type="scatter3d",
-                                       mode="markers",
-                                      marker = list( colorscale = 'Greens', showscale = TRUE))  %>%
-  layout(legend = list(orientation = 'h'),
-         title="high",
-         scene = list(
+                                     marker = list(
+                                       #cmin=0,cmax=1,
+                                           colorscale = "Reds",
+                                     # colorscale =  list(
+                                     #    c(0,'pink'),
+                                     #    c(0.25,'red'),
+                                     #    c(0.5,'green'),
+                                     #    c(0.75,'blue'),
+                                     #    c(1, 'purple')),
+                                       color= df_3D_high$et_sq_bl, showscale =  T,
+                                     colorbar=list(title = "Ethnic \nExposure" ,x = -0.1,  len = 0.5, yanchor='top'))
+                                    
+            )  %>% 
+  layout(showlegend = F,
+         #title="Ethnic",
+         "scene3" = list(
       xaxis = list(title = "Ethnic Ratio",range=seq(50,90,by=10),dtick=10),
       yaxis = list(title = "% Liberal Minority",autorange = "reversed"),
-      zaxis = list(title = "Cluster")))
+      zaxis = list(title = "Ethnic Cluster")))
 
-low
-high
 
+
+      
+ highV<- plot_ly(df_3D_high)  %>%   add_trace(x=df_3D_high$fraction_blue,y=df_3D_high$circle_orange,z=df_3D_high$dv_sq_bl,
+                                          scene =  "scene4",
+                                   #  name = "Value",
+                                     type="scatter3d",
+                                     mode="markers", 
+                                     marker = list( #cmin=0,cmax=1,
+                                                   # colorscale = "Reds",
+                                     colorscale = "Blues",
+                                       # list(
+                                       #  c(0,'pink'),
+                                       #  c(0.25,'red'),
+                                       #  c(0.5,'green'),
+                                       #  c(0.75,'blue'),
+                                       #  c(1, 'purple'))
+
+                                    color= df_3D_high$vl_sq_bl , showscale = T, reversescale=T,
+                                     colorbar=list(title = "Value  \nExposure", len=0.5, yanchor='top'))
+            )  %>% 
+       layout(showlegend = F,
+         "scene4" = list(
+      xaxis = list(title = "Ethnic Ratio",range=seq(50,90,by=10),dtick=10),
+      yaxis = list(title = "% Liberal Minority",autorange = "reversed"),
+      zaxis = list(title = "Value Cluster"))) 
+ 
+ 
+ 
+A <- subplot(lowE, lowV,  highE, highV) %>% 
+  
+   layout(scene = list(domain=list(x=c(0,0.5),y=c(0.5,1)),zaxis = list(title = "Ethnic Cluster")),
+         scene2 = list(domain=list(x=c(0.5,1),y=c(0.5,1))),
+         scene3 = list(domain=list(x=c(0,0.5),y=c(0,0.5))),
+         scene4 = list(domain=list(x=c(0.5,1),y=c(0,0.5)))
+         ) %>% 
+
+  layout(annotations = list(
+  text = "Conservative Locals",
+  font = list(size = 18),
+  xref = "paper",
+  yref = "paper",
+  yanchor = "bottom",
+  xanchor = "center",
+  align = "center",
+  x = 0.5,
+  y = 1,
+  showarrow = FALSE
+)
+
+) %>%
+  layout(annotations = list(
+  text = "High Randomness",
+  font = list(size = 15),
+  xref = "paper",
+  yref = "paper",
+  yanchor = "bottom",
+  xanchor = "center",
+  align = "center",
+  x = 0.5,
+  y = 0.5,
+  showarrow = FALSE
+))%>%
+  layout(annotations = list(
+  text = "Low Randomness",
+  font = list(size = 15),
+  xref = "paper",
+  yref = "paper",
+  yanchor = "bottom",
+  xanchor = "center",
+  align = "center",
+  x = 0.5,
+  y = 0,
+  showarrow = FALSE
+)
+
+)
+  
 
 ```
 
 
-
-```{r 3Dsimple, fig.cap="3D pictures", echo = FALSE}
-
-excl3D <- names(df_fin) %in% c("run", "density","step")
-df_fin <- df_fin[!excl3D] %>% group_by(eth_con_loc, eth_con_min,eth_lib_loc,eth_lib_min,val_lib_loc,val_lib_min,val_con_loc,val_con_min,circle_orange,circle_blue,fraction_blue) %>% summarise_all(mean)
-
-vars <- c("de_sq_or","dv_sq_or","et_sq_or","vl_sq_or")
-df_sqbl <- cbind(df_fin[,1:11],df_fin[,vars]) %>% filter(val_lib_loc==5,val_lib_min==5,eth_con_loc == 5,eth_con_min == 5)
-df_high <- cbind(df_fin[,1:11],df_fin[,vars]) %>% filter(val_lib_loc==20,val_lib_min==20,eth_con_loc == 20,eth_con_min == 20)
-
-low <- plot3D::scatter3D(x = df_sqbl$fraction_blue, y = df_sqbl$circle_orange, z = df_sqbl$de_sq_or, colvar = df_sqbl$et_sq_or, col = ramp.col (col = c("grey", "blue"), n = 100, alpha = 1), pch=20, cex= 2, phi = 0)
-
-
-```
 
 
 
