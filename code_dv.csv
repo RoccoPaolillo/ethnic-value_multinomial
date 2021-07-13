@@ -1,0 +1,77 @@
+LGD;CODE
+run;[run number]
+density;density
+majority;%majority
+liberal_maj;%liberal_maj
+liberal_min;%liberal_min
+beta_distribution;beta_distribution
+con_maj;con_maj
+con_min;con_min
+lib_maj;lib_maj
+lib_min;lib_min
+dominant;dominant
+secondary;secondary
+con_eth;con_eth
+lib_val;lib_val
+lib_eth;lib_eth
+con_val;con_val
+eth_con_maj;eth_con_maj
+eth_con_min;eth_con_min
+eth_lib_maj;eth_lib_maj
+eth_lib_min;eth_lib_min
+val_con_maj;val_con_maj
+val_con_min;val_con_min
+val_lib_maj;val_lib_maj
+val_lib_min;val_lib_min
+step;[step]
+et_gl;mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1]
+vl_gl;mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1]
+den_gl;mean [count (turtles-on neighbors)] of turtles / 8
+et_sq;"mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = ""square""]"
+et_cl;"mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = ""circle""]"
+vl_sq;"mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = ""square""]"
+vl_cl;"mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = ""circle""]"
+den_sq;"mean [count (turtles-on neighbors)] of turtles with [shape = ""square""] / 8"
+den_cl;"mean [count (turtles-on neighbors)] of turtles with [shape = ""circle""] / 8"
+et_bl;mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and color = blue]
+et_or;mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and color = orange]
+vl_bl;mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and color = blue]
+vl_or;mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and color = orange]
+den_bl;mean [count (turtles-on neighbors)] of turtles with [color = blue] / 8
+den_or;mean [count (turtles-on neighbors)] of turtles with [color = orange] / 8
+et_sq_bl;"mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = ""square"" and color = blue]"
+et_cl_bl;"mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = ""circle"" and color = blue]"
+et_sq_or;"mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = ""square"" and color = orange]"
+et_cl_or;"mean [count (turtles-on neighbors) with [color = [color] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = ""circle"" and color = orange]"
+vl_sq_bl;"mean [count (turtles-on neighbors) with [ shape = [ shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = ""square"" and color = blue]"
+vl_cl_bl;"mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = ""circle"" and color = blue]"
+vl_sq_or;"mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and shape = ""square"" and color = orange]"
+vl_cl_or;"mean [count (turtles-on neighbors) with [shape = [shape] of myself] / count (turtles-on neighbors) ] of turtles with [ count (turtles-on neighbors) >= 1 and  shape = ""circle"" and color = orange]"
+den_sq_bl;"mean [count (turtles-on neighbors)] of turtles with [shape = ""square""  and color = blue] / 8"
+den_sq_or;"mean [count (turtles-on neighbors)] of turtles with [shape = ""square""  and color = orange] / 8"
+den_cl_bl;"mean [count (turtles-on neighbors)] of turtles with [shape = ""circle""  and color = blue] / 8"
+den_cl_or;"mean [count (turtles-on neighbors)] of turtles with [shape = ""circle""  and color = orange] / 8"
+cls_et_sq_bl;"mean [(((count (turtles-on neighbors) with [color = [color] of myself]) / (count turtles-on neighbors)) / ((count turtles with [color = [color] of myself]) / count turtles))]  of turtles with [color = blue and shape = ""square"" and count (turtles-on neighbors) >= 1]"
+cls_et_cl_bl;"mean [(((count (turtles-on neighbors) with [color = [color] of myself]) / (count turtles-on neighbors))  /  ((count turtles with [color = [color] of myself]) / count turtles)) ] of turtles with  [color =  blue  and shape = ""circle"" and count (turtles-on neighbors) >= 1]"
+cls_et_sq_or;"mean [(((count (turtles-on neighbors) with [color = [color] of myself]) / (count turtles-on neighbors)) / ((count turtles with [color = [color] of myself]) / count turtles))] of turtles with [color = orange and shape = ""square"" and count (turtles-on neighbors) >= 1]"
+cls_et_cl_or;"mean [(((count (turtles-on neighbors) with [color = [color] of myself]) / (count turtles-on neighbors)) / ((count turtles with [color = [color] of myself]) / count turtles))] of turtles with [color = orange and shape = ""circle"" and count (turtles-on neighbors) >= 1]"
+cls_vl_sq_bl;"mean [(((count (turtles-on neighbors) with [shape = [shape] of myself]) / (count turtles-on neighbors)) / ((count turtles with [shape = [shape] of myself]) / count turtles))] of turtles with [color = blue  and shape = ""square"" and count (turtles-on neighbors) >= 1]"
+cls_vl_cl_bl;"mean [(((count (turtles-on neighbors) with [shape = [shape] of myself]) / (count turtles-on neighbors)) / ((count turtles with [shape = [shape] of myself]) / count turtles))] of turtles with [color = blue  and shape = ""circle"" and count (turtles-on neighbors) >= 1]"
+cls_vl_sq_or;"mean [(((count (turtles-on neighbors) with [shape = [shape] of myself]) / (count turtles-on neighbors)) / ((count turtles with [shape = [shape] of myself]) / count turtles))] of turtles with [color = orange and shape = ""square"" and count (turtles-on neighbors) >= 1]"
+cls_vl_cl_or;"mean [(((count (turtles-on neighbors) with [shape = [shape] of myself]) / (count turtles-on neighbors)) / ((count turtles with [shape = [shape] of myself]) / count turtles))] of turtles with [color = orange and shape = ""circle"" and count (turtles-on neighbors) >= 1]"
+cls_den_sq_bl;"mean [ count (turtles-on neighbors) / (count turtles / count patches)] of turtles with [shape = ""square"" and color = blue] / 8"
+cls_den_cl_bl;"mean [ count (turtles-on neighbors) / (count turtles / count patches)] of turtles with [shape = ""circle"" and color = blue] / 8"
+cls_den_sq_or;"mean [ count (turtles-on neighbors) / (count turtles / count patches)] of turtles with [shape = ""square"" and color = orange] / 8"
+cls_den_cl_or;"mean [ count (turtles-on neighbors) / (count turtles / count patches)] of turtles with [shape = ""circle"" and color = orange] / 8"
+cls_et_bl;mean [(((count (turtles-on neighbors) with [color = [color] of myself]) / (count turtles-on neighbors)) / ((count turtles with [color = [color] of myself]) / count turtles))]  of turtles with [color = blue  and count (turtles-on neighbors) >= 1]
+cls_et_or;mean [(((count (turtles-on neighbors) with [color = [color] of myself]) / (count turtles-on neighbors)) / ((count turtles with [color = [color] of myself]) / count turtles))]  of turtles with [color = orange  and count (turtles-on neighbors) >= 1]
+cls_et_sq;"mean [(((count (turtles-on neighbors) with [color = [color] of myself]) / (count turtles-on neighbors)) / ((count turtles with [color = [color] of myself]) / count turtles))]  of turtles with [shape = ""square""  and count (turtles-on neighbors) >= 1]"
+cls_et_cl;"mean [(((count (turtles-on neighbors) with [color = [color] of myself]) / (count turtles-on neighbors)) / ((count turtles with [color = [color] of myself]) / count turtles))]  of turtles with [shape = ""circle""  and count (turtles-on neighbors) >= 1]"
+cls_vl_bl;mean [(((count (turtles-on neighbors) with [shape = [shape] of myself]) / (count turtles-on neighbors)) / ((count turtles with [shape = [shape] of myself]) / count turtles))]  of turtles with [color = blue  and count (turtles-on neighbors) >= 1]
+cls_vl_or;mean [(((count (turtles-on neighbors) with [shape = [shape] of myself]) / (count turtles-on neighbors)) / ((count turtles with [shape = [shape] of myself]) / count turtles))]  of turtles with [color = orange  and count (turtles-on neighbors) >= 1]
+cls_vl_sq;"mean [(((count (turtles-on neighbors) with [shape = [shape] of myself]) / (count turtles-on neighbors)) / ((count turtles with [shape = [shape] of myself]) / count turtles))]  of turtles with [shape = ""square""   and count (turtles-on neighbors) >= 1]"
+cls_vl_cl;"mean [(((count (turtles-on neighbors) with [shape = [shape] of myself]) / (count turtles-on neighbors)) / ((count turtles with [shape = [shape] of myself]) / count turtles))]  of turtles with [shape = ""circle""  and count (turtles-on neighbors) >= 1]"
+cls_den_bl;mean [ count (turtles-on neighbors) / (count turtles / count patches)] of turtles with [color = blue] / 8
+cls_den_or;mean [ count (turtles-on neighbors) / (count turtles / count patches)] of turtles with [color = orange] / 8
+cls_den_sq;"mean [ count (turtles-on neighbors) / (count turtles / count patches)] of turtles with [shape = ""square""] / 8"
+cls_den_cl;"mean [ count (turtles-on neighbors) / (count turtles / count patches)] of turtles with [shape = ""circle""] / 8"
