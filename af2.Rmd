@@ -1,0 +1,559 @@
+ ---
+title: "af2"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#setwd("C:/Users/rocpa/OneDrive/Desktop/AF2/analysis")
+
+setwd("C:/Users/rocpa/OneDrive/Desktop/AF2/analysis")
+
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(scatterplot3d)
+library(reshape)
+library(reshape2)
+library(tidyr)
+library(forcats)
+library(plot3D)
+library(xlsx)
+
+# To combine dataframes
+# dfg <- function(x,id){
+# lg <- read.csv("code_dv.csv", sep = ";")
+# x <- rbind(read.csv(paste0(x,".csv"),sep = ",",skip = 6),read.csv(paste0(x,".csv"),sep = ",",skip = 6))
+# names(x) <- lg[,1]
+# x$ID <- id
+# as.data.frame(x)
+# }
+# 
+# bsl <- dfg("bsl_dom_sec","bsl")
+# bsl_dom <- dfg("bsl_dom","bsl_dom")
+# bsl_sec_cl <- dfg("bsl_dom_sec_circle","bsl_sec_cl")
+# bsl_sec_sq <- dfg("bsl_dom_sec_square","bsl_sec_sq")
+# sens_lib  <- dfg("sens_lib" ,"sens_lib")
+# sens_con  <- dfg( "sens_con" ,"sens_con")
+# bsl_lib_con   <- dfg("bsl_value_lib_con","bsl_lib_con")
+# bsl_con_lib  <- dfg("bsl_value_con_lib","bsl_con_lib")
+# hmp  <- dfg("bsl_dom_sec_htmp","hmp")
+# asm  <- dfg("asym_bsl_sec","asm")
+# asm_dom  <- dfg("asym_bsl_secno","asm_dom")
+# libmj  <- dfg("asym_libmj_mn","libmj")
+# libmn  <- dfg("asym_libmn_mj","libmn")
+# dislib  <- dfg("asym_dislib","dislib")
+# dislib_maj  <- dfg("asym_dislib_libmajL","dislib_maj")
+# dislib_min  <- dfg("asym_dislib_libminL","dislib_min")
+# etlib_bsl  <- dfg("asym_et_bsl","etlib_bsl")
+# etlib_maj  <- dfg("asym_et_mj","etlib_maj")
+# etlib_min  <- dfg("asym_et_mn","etlib_min")
+# dislibet_maj  <- dfg("asym_dislib_et_mj", "dislibet_maj")
+# dislibet_min  <- dfg("asym_dislib_et_mn","dislibet_min")
+# 
+# df_tot <- rbind(bsl,bsl_dom, bsl_sec_cl, bsl_sec_sq,sens_lib,sens_con,bsl_lib_con ,bsl_con_lib ,hmp,  asm , asm_dom , libmj , libmn  ,dislib , dislib_maj,dislib_min  ,etlib_bsl,etlib_maj ,etlib_min ,dislibet_maj ,dislibet_min)
+# 
+# 
+# write.csv(df_tot,"df_tot.csv",row.names = F)
+
+
+
+df <- read.csv("df_tot.csv",sep =",") %>% select(-c(run)) %>%
+  group_by(ID,density,majority,liberal_maj,liberal_min,beta_distribution,con_maj,con_min,lib_maj,lib_min,dominant,secondary,con_eth,lib_val,lib_eth,con_val,eth_con_maj,eth_con_min,eth_lib_maj,eth_lib_min,val_con_maj,val_con_min,val_lib_maj,val_lib_min,step) %>% 
+  summarise_all(c("m"= mean,"sd"= sd)) %>%  
+  gather(key = group_bsl, value = Segra_bsl, et_cl_m,et_sq_m,vl_cl_m,vl_sq_m,den_cl_m,den_sq_m,
+         et_cl_sd,et_sq_sd,vl_cl_sd,vl_sq_sd,den_cl_sd,den_sq_sd
+         )  %>%
+  mutate(`outcome` = fct_relevel(fct_collapse(group_bsl,"Ethnic" = c("et_sq_m","et_cl_m","et_sq_sd","et_cl_sd"), "Value" = c("vl_sq_m","vl_cl_m","vl_sq_sd","vl_cl_sd"), "Density" = c("den_sq_m","den_cl_m","den_sq_sd","den_cl_sd")),"Ethnic"),
+`orientation` = fct_relevel(fct_collapse(group_bsl,"Conservatives" = c("et_sq_m","vl_sq_m","den_sq_m","et_sq_sd","vl_sq_sd","den_sq_sd"
+                                                                       ), "Liberals" = c("et_cl_m","vl_cl_m","den_cl_m", "et_cl_sd","vl_cl_sd","den_cl_sd")), "Conservatives"),
+`Stat` = fct_relevel(fct_collapse(group_bsl,"Mean" = c("et_cl_m","et_sq_m","vl_cl_m","vl_sq_m","den_cl_m","den_sq_m"), "SD" = c("et_cl_sd","et_sq_sd","vl_cl_sd","vl_sq_sd","den_cl_sd","den_sq_sd")),  "Mean")) %>%
+  gather(key = group_asm, value = Segra_asm, cls_et_sq_bl_m,cls_et_cl_bl_m,cls_et_sq_or_m,cls_et_cl_or_m,
+         cls_vl_sq_bl_m,cls_vl_cl_bl_m,cls_vl_sq_or_m,cls_vl_cl_or_m,
+         cls_den_sq_bl_m,cls_den_cl_bl_m,cls_den_sq_or_m,cls_den_cl_or_m,
+           et_sq_bl_m, et_cl_bl_m, et_sq_or_m, et_cl_or_m,
+           vl_sq_bl_m, vl_cl_bl_m, vl_sq_or_m, vl_cl_or_m,
+           den_sq_bl_m, den_cl_bl_m, den_sq_or_m, den_cl_or_m,
+       
+         cls_et_sq_bl_sd,cls_et_cl_bl_sd,cls_et_sq_or_sd,cls_et_cl_or_sd,
+         cls_vl_sq_bl_sd,cls_vl_cl_bl_sd,cls_vl_sq_or_sd,cls_vl_cl_or_sd,
+         cls_den_sq_bl_sd,cls_den_cl_bl_sd,cls_den_sq_or_sd,cls_den_cl_or_sd,
+           et_sq_bl_sd, et_cl_bl_sd, et_sq_or_sd, et_cl_or_sd,
+           vl_sq_bl_sd, vl_cl_bl_sd, vl_sq_or_sd, vl_cl_or_sd,
+           den_sq_bl_sd, den_cl_bl_sd, den_sq_or_sd, den_cl_or_sd   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         )%>% 
+  mutate(`outcome` = fct_relevel(fct_collapse(group_asm, 
+          "Ethnic" = c("cls_et_sq_bl_m","cls_et_cl_bl_m","cls_et_sq_or_m","cls_et_cl_or_m","et_sq_bl_m","et_cl_bl_m","et_sq_or_m","et_cl_or_m",
+                       "cls_et_sq_bl_sd","cls_et_cl_bl_sd","cls_et_sq_or_sd","cls_et_cl_or_sd","et_sq_bl_sd","et_cl_bl_sd","et_sq_or_sd","et_cl_or_sd"
+                       
+                       ),
+           "Value" = c( "cls_vl_sq_bl_m","cls_vl_cl_bl_m","cls_vl_sq_or_m","cls_vl_cl_or_m" ,"vl_sq_bl_m","vl_cl_bl_m","vl_sq_or_m","vl_cl_or_m",
+                        "cls_vl_sq_bl_sd","cls_vl_cl_bl_sd","cls_vl_sq_or_sd","cls_vl_cl_or_sd" ,"vl_sq_bl_sd","vl_cl_bl_sd","vl_sq_or_sd","vl_cl_or_sd"
+                        ),
+           "Density" = c("cls_den_sq_bl_m","cls_den_cl_bl_m","cls_den_sq_or_m","cls_den_cl_or_m","den_sq_bl_m","den_cl_bl_m","den_sq_or_m","den_cl_or_m",
+                         "cls_den_sq_bl_sd","cls_den_cl_bl_sd","cls_den_sq_or_sd","cls_den_cl_or_sd","den_sq_bl_sd","den_cl_bl_sd","den_sq_or_sd","den_cl_or_sd"
+                         )
+                                              ), "Ethnic"),
+         
+         `type` = fct_relevel(fct_collapse(group_asm,
+            "Conservative Majority" = c("cls_et_sq_bl_m","cls_vl_sq_bl_m","cls_den_sq_bl_m", "et_sq_bl_m","vl_sq_bl_m","den_sq_bl_m",
+                          "cls_et_sq_bl_sd","cls_vl_sq_bl_sd","cls_den_sq_bl_sd", "et_sq_bl_sd","vl_sq_bl_sd","den_sq_bl_sd"              
+                                        ),
+            "Liberal Majority" = c("cls_et_cl_bl_m","cls_vl_cl_bl_m","cls_den_cl_bl_m",  "et_cl_bl_m","vl_cl_bl_m","den_cl_bl_m",
+                                   "cls_et_cl_bl_sd","cls_vl_cl_bl_sd","cls_den_cl_bl_sd",  "et_cl_bl_sd","vl_cl_bl_sd","den_cl_bl_sd"
+                                   
+                                   
+                                   ),
+             "Conservative Minority" = c("cls_et_sq_or_m","cls_vl_sq_or_m","cls_den_sq_or_m",  "et_sq_or_m","vl_sq_or_m","den_sq_or_m",
+                                         "cls_et_sq_or_sd","cls_vl_sq_or_sd","cls_den_sq_or_sd",  "et_sq_or_sd","vl_sq_or_sd","den_sq_or_sd"
+                                         
+                                         ),
+             "Liberal Minority" = c("cls_et_cl_or_m","cls_vl_cl_or_m","cls_den_cl_or_m", "et_cl_or_m","vl_cl_or_m","den_cl_or_m",
+                                    "cls_et_cl_or_sd","cls_vl_cl_or_sd","cls_den_cl_or_sd", "et_cl_or_sd","vl_cl_or_sd","den_cl_or_sd"
+                                    )
+            ),"Conservative Majority" ),
+         `metric` = fct_relevel(fct_collapse(group_asm,
+            "Exposure" = c("et_sq_bl_m", "et_cl_bl_m", "et_sq_or_m", "et_cl_or_m", "vl_sq_bl_m", "vl_cl_bl_m", "vl_sq_or_m", "vl_cl_or_m", "den_sq_bl_m", "den_cl_bl_m",  "den_sq_or_m", "den_cl_or_m",
+                           "et_sq_bl_sd", "et_cl_bl_sd", "et_sq_or_sd", "et_cl_or_sd", "vl_sq_bl_sd", "vl_cl_bl_sd", "vl_sq_or_sd", "vl_cl_or_sd", "den_sq_bl_sd", "den_cl_bl_sd",  "den_sq_or_sd", "den_cl_or_sd"
+                           ),
+            "Cluster" = c("cls_et_sq_bl_m","cls_et_cl_bl_m","cls_et_sq_or_m","cls_et_cl_or_m", "cls_vl_sq_bl_m","cls_vl_cl_bl_m","cls_vl_sq_or_m","cls_vl_cl_or_m", "cls_den_sq_bl_m","cls_den_cl_bl_m","cls_den_sq_or_m","cls_den_cl_or_m",
+                          
+      "cls_et_sq_bl_sd","cls_et_cl_bl_sd","cls_et_sq_or_sd","cls_et_cl_or_sd", "cls_vl_sq_bl_sd","cls_vl_cl_bl_sd","cls_vl_sq_or_sd","cls_vl_cl_or_sd", "cls_den_sq_bl_sd","cls_den_cl_bl_sd","cls_den_sq_or_sd","cls_den_cl_or_sd"                    
+                          
+                          )), "Exposure"),
+      `Stat` = fct_relevel(fct_collapse(group_asm,
+                                        "Mean" = c("cls_et_sq_bl_m","cls_et_cl_bl_m","cls_et_sq_or_m","cls_et_cl_or_m",
+         "cls_vl_sq_bl_m","cls_vl_cl_bl_m","cls_vl_sq_or_m","cls_vl_cl_or_m",
+         "cls_den_sq_bl_m","cls_den_cl_bl_m","cls_den_sq_or_m","cls_den_cl_or_m",
+           "et_sq_bl_m", "et_cl_bl_m", "et_sq_or_m", "et_cl_or_m",
+           "vl_sq_bl_m", "vl_cl_bl_m", "vl_sq_or_m", "vl_cl_or_m",
+           "den_sq_bl_m", "den_cl_bl_m", "den_sq_or_m", "den_cl_or_m"),
+         "SD" = c("cls_et_sq_bl_sd","cls_et_cl_bl_sd","cls_et_sq_or_sd","cls_et_cl_or_sd",
+         "cls_vl_sq_bl_sd","cls_vl_cl_bl_sd","cls_vl_sq_or_sd","cls_vl_cl_or_sd",
+         "cls_den_sq_bl_sd","cls_den_cl_bl_sd","cls_den_sq_or_sd","cls_den_cl_or_sd",
+           "et_sq_bl_sd", "et_cl_bl_sd", "et_sq_or_sd", "et_cl_or_sd",
+           "vl_sq_bl_sd", "vl_cl_bl_sd", "vl_sq_or_sd", "vl_cl_or_sd",
+           "den_sq_bl_sd", "den_cl_bl_sd", "den_sq_or_sd", "den_cl_or_sd" )), "Mean"))
+      
+     
+      
+      
+      
+
+
+
+
+# df <- read.csv("df_tot.csv",sep =",") %>% select(-c(run)) %>%
+#   group_by(ID,density,majority,liberal_maj,liberal_min,beta_distribution,con_maj,con_min,lib_maj,lib_min,dominant,secondary,con_eth,lib_val,lib_eth,con_val,eth_con_maj,eth_con_min,eth_lib_maj,eth_lib_min,val_con_maj,val_con_min,val_lib_maj,val_lib_min,step) %>% summarise_all(c("m"= mean,"sd"= sd)) %>%  gather(key = group_bsl, value = Segra_bsl, et_cl_m,et_sq_m,vl_cl_m,vl_sq_m,den_cl_m,den_sq_m)  %>%
+#   mutate(`outcome` = fct_relevel(fct_collapse(group_bsl,"Ethnic" = c("et_sq_m","et_cl_m"), "Value" = c("vl_sq_m","vl_cl_m"), "Density" = c("den_sq_m","den_cl_m")),"Ethnic"),
+# `orientation` = fct_relevel(fct_collapse(group_bsl,"Conservatives" = c("et_sq_m","vl_sq_m","den_sq_m"), "Liberals" = c("et_cl_m","vl_cl_m","den_cl_m")), "Conservatives") ) %>%
+#   gather(key = group_asm, value = Segra_asm, cls_et_sq_bl_m,cls_et_cl_bl_m,cls_et_sq_or_m,cls_et_cl_or_m,
+#          cls_vl_sq_bl_m,cls_vl_cl_bl_m,cls_vl_sq_or_m,cls_vl_cl_or_m,
+#          cls_den_sq_bl_m,cls_den_cl_bl_m,cls_den_sq_or_m,cls_den_cl_or_m)%>% 
+#   mutate(`outcome` = fct_relevel(fct_collapse(group_asm, "Ethnic" = c("cls_et_sq_bl_m","cls_et_cl_bl_m","cls_et_sq_or_m","cls_et_cl_or_m"),
+#                                               "Value" = c( "cls_vl_sq_bl_m","cls_vl_cl_bl_m","cls_vl_sq_or_m","cls_vl_cl_or_m"),
+#                                               "Density" = c("cls_den_sq_bl_m","cls_den_cl_bl_m","cls_den_sq_or_m","cls_den_cl_or_m")
+#                                               ), "Ethnic"),
+#          `outcome` = fct_relevel(fct_collapse(group_asm, "Conservative Majority" = c("cls_et_sq_bl_m","cls_vl_sq_bl_m","cls_den_sq_bl_m"),
+#                                               "Liberal Majority" = c("cls_et_cl_bl_m","cls_vl_cl_bl_m","cls_den_cl_bl_m"),
+#                                               "Conservative Minority" = c("cls_et_sq_or_m","cls_vl_sq_or_m","cls_den_sq_or_m"),
+#                                               "Liberal Minority" = c("cls_et_cl_or_m","cls_vl_cl_or_m","cls_den_cl_or_m")
+#             )))
+         
+
+```
+
+
+
+
+
+
+```{r test_val-eth, fig.cap= "Checking effect of lvalue liberal = ethnic liberal" echo =  FALSE}
+
+# equal size; liberals: value = ethnic
+
+df <- read.csv("val_eth_circle3.csv",skip=6,sep=",")
+lg <- read.csv("lg_val_eth_circle3.csv",sep =";")
+names(df) <- lg[,1]
+
+df <- df %>%  gather(key = subgroup, value = Segra, et_sq,vl_sq,et_cl,vl_cl,den_sq,den_cl)  %>% mutate(
+`outcome` = fct_relevel(fct_collapse(subgroup,"Ethnic Segregation" = c("et_sq","et_cl"), "Value Segregation" = c("vl_sq","vl_cl"), "Density" = c("den_sq","den_cl")),"Ethnic Segregation"), 
+`orientation` = fct_relevel(fct_collapse(subgroup,"Conservatives" = c("et_sq","vl_sq","den_sq"), "Liberals" = c("et_cl","vl_cl","den_cl")), "Conservatives"))
+
+df %>% filter(dominant_square == circle_both) %>% ggplot(aes(x= circle_both,y = Segra, color = `outcome`, shape = `orientation`)) + geom_point() + geom_line() +
+  scale_color_manual(values = c("green","gray","purple"), guide = guide_legend(title = "Outcome")) +
+  scale_shape_manual(values = c("square","circle"), guide = guide_legend(title = "Orientation"))  +
+  scale_y_continuous(limits=c(0.45,1), breaks=seq(0.5,1,by=0.1)) +
+  xlab("ß value liberals = ß ethnic liberals") +
+  ylab("Outcome") +
+  theme_bw()+
+  theme(legend.position = "bottom")
+
+```
+
+
+
+
+
+# Basic two preferences
+```{r dompref, echo = FALSE}
+
+value_dominant_den <- value_dominant_den %>%  gather(key = subgroup, value = Segra, et_sq,vl_sq,et_cl,vl_cl,den_sq,den_cl)  %>% mutate(
+`outcome` = fct_relevel(fct_collapse(subgroup,"Ethnic Segregation" = c("et_sq","et_cl"), "Value Segregation" = c("vl_sq","vl_cl"), "Density" = c("den_sq","den_cl")),"Ethnic Segregation"), 
+`orientation` = fct_relevel(fct_collapse(subgroup,"Conservatives" = c("et_sq","vl_sq","den_sq"), "Liberals" = c("et_cl","vl_cl","den_cl")), "Conservatives"))
+
+value_basic_den <- value_basic_den %>%  gather(key = subgroup, value = Segra, et_sq,vl_sq,et_cl,vl_cl,den_sq,den_cl)  %>% mutate(
+`outcome` = fct_relevel(fct_collapse(subgroup,"Ethnic Segregation" = c("et_sq","et_cl"), "Value Segregation" = c("vl_sq","vl_cl"), "Density" = c("den_sq","den_cl")),"Ethnic Segregation"), 
+`orientation` = fct_relevel(fct_collapse(subgroup,"Conservatives" = c("et_sq","vl_sq","den_sq"), "Liberals" = c("et_cl","vl_cl","den_cl")), "Conservatives"))
+
+
+
+lib_dom <- value_dominant_den %>% filter (ID == "circle") %>% ggplot(aes(x = dominant_circle, y = Segra, color = `outcome`, shape = `orientation` )) + geom_point(size = 2) + geom_line() +
+  scale_color_manual(values = c("green","gray","purple"), guide = guide_legend(title = "Outcome")) +
+  scale_shape_manual(values = c("square","circle"), guide = guide_legend(title = "Orientation"))  +
+  scale_y_continuous(limits=c(0.45,1), breaks=seq(0.5,1,by=0.1)) +
+  xlab("ß value liberals \nall other ß = 0") +
+  ylab("Outcome") +
+  theme_bw()
+
+lib_both <- value_basic_den %>% filter (ID == "circle") %>% ggplot(aes(x = circle, y = Segra, color = `outcome`, shape = `orientation` )) + geom_point(size = 2) + geom_line() +
+  scale_color_manual(values = c("green","gray","purple"), guide = guide_legend(title = "Outcome")) +
+  scale_shape_manual(values = c("square","circle"), guide = guide_legend(title = "Orientation"))  +
+   scale_y_continuous(limits=c(0.45,1), breaks=seq(0.5,1,by=0.1)) +
+  xlab("ß value liberals = ß ethnic liberals") +
+  ylab("Outcome") +
+  theme_bw()
+
+
+
+
+
+cons_dom <- value_dominant_den %>% filter (ID == "square" & dominant_circle == 0) %>% ggplot(aes(x = dominant_square, y = Segra, color = `outcome`, shape = `orientation` )) + geom_point(size = 2) + geom_line() +
+  scale_color_manual(values = c("green","gray","purple"), guide = guide_legend(title = "Outcome")) +
+  scale_shape_manual(values = c("square","circle"), guide = guide_legend(title = "Orientation"))  +
+     scale_y_continuous(limits=c(0.45,1), breaks=seq(0.5,1,by=0.1)) +
+  xlab("ß ethnic conservatives \nall other ß = 0") +
+  ylab("Outcome") +
+  theme_bw()
+
+cons_both <- value_basic_den %>% filter (ID == "square") %>% ggplot(aes(x = square, y = Segra, color = `outcome`, shape = `orientation` )) + geom_point(size = 2) + geom_line() +
+  scale_color_manual(values = c("green","gray","purple"), guide = guide_legend(title = "Outcome")) +
+  scale_shape_manual(values = c("square","circle"), guide = guide_legend(title = "Orientation"))  +
+    scale_y_continuous(limits=c(0.45,1), breaks=seq(0.5,1,by=0.1)) +
+  xlab("ß ethnic conservatives = ß value conservatives") +
+  ylab("Outcome") +
+  theme_bw()
+
+a <- ggpubr::ggarrange(lib_dom,cons_dom , common.legend = TRUE, legend = "bottom")
+b <- ggpubr::ggarrange(lib_both,cons_both, common.legend = TRUE, legend = "bottom")
+
+
+a
+b
+
+```
+
+
+
+
+
+
+# Baseline asymmetric: dominant due to ethnic ration
+
+```{r asym_baseline, fig.cap="Fig. 8 orig", echo = FALSE}
+
+asym_dom <- read.csv("df_asym_dom.csv",sep = ",")
+
+excl <- names(asym_dom) %in% c("run", "density","step")
+asym_dom <- asym_dom[!excl] %>% group_by(dominant,circle_orange,circle_blue,fraction_blue,secondary) %>% summarise_all(mean)
+
+
+asym_dom <-  read.csv("df_asym_dom.csv",sep = ",") %>% select(-c(run,density,step)) %>% group_by(dominant,circle_orange,circle_blue,fraction_blue,secondary) %>% summarise_all(mean) %>% 
+  gather(key = subgroup, value = Segra, de_sq_bl,dv_sq_bl,de_cl_bl,dv_cl_bl,de_sq_or,dv_sq_or,de_cl_or,dv_cl_or)  %>% mutate(
+`segregation` = fct_relevel(fct_collapse(subgroup,"Ethnic" = c("de_sq_bl","de_cl_bl","de_sq_or","de_cl_or"), "Value" = c("dv_sq_bl","dv_cl_bl","dv_sq_or","dv_cl_or")),"Ethnic"), 
+ `ethnicity` = fct_relevel(fct_collapse(subgroup, "Majority" = c("de_sq_bl","dv_cl_bl","de_cl_bl","dv_sq_bl"), "Minority" = c("de_sq_or","de_cl_or","dv_sq_or","dv_cl_or")), "Majority"),
+`orientation` = fct_relevel(fct_collapse(subgroup,"Conservatives" = c("de_sq_bl","dv_sq_bl","de_sq_or","dv_sq_or"), "Liberals" = c("de_cl_bl","dv_cl_bl","de_cl_or","dv_cl_or")), "Conservatives"), 
+`type` = fct_relevel(fct_collapse(subgroup,"Conservative Majority" = c("de_sq_bl","dv_sq_bl"),
+      "Liberals Majority" = c("de_cl_bl","dv_cl_bl"),
+      "Conservative Minority" = c("de_sq_or","dv_sq_or"),
+      "Liberals Minority" = c("de_cl_or","dv_cl_or")), "Conservative Majority")) %>%
+  filter(fraction_blue == 50 | fraction_blue == 80)
+
+
+
+asym_dom <- ggplot(data = asym_dom, aes(x = dominant, y = Segra, color = `segregation`, linetype = as.factor(fraction_blue))) + geom_point(size = 1.5) + geom_line() +
+  facet_wrap(~ `type`, nrow = 1, scales= "free") +
+  scale_color_manual(values = c("dark green","purple"),labels =  c("Ethnic","Value"),guide = guide_legend(title = "Segregation")) +
+   scale_linetype_manual(values = c("solid","dashed"),labels =  c("50 %","80 %"),guide = guide_legend(title = "% Majority")) +
+  ylab("Spatial Clustering") +
+  xlab("ß dominant") +
+    geom_hline(yintercept=1,color="red") +
+  theme_bw() +
+ theme(legend.position = "bottom")
+
+
+ggsave("asym_dom.jpg",asym_dom, path = "images", width = 9, height = 4, dpi = 300)
+
+
+```
+
+
+# Comparing beta majority over beta minority liberal
+
+```{r plot asym}
+
+
+sens_vl <- read.csv("sens_vl.csv",sep =",") %>% select(-c(run)) %>%
+  group_by(density,fraction_blue,circle_blue,circle_orange,eth_con_loc,eth_con_min,val_lib_loc,val_lib_min,eth_lib_loc,eth_lib_min,val_con_loc,val_con_min,ID) %>% summarise_all(mean) %>%  gather(key = subgroup, value = Segra, de_sq_bl,dv_sq_bl,de_cl_bl,dv_cl_bl,de_sq_or,dv_sq_or,de_cl_or,dv_cl_or)  %>% mutate(
+`segregation` = fct_relevel(fct_collapse(subgroup,"Ethnic" = c("de_sq_bl","de_cl_bl","de_sq_or","de_cl_or"), "Value" = c("dv_sq_bl","dv_cl_bl","dv_sq_or","dv_cl_or")),"Ethnic"), 
+ `ethnicity` = fct_relevel(fct_collapse(subgroup, "Majority" = c("de_sq_bl","dv_cl_bl","de_cl_bl","dv_sq_bl"), "Minority" = c("de_sq_or","de_cl_or","dv_sq_or","dv_cl_or")), "Majority"),
+`orientation` = fct_relevel(fct_collapse(subgroup,"Conservatives" = c("de_sq_bl","dv_sq_bl","de_sq_or","dv_sq_or"), "Liberals" = c("de_cl_bl","dv_cl_bl","de_cl_or","dv_cl_or")), "Conservatives"), 
+`type` = fct_relevel(fct_collapse(subgroup,"Conservative Majority" = c("de_sq_bl","dv_sq_bl"),
+      "Liberals Majority" = c("de_cl_bl","dv_cl_bl"),
+      "Conservative Minority" = c("de_sq_or","dv_sq_or"),
+      "Liberals Minority" = c("de_cl_or","dv_cl_or")), "Conservative Majority"))
+
+
+
+asym.plot <- function(i){
+  suppressWarnings(
+ggplot(data = i, aes(x= if(i$ID == "mj"){i$val_lib_loc}else{i$val_lib_min}, y=Segra, color = segregation, linetype = as.factor(if (i$ID == "mj"){i$val_lib_min}else{i$val_lib_loc}))) + geom_point(size = 1.5) + geom_line() +
+  facet_wrap(~ type, scales = "free") +
+  scale_linetype_manual(values = c("solid","dotted","dashed"),labels = c("0","1","15"), guide = guide_legend(title = 
+   if (i$ID == "mj"){ "ß liberal minority"}else{ "ß liberal majority"})) +
+  scale_color_manual(values = c("dark green","purple"), labels =  c("ethnic","value"), guide = guide_legend(title = "Segregation")) +
+  xlab(if (i$ID == "mj"){ "ß liberal majority"}else{ "ß liberal minority"}) +
+  ylab("Spatial Clustering") +
+  geom_hline(yintercept=1,color="red") +
+  theme_bw() +
+  theme(legend.position="right")
+)
+}
+
+
+```
+
+```{r asym liberals}
+
+mnlib <- asym.plot( sens_vl %>%  filter( ID == "mn" & type == "Liberals Minority"))
+mjlib <- asym.plot(sens_vl %>%  filter( ID == "mj" & type == "Liberals Majority"))
+
+asym_lib <- suppressWarnings( ggpubr::ggarrange(mnlib,mjlib,ncol=1,nrow=2))
+
+ggsave("asym_lib.jpg",asym_lib,path = "images")
+
+
+```
+
+
+```{r asym conservatives}
+
+
+mncon <- asym.plot( sens_vl %>%  filter( type == "Conservative Majority" | type == "Conservative Minority") %>% filter(ID == "mn"))
+mjcon <- asym.plot(sens_vl %>%  filter( type == "Conservative Majority" | type == "Conservative Minority") %>% filter(ID == "mj"))
+
+
+asym_cons <- suppressWarnings( ggpubr::ggarrange(mncon,mjcon,ncol=1,nrow=2))
+
+ggsave("asym_cons.jpg",asym_cons,path = "images")
+
+```
+
+
+```{r asym dislib}
+
+dislib <- read.csv("dislib.csv",sep = ",") %>% select(-c(run)) %>%
+  group_by(density,fraction_blue,circle_blue,circle_orange,eth_con_loc,eth_con_min,val_lib_loc,val_lib_min,eth_lib_loc,eth_lib_min,val_con_loc,val_con_min,ID) %>% summarise_all(mean) %>%  gather(key = subgroup, value = Segra, de_sq_bl,dv_sq_bl,de_cl_bl,dv_cl_bl,de_sq_or,dv_sq_or,de_cl_or,dv_cl_or)  %>% mutate(
+`segregation` = fct_relevel(fct_collapse(subgroup,"Ethnic" = c("de_sq_bl","de_cl_bl","de_sq_or","de_cl_or"), "Value" = c("dv_sq_bl","dv_cl_bl","dv_sq_or","dv_cl_or")),"Ethnic"), 
+ `ethnicity` = fct_relevel(fct_collapse(subgroup, "Majority" = c("de_sq_bl","dv_cl_bl","de_cl_bl","dv_sq_bl"), "Minority" = c("de_sq_or","de_cl_or","dv_sq_or","dv_cl_or")), "Majority"),
+`orientation` = fct_relevel(fct_collapse(subgroup,"Conservatives" = c("de_sq_bl","dv_sq_bl","de_sq_or","dv_sq_or"), "Liberals" = c("de_cl_bl","dv_cl_bl","de_cl_or","dv_cl_or")), "Conservatives"), 
+`type` = fct_relevel(fct_collapse(subgroup,"Conservative Majority" = c("de_sq_bl","dv_sq_bl"),
+      "Liberals Majority" = c("de_cl_bl","dv_cl_bl"),
+      "Conservative Minority" = c("de_sq_or","dv_sq_or"),
+      "Liberals Minority" = c("de_cl_or","dv_cl_or")), "Conservative Majority"))
+
+
+ethnicity.labs <- c("50% Majority", "60% Majority","70% Majority","80% Majority","90% Majority")
+names(ethnicity.labs) <- c("50","60","70","80","90")
+
+
+st <- list(
+dislib %>% filter(type == "Conservative Majority"),
+dislib %>% filter(type == "Conservative Minority"),
+dislib %>% filter(type == "Liberals Majority"),
+dislib %>% filter(type == "Liberals Minority")
+  
+)
+
+suppressWarnings(
+for (df in st) {
+  
+pl <- ggplot(data = df, aes(x= circle_orange, y=Segra, color = segregation, linetype = as.factor(ID))) + geom_point(size=1.5) + geom_line() +
+  facet_wrap(~ fraction_blue, nrow=1, labeller = labeller(fraction_blue = ethnicity.labs)) +
+scale_linetype_manual(values = c(bsl = "solid", mj1 = "dashed", mn1 = "dotted"),labels = c("Basine (ß = 15)","ß liberal majority = 1","ß liberal minority = 1"), guide = guide_legend(title = "Dominant \nPreference:")) +
+  scale_color_manual(values = c("dark green","purple"), labels =  c("ethnic","value"), guide = guide_legend(title = "Segregation")) +
+  xlab("% Liberals Minority") +
+  ylab("Spatial Clustering") +
+   scale_x_discrete(limits = seq(10,90 ,by = 10)) +
+  geom_hline(yintercept=1,color="red") +
+  ggtitle(df$type) +
+  theme_bw() +
+  theme(panel.spacing = unit(0.7, "lines"),legend.position="bottom",legend.text=element_text(size=12))
+
+nmn <- c(if(df$type == "Conservative Majority"){"dislib_cn_mj"}, if(df$type == "Conservative Minority"){"dislib_cn_mn"},if(df$type == "Liberals Majority"){"dislib_lb_mj"},if(df$type == "Liberals Minority"){"dislib_lb_mn"})
+
+ggsave(paste0(nmn,".jpg"), pl,path = "images", width = 10, height = 6, dpi = 300)
+
+}
+
+)
+
+```
+
+
+
+# Increase ethnic liberal
+
+```{r ethnicliberal, echo = FALSE}
+
+etlb <- read.csv("etlb.csv",sep=",") %>% select(-c(run)) %>%
+  group_by(density,fraction_blue,circle_blue,circle_orange,et_mn_on,et_mj_on,dominant,ID) %>% summarise_all(mean) %>%  gather(key = subgroup, value = Segra, de_sq_bl,dv_sq_bl,de_cl_bl,dv_cl_bl,de_sq_or,dv_sq_or,de_cl_or,dv_cl_or)  %>% mutate(
+`segregation` = fct_relevel(fct_collapse(subgroup,"Ethnic" = c("de_sq_bl","de_cl_bl","de_sq_or","de_cl_or"), "Value" = c("dv_sq_bl","dv_cl_bl","dv_sq_or","dv_cl_or")),"Ethnic"), 
+ `ethnicity` = fct_relevel(fct_collapse(subgroup, "Majority" = c("de_sq_bl","dv_cl_bl","de_cl_bl","dv_sq_bl"), "Minority" = c("de_sq_or","de_cl_or","dv_sq_or","dv_cl_or")), "Majority"),
+`orientation` = fct_relevel(fct_collapse(subgroup,"Conservatives" = c("de_sq_bl","dv_sq_bl","de_sq_or","dv_sq_or"), "Liberals" = c("de_cl_bl","dv_cl_bl","de_cl_or","dv_cl_or")), "Conservatives"), 
+`type` = fct_relevel(fct_collapse(subgroup,"Conservative Majority" = c("de_sq_bl","dv_sq_bl"),
+      "Liberals Majority" = c("de_cl_bl","dv_cl_bl"),
+      "Conservative Minority" = c("de_sq_or","dv_sq_or"),
+      "Liberals Minority" = c("de_cl_or","dv_cl_or")), "Conservative Majority")) %>% filter(fraction_blue == 50| fraction_blue == 80)
+
+cl <- list(
+as.data.frame(cbind(subset(etlb, type == "Conservative Majority" | type == "Conservative Minority"), s = "conservatives")),
+as.data.frame(cbind(subset(etlb, type == "Liberals Majority" | type == "Liberals Minority"), s = "liberals"))
+)
+
+
+suppressWarnings(
+
+for (i in cl) {
+  
+p <- ggplot(i, aes(dominant,y=Segra,color =`segregation`,linetype = as.factor(ID) )) +
+    geom_point(size = 1.5, shape = if(i$s == "conservatives"){"square"}else{"circle"}) +
+    geom_line() +
+    facet_wrap(type ~ fraction_blue,  scales = "free", labeller = labeller(fraction_blue = c("50" = "50% Majority", "80" = "80% Majority"))) + 
+    scale_color_manual(values = c("darkgreen","purple"), labels = c("Ethnic","Value"), guide_legend(title = "Segregation:")) +
+        scale_linetype_manual(values = c("solid","longdash","dotted"), labels = c("Baseline","Lib Maj","Lib Min"), guide_legend(title = "Beta Ethnic:")) +
+    ylab("Spatial Clustering") +
+    xlab("ß dominant") +
+    theme_bw() +
+    theme(legend.position = "bottom")
+  
+  plot(p)
+  
+  nm <- paste0(as.name(i$s),".jpg")
+  ggsave(nm,p,path = "images")
+  
+}
+
+)
+
+```
+
+
+# Increase ethnic: distribution liberals
+
+```{r dislib_et}
+
+dislib_et <- read.csv("dislib_et.csv",sep=",") %>% select(-c(run)) %>%
+  group_by(density,fraction_blue,circle_blue,circle_orange,et_mn_on,et_mj_on,dominant,ID) %>% summarise_all(mean) %>%  gather(key = subgroup, value = Segra, de_sq_bl,dv_sq_bl,de_cl_bl,dv_cl_bl,de_sq_or,dv_sq_or,de_cl_or,dv_cl_or)  %>% mutate(
+`segregation` = fct_relevel(fct_collapse(subgroup,"Ethnic" = c("de_sq_bl","de_cl_bl","de_sq_or","de_cl_or"), "Value" = c("dv_sq_bl","dv_cl_bl","dv_sq_or","dv_cl_or")),"Ethnic"), 
+ `ethnicity` = fct_relevel(fct_collapse(subgroup, "Majority" = c("de_sq_bl","dv_cl_bl","de_cl_bl","dv_sq_bl"), "Minority" = c("de_sq_or","de_cl_or","dv_sq_or","dv_cl_or")), "Majority"),
+`orientation` = fct_relevel(fct_collapse(subgroup,"Conservatives" = c("de_sq_bl","dv_sq_bl","de_sq_or","dv_sq_or"), "Liberals" = c("de_cl_bl","dv_cl_bl","de_cl_or","dv_cl_or")), "Conservatives"), 
+`type` = fct_relevel(fct_collapse(subgroup,"Conservative Majority" = c("de_sq_bl","dv_sq_bl"),
+      "Liberals Majority" = c("de_cl_bl","dv_cl_bl"),
+      "Conservative Minority" = c("de_sq_or","dv_sq_or"),
+      "Liberals Minority" = c("de_cl_or","dv_cl_or")), "Conservative Majority"))
+
+
+
+
+ethnicity.labs <- c("50% Majority", "60% Majority","70% Majority","80% Majority","90% Majority")
+names(ethnicity.labs) <- c("50","60","70","80","90")
+
+
+st <- list(
+dislib_et %>% filter(type == "Conservative Majority"),
+dislib_et %>% filter(type == "Conservative Minority"),
+dislib_et %>% filter(type == "Liberals Majority"),
+dislib_et %>% filter(type == "Liberals Minority")
+  
+)
+
+suppressWarnings(
+for (df in st) {
+  
+pl <- ggplot(data = df, aes(x= circle_orange, y=Segra, color = segregation, linetype = as.factor(ID))) + geom_point(size=1.5) + geom_line() +
+  facet_wrap(~ fraction_blue, nrow=1, labeller = labeller(fraction_blue = ethnicity.labs)) +
+scale_linetype_manual(values = c(bsl = "solid", etmj = "dashed", etmn = "dotted"),labels = c("Basine (ß = 0)","ß liberal majority","ß liberal minority"), guide = guide_legend(title = "ß ethnic")) +
+  scale_color_manual(values = c("dark green","purple"), labels =  c("ethnic","value"), guide = guide_legend(title = "Segregation")) +
+  xlab("% Liberals Minority") +
+  ylab("Spatial Clustering") +
+   scale_x_discrete(limits = seq(10,90 ,by = 10)) +
+  geom_hline(yintercept=1,color="red") +
+  ggtitle(df$type) +
+  theme_bw() +
+  theme(panel.spacing = unit(0.7, "lines"),legend.position="bottom",legend.text=element_text(size=12))
+
+nmn <- c(if(df$type == "Conservative Majority"){"dislib_cn_mj_et"}, if(df$type == "Conservative Minority"){"dislib_cn_mn_et"},if(df$type == "Liberals Majority"){"dislib_lb_mj_et"},if(df$type == "Liberals Minority"){"dislib_lb_mn_et"})
+
+ggsave(paste0(nmn,".jpg"), pl,path = "images", width = 10, height = 6, dpi = 300)
+
+}
+
+)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
